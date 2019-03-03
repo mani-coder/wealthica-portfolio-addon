@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
+import AddOn from '@wealthica/wealthica.js';
+
 class App extends Component {
   render() {
     return (
