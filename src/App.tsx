@@ -61,10 +61,12 @@ class App extends Component<Props, State> {
       }
     }).then((response) => {
       console.log('Loaded currencies data.');
-      const startDate = getDate(response.from);
-      const currencyCache = response.data.reduce((hash, value, index) => {
+      const date = getDate(response.from);
+      const currencyCache = response.data.reduce((hash, value) => {
+        // Move the date forward.
+        date.add(1, 'days');
         if (!!value) {
-          hash[startDate.add(index, 'days').format(DATE_FORMAT)] = Number(value);
+          hash[date.format(DATE_FORMAT)] = Number(value);
         }
         return hash;
       }, {});
