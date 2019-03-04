@@ -49,7 +49,7 @@ export const parseTransactionsResponse = (
 
     let amount = Number(transaction.currency_amount);
     amount =
-      transaction.investment && ":usd" in transaction.investment
+      transaction.investment && transaction.investment.includes(":usd")
         ? getCurrencyInCAD(date, amount, currencyCache)
         : amount;
 
