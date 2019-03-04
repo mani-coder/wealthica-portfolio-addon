@@ -8,13 +8,13 @@ import {
   parsePortfolioResponse,
   parseTransactionsResponse
 } from "./api";
-import { PortfolioData } from "./types";
+import { PortfolioData, Portfolio } from "./types";
 
 type State = {
   addon: any;
   currencyCache: { [key: string]: number };
-  combinedPortfolioData: { [key: string]: PortfolioData };
-  portfolio: { [key: string]: number };
+  portfolioPerDay: { [key: string]: PortfolioData };
+  portfolios: Portfolio[];
   isLoaded: boolean;
 };
 type Props = {};
@@ -26,8 +26,8 @@ class App extends Component<Props, State> {
     this.state = {
       addon: this.getAddon(),
       currencyCache: {},
-      combinedPortfolioData: {},
-      portfolio: {},
+      portfolioPerDay: {},
+      portfolios: [],
       isLoaded: false
     };
   }
@@ -86,16 +86,25 @@ class App extends Component<Props, State> {
   async loadData(options) {
     await this.loadCurrenciesCache();
 
-    const portfolio = await this.loadPortfolioData(options);
-    const transactions = await this.loadTransactions(options);
+    const { portfolio, transactions } = await this.loadPortfolioAndTransactions(
+      options
+    );
+
     Object.keys(transactions).forEach(date => {
       const data = transactions[date];
       data.value = portfolio[date];
     });
-    this.setState({ portfolio, combinedPortfolioData: transactions });
+    this.setState({ portfolioPerDay: transactions });
   }
 
-  async loadPortfolioData(options) {
+  loadPortfolioAndTransactions(options) {
+    return {
+      portfolio: this.loadPortfolioData(options),
+      transactions: this.loadTransactions(options)
+    };
+  }
+
+  loadPortfolioData(options) {
     console.log("Loading portfolio data.");
     const query = {
       from: options.dateRangeFilter && options.dateRangeFilter[0],
@@ -105,7 +114,7 @@ class App extends Component<Props, State> {
       investments:
         options.investmentsFilter === "all" ? null : options.investmentsFilter
     };
-    await this.state.addon
+    this.state.addon
       .request({
         query,
         method: "GET",
@@ -122,7 +131,7 @@ class App extends Component<Props, State> {
     return {};
   }
 
-  async loadTransactions(options) {
+  loadTransactions(options) {
     console.log("Loading transactions data.");
     const query = {
       groups: options.groupsFilter,
@@ -130,7 +139,7 @@ class App extends Component<Props, State> {
       investments:
         options.investmentsFilter === "all" ? null : options.investmentsFilter
     };
-    await this.state.addon
+    this.state.addon
       .request({
         query,
         method: "GET",
