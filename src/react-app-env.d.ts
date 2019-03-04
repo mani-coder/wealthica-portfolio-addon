@@ -1,2 +1,2 @@
 /// <reference types="react-scripts" />
-declare module '@wealthica/wealthica.js';
+declare module '@wealthica/wealthica.js/index';
