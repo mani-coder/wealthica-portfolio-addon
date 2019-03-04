@@ -5,6 +5,7 @@ import './App.css';
 import { Addon } from '@wealthica/wealthica.js/index';
 import { getDate } from './utils';
 import { DATE_FORMAT } from './constants';
+import { parseCurrencyReponse } from './api';
 
 type State = {
   addon: any;
@@ -53,6 +54,7 @@ class App extends Component<Props, State> {
   }
 
   loadCurrenciesCache() {
+    console.log('Loading currencies data.');
     this.state.addon.request({
       method: 'GET',
       endpoint: 'currencies/usd/history',
@@ -60,17 +62,8 @@ class App extends Component<Props, State> {
         base: 'cad',
       }
     }).then((response) => {
-      console.log('Loaded currencies data.');
-      const date = getDate(response.from);
-      const currencyCache = response.data.reduce((hash, value) => {
-        // Move the date forward.
-        date.add(1, 'days');
-        if (!!value) {
-          hash[date.format(DATE_FORMAT)] = Number(value);
-        }
-        return hash;
-      }, {});
-      console.log('Currency Cache: ', currencyCache);
+      const currencyCache = parseCurrencyReponse(response);
+      console.log('Currency cache: ', currencyCache);
       this.setState({ currencyCache });
     }).catch((error) => {
       console.error('Failed to load currency data.', error);
