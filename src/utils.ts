@@ -14,5 +14,5 @@ export const getDate = (date: string): Moment => {
 
 
 export const getCurrencyInCAD = (date: Moment, value: number, currencyCache: any): number => {
-    return value / currencyCache.get(date);
+    return value / currencyCache.get(date.format(DATE_FORMAT));
 }
