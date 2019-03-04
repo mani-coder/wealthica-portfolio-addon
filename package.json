@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@types/jest": "^24.0.9",
     "@types/node": "^11.10.4",
     "@types/react": "^16.8.6",
     "@types/react-dom": "^16.8.2",
@@ -18,7 +17,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "jest",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build"
@@ -34,6 +33,9 @@
   ],
   "homepage": "https://mani-coder.github.io/wealthica-portfolio-addon/",
   "devDependencies": {
-    "gh-pages": "^2.0.1"
+    "@types/jest": "^24.0.9",
+    "gh-pages": "^2.0.1",
+    "jest": "^24.1.0",
+    "ts-jest": "^24.0.0"
   }
 }
