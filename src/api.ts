@@ -1,6 +1,5 @@
 import { getDate, getCurrencyInCAD } from "./utils";
 import { DATE_FORMAT } from "./constants";
-import { PortfolioData } from "./types";
 
 export const parseCurrencyReponse = (response: any) => {
   const date = getDate(response.from);

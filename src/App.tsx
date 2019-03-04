@@ -37,6 +37,7 @@ class App extends Component<Props, State> {
       const addon = new Addon({});
 
       addon.on("init", options => {
+        console.log("Addon initialization", options);
         this.loadData(options);
       });
 
@@ -46,7 +47,8 @@ class App extends Component<Props, State> {
 
       addon.on("update", (options: any) => {
         // Update according to the received options
-        console.log(options);
+        console.log("Addon update - options: ", options);
+        this.loadData(options);
       });
 
       return addon;
