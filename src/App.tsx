@@ -3,10 +3,12 @@ import logo from './logo.svg';
 import './App.css';
 
 import { Addon } from '@wealthica/wealthica.js/index';
+import { getDate } from './utils';
+import { DATE_FORMAT } from './constants';
 
 type State = {
   addon: any;
-  currencyCache: { [key: string]: number };
+  currencyCache: { [key: string]: Number };
   portfolio: any;
   transactions: any;
 };
@@ -30,7 +32,6 @@ class App extends Component<Props, State> {
       const addon = new Addon({});
 
       addon.on('init', (options: any) => {
-        console.log(options);
         this.loadCurrenciesCache();
       });
 
@@ -52,10 +53,24 @@ class App extends Component<Props, State> {
   }
 
   loadCurrenciesCache() {
-    this.state.addon.api.getCurrencies().then((response: any) => {
-      console.log('Loaded currencies...');
-      console.log(response);
-    }).catch((error: any) => {
+    this.state.addon.request({
+      method: 'GET',
+      endpoint: 'currencies/usd/history',
+      query: {
+        base: 'cad',
+      }
+    }).then((response) => {
+      console.log('Loaded currencies data.');
+      const startDate = getDate(response.from);
+      const currencyCache = response.data.reduce((hash, value, index) => {
+        if (!!value) {
+          hash[startDate.add(index, 'days').format(DATE_FORMAT)] = Number(value);
+        }
+        return hash;
+      }, {});
+      console.log('Currency Cache: ', currencyCache);
+      this.setState({ currencyCache });
+    }).catch((error) => {
       console.error('Failed to load currency data.', error);
     });
   }
