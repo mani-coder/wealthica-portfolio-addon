@@ -60,7 +60,7 @@ class App extends Component<Props, State> {
   };
 
   async loadCurrenciesCache() {
-    if (this.state.currencyCache) {
+    if (Object.keys(this.state.currencyCache).length) {
       console.log("Skip re-loading currency cache.");
       return;
     }
@@ -86,9 +86,12 @@ class App extends Component<Props, State> {
   async loadData(options) {
     await this.loadCurrenciesCache();
 
-    const { portfolio, transactions } = await this.loadPortfolioAndTransactions(
-      options
-    );
+    // const { portfolio, transactions } = await this.loadPortfolioAndTransactions(
+    //   options
+    // );
+
+    const portfolio = await this.loadPortfolioData(options);
+    const transactions = await this.loadTransactions(options);
 
     const portfolioPerDay = Object.keys(portfolio).reduce((hash, date) => {
       const data = transactions[date] || {};
@@ -121,7 +124,7 @@ class App extends Component<Props, State> {
     console.log("Loaded the data", portfolios);
   }
 
-  loadPortfolioAndTransactions(options) {
+  async loadPortfolioAndTransactions(options) {
     return {
       portfolio: this.loadPortfolioData(options),
       transactions: this.loadTransactions(options)
@@ -138,7 +141,7 @@ class App extends Component<Props, State> {
       investments:
         options.investmentsFilter === "all" ? null : options.investmentsFilter
     };
-    this.state.addon
+    return this.state.addon
       .request({
         query,
         method: "GET",
@@ -152,7 +155,6 @@ class App extends Component<Props, State> {
       .catch(error => {
         console.error("Failed to load portfolio data.", error);
       });
-    return {};
   }
 
   loadTransactions(options) {
@@ -163,7 +165,7 @@ class App extends Component<Props, State> {
       investments:
         options.investmentsFilter === "all" ? null : options.investmentsFilter
     };
-    this.state.addon
+    return this.state.addon
       .request({
         query,
         method: "GET",
@@ -180,7 +182,6 @@ class App extends Component<Props, State> {
       .catch(error => {
         console.error("Failed to load transactions data.", error);
       });
-    return {};
   }
 
   render() {
