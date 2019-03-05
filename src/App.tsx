@@ -9,6 +9,7 @@ import {
   parseTransactionsResponse
 } from "./api";
 import { PortfolioData, Portfolio } from "./types";
+import { TRANSACTIONS_FROM_DATE } from "./constants";
 
 type State = {
   addon: any;
@@ -164,7 +165,12 @@ class App extends Component<Props, State> {
 
   loadTransactions(options) {
     console.log("Loading transactions data.");
+    const fromDate = options.dateRangeFilter && options.dateRangeFilter[0];
     const query = {
+      from:
+        fromDate && fromDate < TRANSACTIONS_FROM_DATE
+          ? fromDate
+          : TRANSACTIONS_FROM_DATE,
       groups: options.groupsFilter,
       institutions: options.institutionsFilter,
       investments:
