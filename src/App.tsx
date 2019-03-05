@@ -90,11 +90,34 @@ class App extends Component<Props, State> {
       options
     );
 
-    Object.keys(transactions).forEach(date => {
-      const data = transactions[date];
+    const portfolioPerDay = Object.keys(portfolio).reduce((hash, date) => {
+      const data = transactions[date] || {};
       data.value = portfolio[date];
-    });
-    this.setState({ portfolioPerDay: transactions });
+      hash[date] = {
+        value: portfolio[date],
+        deposit: data.deposit || 0,
+        withdrawal: data.withdrawal || 0,
+        income: data.income || 0,
+        interest: data.interest || 0
+      };
+      return hash;
+    }, {});
+
+    const portfolios = [];
+    let deposits = 0;
+    Object.keys(portfolioPerDay)
+      .sort()
+      .forEach(date => {
+        const portfolio = portfolioPerDay[date];
+        deposits = portfolio.deposit - portfolio.withdrawal;
+        portfolios.push({
+          date,
+          value: portfolio.value,
+          deposits: deposits
+        });
+      });
+
+    this.setState({ portfolios, portfolioPerDay });
   }
 
   loadPortfolioAndTransactions(options) {

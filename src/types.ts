@@ -9,6 +9,6 @@ export type PortfolioData = {
 
 export type Portfolio = {
   date: string;
-  value?: number; // combined portfolio value on a given day
-  deposit?: number; // total deposits until this day.
+  value: number; // combined portfolio value on a given day
+  deposits: number; // total deposits until this day.
 };
