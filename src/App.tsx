@@ -86,39 +86,44 @@ class App extends Component<Props, State> {
   async loadData(options) {
     await this.loadCurrenciesCache();
 
-    // const { portfolio, transactions } = await this.loadPortfolioAndTransactions(
-    //   options
-    // );
+    const portfolioByDate = await this.loadPortfolioData(options);
+    const transactionsByDate = await this.loadTransactions(options);
 
-    const portfolio = await this.loadPortfolioData(options);
-    const transactions = await this.loadTransactions(options);
-
-    const portfolioPerDay = Object.keys(portfolio).reduce((hash, date) => {
-      const data = transactions[date] || {};
-      data.value = portfolio[date];
-      hash[date] = {
-        value: portfolio[date],
-        deposit: data.deposit || 0,
-        withdrawal: data.withdrawal || 0,
-        income: data.income || 0,
-        interest: data.interest || 0
-      };
-      return hash;
-    }, {});
+    const portfolioPerDay = Object.keys(portfolioByDate).reduce(
+      (hash, date) => {
+        const data = transactionsByDate[date] || {};
+        hash[date] = {
+          value: portfolioByDate[date],
+          deposit: data.deposit || 0,
+          withdrawal: data.withdrawal || 0,
+          income: data.income || 0,
+          interest: data.interest || 0
+        };
+        return hash;
+      },
+      {}
+    );
 
     const portfolios: Portfolio[] = [];
-    let deposits = 0;
-    Object.keys(portfolioPerDay)
-      .sort()
-      .forEach(date => {
-        const portfolio = portfolioPerDay[date];
-        deposits = portfolio.deposit - portfolio.withdrawal;
-        portfolios.push({
-          date: date,
-          value: portfolio.value,
-          deposits: deposits
-        });
+
+    const sortedDates = Object.keys(portfolioPerDay).sort();
+    let deposits = Object.keys(transactionsByDate)
+      .filter(date => date < sortedDates[0])
+      .reduce((totalDeposits, date) => {
+        const transaction = transactionsByDate[date];
+        totalDeposits += transaction.deposit + transaction.withdrawal;
+        return totalDeposits;
+      }, 0);
+
+    sortedDates.forEach(date => {
+      const portfolio = portfolioPerDay[date];
+      deposits += portfolio.deposit - portfolio.withdrawal;
+      portfolios.push({
+        date: date,
+        value: portfolio.value,
+        deposits: deposits
       });
+    });
 
     this.setState({ portfolios, portfolioPerDay, isLoaded: true });
     console.log("Loaded the data", portfolios);
