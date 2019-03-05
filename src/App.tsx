@@ -117,7 +117,7 @@ class App extends Component<Props, State> {
         });
       });
 
-    this.setState({ portfolios, portfolioPerDay });
+    this.setState({ portfolios, portfolioPerDay, isLoaded: true });
     console.log("Loaded the data", portfolios);
   }
 
