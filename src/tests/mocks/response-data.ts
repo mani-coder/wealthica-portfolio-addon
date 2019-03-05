@@ -1,75 +1,75 @@
 export const CURRENCY_RESPONSE_JSON = {
-  from: "2019-01-01T00:00:00.000Z",
-  to: "2019-01-04T00:00:00.000Z",
-  data: [null, 0.73529, null, 0.73303]
+  from: '2019-01-01T00:00:00.000Z',
+  to: '2019-01-04T00:00:00.000Z',
+  data: [null, 0.73529, null, 0.73303],
 };
 
 export const PORTFOLIO_RESPONSE_JSON = {
   history: {
     total: {
-      from: "2019-01-01T00:00:00.000Z",
-      to: "2019-01-04T00:00:00.000Z",
-      data: [88954.36194428605, null, null, 92172.01774180311]
-    }
-  }
+      from: '2019-01-01T00:00:00.000Z',
+      to: '2019-01-04T00:00:00.000Z',
+      data: [88954.36194428605, null, null, 92172.01774180311],
+    },
+  },
 };
 
 export const TRANSACTIONS_RESPONSE_JSON = [
   {
-    date: "2018-07-16T00:00:00.000Z",
-    settlement_date: "2018-07-16T00:00:00.000Z",
-    origin_type: "Interest",
+    date: '2018-07-16T00:00:00.000Z',
+    settlement_date: '2018-07-16T00:00:00.000Z',
+    origin_type: 'Interest',
     quantity: 0,
     fee: 0,
-    type: "interest",
-    processing_date: "2018-07-16T00:00:00.000Z",
+    type: 'interest',
+    processing_date: '2018-07-16T00:00:00.000Z',
     currency_amount: -10.55,
-    investment: "27038389:margin:usd"
+    investment: '56356346:test:usd',
   },
   {
-    date: "2018-07-27T00:00:00.000Z",
-    settlement_date: "2018-07-27T00:00:00.000Z",
-    origin_type: "EFT",
-    description: "ELECTRONIC FUND TRANSFER",
+    date: '2018-07-27T00:00:00.000Z',
+    settlement_date: '2018-07-27T00:00:00.000Z',
+    origin_type: 'EFT',
+    description: 'ELECTRONIC FUND TRANSFER',
     quantity: 0,
     fee: 0,
-    type: "withdrawal",
-    processing_date: "2018-07-27T00:00:00.000Z",
+    type: 'withdrawal',
+    processing_date: '2018-07-27T00:00:00.000Z',
     currency_amount: -50,
-    investment: "27038389:margin:cad"
+    investment: '56356346:test:cad',
   },
   {
-    date: "2019-01-02T00:00:00.000Z",
-    settlement_date: "2019-01-02T00:00:00.000Z",
-    origin_type: "DIV",
+    date: '2019-01-02T00:00:00.000Z',
+    settlement_date: '2019-01-02T00:00:00.000Z',
+    origin_type: 'DIV',
     fee: 0,
-    type: "dividend",
-    processing_date: "2019-01-02T00:00:00.000Z",
+    type: 'dividend',
+    processing_date: '2019-01-02T00:00:00.000Z',
     currency_amount: 4.42,
-    investment: "27038389:margin:usd"
+    investment: '56356346:test:usd',
   },
   {
-    date: "2019-01-03T00:00:00.000Z",
-    settlement_date: "2019-01-03T00:00:00.000Z",
-    origin_type: "CON",
-    description: "PAD CONT 5187115711",
+    date: '2019-01-03T00:00:00.000Z',
+    settlement_date: '2019-01-03T00:00:00.000Z',
+    origin_type: 'CON',
+    description: 'PAD CONT 5187115711',
     quantity: 0,
     fee: 0,
-    type: "deposit",
-    processing_date: "2019-01-03T00:00:00.000Z",
-    currency_amount: 1000,
-    investment: "51871157:tfsa:cad"
+    type: 'deposit',
+    processing_date: '2019-01-03T00:00:00.000Z',
+    currency_amount: 100,
+    investment: '6356345:demo:cad',
   },
   {
-    date: "2019-01-03T00:00:00.000Z",
-    settlement_date: "2019-01-03T00:00:00.000Z",
-    origin_type: "CON",
-    description: "PAD CONT 5187115612",
+    date: '2019-01-03T00:00:00.000Z',
+    settlement_date: '2019-01-03T00:00:00.000Z',
+    origin_type: 'CON',
+    description: 'PAD CONT 5187115612',
     quantity: 0,
     fee: 0,
-    type: "deposit",
-    processing_date: "2019-01-03T00:00:00.000Z",
-    currency_amount: 1000,
-    investment: "51871156:tfsa:cad"
-  }
+    type: 'deposit',
+    processing_date: '2019-01-03T00:00:00.000Z',
+    currency_amount: 100,
+    investment: '51871156:tfsa:cad',
+  },
 ];

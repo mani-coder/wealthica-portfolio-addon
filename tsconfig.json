@@ -1,26 +1,47 @@
+// {
+//   "compilerOptions": {
+//     "target": "es5",
+//     "lib": [
+//       "dom",
+//       "dom.iterable",
+//       "esnext"
+//     ],
+//     "allowJs": true,
+//     "skipLibCheck": true,
+//     "esModuleInterop": true,
+//     "allowSyntheticDefaultImports": true,
+//     "strict": true,
+//     "forceConsistentCasingInFileNames": true,
+//     "module": "esnext",
+//     "moduleResolution": "node",
+//     "resolveJsonModule": true,
+//     "isolatedModules": true,
+//     "noEmit": true,
+//     "jsx": "preserve",
+
+//   },
 {
+  "compileOnSave": false,
   "compilerOptions": {
-    "target": "es5",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
+    "allowJs": true,
+    "esModuleInterop": true,
+    "lib": ["dom", "es2015", "es2016", "es2017"],
+    "jsx": "react",
+    "target": "es2017",
     "module": "esnext",
     "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "preserve",
+    "removeComments": false,
+    "preserveConstEnums": true,
+    "sourceMap": true,
+    "skipLibCheck": true,
+    "experimentalDecorators": true,
+    "outDir": "dist",
+    "noUnusedLocals": true,
     "noImplicitAny": false
   },
   "include": [
     "src"
-  ]
+  ],
+  "exclude": ["node_modules/**", "**/node_modules/**", "**/cypress/**", "**/dist/**", "**/storybook-static/**"]
 }
