@@ -37,8 +37,9 @@ export const parseTransactionsResponse = (
       return hash;
     }
     const date = getDate(transaction.date);
-    const portfolioData = hash[date.format(DATE_FORMAT)]
-      ? hash[date.format(DATE_FORMAT)]
+    const dateKey = date.format(DATE_FORMAT);
+    const portfolioData = hash[dateKey]
+      ? hash[dateKey]
       : {
           deposit: 0,
           withdrawal: 0,
@@ -55,14 +56,15 @@ export const parseTransactionsResponse = (
     if (type == "deposit" && portfolioData) {
       portfolioData.deposit += amount;
     } else if (["fee", "interest", "tax"].includes(type)) {
-      portfolioData.interest += amount;
+      portfolioData.interest += Math.abs(amount);
     } else if (["income", "dividend", "distribution"].includes(type)) {
       portfolioData.income += amount;
     } else if (type == "withdrawal") {
-      portfolioData.withdrawal += amount;
+      portfolioData.withdrawal += Math.abs(amount);
     } else {
       console.error("Unknown type", type);
     }
+    hash[dateKey] = portfolioData;
     return hash;
   }, {});
 };

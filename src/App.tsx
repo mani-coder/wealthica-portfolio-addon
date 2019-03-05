@@ -103,7 +103,7 @@ class App extends Component<Props, State> {
       return hash;
     }, {});
 
-    const portfolios = [];
+    const portfolios: Portfolio[] = [];
     let deposits = 0;
     Object.keys(portfolioPerDay)
       .sort()
@@ -111,13 +111,14 @@ class App extends Component<Props, State> {
         const portfolio = portfolioPerDay[date];
         deposits = portfolio.deposit - portfolio.withdrawal;
         portfolios.push({
-          date,
+          date: date,
           value: portfolio.value,
           deposits: deposits
         });
       });
 
     this.setState({ portfolios, portfolioPerDay });
+    console.log("Loaded the data", portfolios);
   }
 
   loadPortfolioAndTransactions(options) {

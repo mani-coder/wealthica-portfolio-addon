@@ -31,7 +31,29 @@ test("Verify Transactions Response Parsing", () => {
     parseCurrencyReponse(CURRENCY_RESPONSE_JSON)
   );
   expect(data).toEqual({
-    "2019-01-02": 6.011233662908512,
-    "2019-01-03": 2000
+    "2018-07-16": {
+      deposit: 0,
+      withdrawal: 0,
+      income: 0,
+      interest: 10.55
+    },
+    "2018-07-27": {
+      deposit: 0,
+      withdrawal: 50,
+      income: 0,
+      interest: 0
+    },
+    "2019-01-02": {
+      deposit: 0,
+      withdrawal: 0,
+      income: 6.011233662908512,
+      interest: 0
+    },
+    "2019-01-03": {
+      deposit: 2000,
+      withdrawal: 0,
+      income: 0,
+      interest: 0
+    }
   });
 });
