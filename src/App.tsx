@@ -1,20 +1,17 @@
-import React, { Component } from "react";
-import logo from "./logo.svg";
-import "./App.css";
+import React, { Component } from 'react';
+// import logo from "./logo.svg";
+import './App.css';
 
-import { Addon } from "@wealthica/wealthica.js/index";
-import {
-  parseCurrencyReponse,
-  parsePortfolioResponse,
-  parseTransactionsResponse
-} from "./api";
-import { PortfolioData, Portfolio } from "./types";
-import { TRANSACTIONS_FROM_DATE } from "./constants";
-import DepositVsPortfolioValueTimeline from "./charts/DepositsVsPortfolioValueTimeline";
-import { CURRENCIES_API_RESPONSE } from "./mocks/currencies";
-import { PORTFOLIO_API_RESPONSE } from "./mocks/portfolio";
-import { TRANSACTIONS_API_RESPONSE } from "./mocks/transactions";
-import PerformanceTimeline from "./charts/PerformanceTimeline";
+import { Addon } from '@wealthica/wealthica.js/index';
+import Loader from 'react-loader-spinner';
+import { parseCurrencyReponse, parsePortfolioResponse, parseTransactionsResponse } from './api';
+import { PortfolioData, Portfolio } from './types';
+import { TRANSACTIONS_FROM_DATE } from './constants';
+import DepositVsPortfolioValueTimeline from './charts/DepositsVsPortfolioValueTimeline';
+import { CURRENCIES_API_RESPONSE } from './mocks/currencies';
+import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio';
+import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions';
+import PerformanceTimeline from './charts/PerformanceTimeline';
 
 type State = {
   addon: any;
@@ -34,7 +31,7 @@ class App extends Component<Props, State> {
       currencyCache: {},
       portfolioPerDay: {},
       portfolios: [],
-      isLoaded: false
+      isLoaded: false,
     };
   }
 
@@ -42,18 +39,18 @@ class App extends Component<Props, State> {
     try {
       const addon = new Addon({});
 
-      addon.on("init", options => {
-        console.log("Addon initialization", options);
+      addon.on('init', options => {
+        console.log('Addon initialization', options);
         this.loadData(options);
       });
 
-      addon.on("reload", () => {
+      addon.on('reload', () => {
         // Start reloading
       });
 
-      addon.on("update", (options: any) => {
+      addon.on('update', (options: any) => {
         // Update according to the received options
-        console.log("Addon update - options: ", options);
+        console.log('Addon update - options: ', options);
         this.loadData(options);
       });
 
@@ -67,25 +64,25 @@ class App extends Component<Props, State> {
 
   async loadCurrenciesCache() {
     if (Object.keys(this.state.currencyCache).length) {
-      console.log("Skip re-loading currency cache.");
+      console.log('Skip re-loading currency cache.');
       return;
     }
-    console.log("Loading currencies data.");
+    console.log('Loading currencies data.');
     await this.state.addon
       .request({
-        method: "GET",
-        endpoint: "currencies/usd/history",
+        method: 'GET',
+        endpoint: 'currencies/usd/history',
         query: {
-          base: "cad"
-        }
+          base: 'cad',
+        },
       })
       .then(response => {
         const currencyCache = parseCurrencyReponse(response);
-        console.log("Currency cache: ", currencyCache);
+        console.log('Currency cache: ', currencyCache);
         this.setState({ currencyCache });
       })
       .catch(error => {
-        console.error("Failed to load currency data.", error);
+        console.error('Failed to load currency data.', error);
       });
   }
 
@@ -99,20 +96,17 @@ class App extends Component<Props, State> {
   }
 
   computePortfolios = (portfolioByDate, transactionsByDate) => {
-    const portfolioPerDay = Object.keys(portfolioByDate).reduce(
-      (hash, date) => {
-        const data = transactionsByDate[date] || {};
-        hash[date] = {
-          value: portfolioByDate[date],
-          deposit: data.deposit || 0,
-          withdrawal: data.withdrawal || 0,
-          income: data.income || 0,
-          interest: data.interest || 0
-        };
-        return hash;
-      },
-      {}
-    );
+    const portfolioPerDay = Object.keys(portfolioByDate).reduce((hash, date) => {
+      const data = transactionsByDate[date] || {};
+      hash[date] = {
+        value: portfolioByDate[date],
+        deposit: data.deposit || 0,
+        withdrawal: data.withdrawal || 0,
+        income: data.income || 0,
+        interest: data.interest || 0,
+      };
+      return hash;
+    }, {});
 
     const portfolios: Portfolio[] = [];
 
@@ -131,107 +125,98 @@ class App extends Component<Props, State> {
       portfolios.push({
         date: date,
         value: portfolio.value,
-        deposits: deposits
+        deposits: deposits,
       });
     });
 
     this.setState({ portfolios, portfolioPerDay, isLoaded: true });
-    console.log("Loaded the data", portfolios);
+    console.log('Loaded the data', portfolios);
   };
 
   async loadPortfolioAndTransactions(options) {
     return {
       portfolio: this.loadPortfolioData(options),
-      transactions: this.loadTransactions(options)
+      transactions: this.loadTransactions(options),
     };
   }
 
   loadPortfolioData(options) {
-    console.log("Loading portfolio data.");
+    console.log('Loading portfolio data.');
     const query = {
       from: options.dateRangeFilter && options.dateRangeFilter[0],
       to: options.dateRangeFilter && options.dateRangeFilter[1],
       groups: options.groupsFilter,
       institutions: options.institutionsFilter,
-      investments:
-        options.investmentsFilter === "all" ? null : options.investmentsFilter
+      investments: options.investmentsFilter === 'all' ? null : options.investmentsFilter,
     };
     return this.state.addon
       .request({
         query,
-        method: "GET",
-        endpoint: "portfolio"
+        method: 'GET',
+        endpoint: 'portfolio',
       })
       .then(response => {
         const portfolio = parsePortfolioResponse(response);
-        console.log("Portfolio data: ", portfolio);
+        console.log('Portfolio data: ', portfolio);
         return portfolio;
       })
       .catch(error => {
-        console.error("Failed to load portfolio data.", error);
+        console.error('Failed to load portfolio data.', error);
       });
   }
 
   loadTransactions(options) {
-    console.log("Loading transactions data.");
+    console.log('Loading transactions data.');
     const fromDate = options.dateRangeFilter && options.dateRangeFilter[0];
     const query = {
-      from:
-        fromDate && fromDate < TRANSACTIONS_FROM_DATE
-          ? fromDate
-          : TRANSACTIONS_FROM_DATE,
+      from: fromDate && fromDate < TRANSACTIONS_FROM_DATE ? fromDate : TRANSACTIONS_FROM_DATE,
       groups: options.groupsFilter,
       institutions: options.institutionsFilter,
-      investments:
-        options.investmentsFilter === "all" ? null : options.investmentsFilter
+      investments: options.investmentsFilter === 'all' ? null : options.investmentsFilter,
     };
     return this.state.addon
       .request({
         query,
-        method: "GET",
-        endpoint: "transactions"
+        method: 'GET',
+        endpoint: 'transactions',
       })
       .then(response => {
-        const transactions = parseTransactionsResponse(
-          response,
-          this.state.currencyCache
-        );
-        console.log("Transactions data: ", transactions);
+        const transactions = parseTransactionsResponse(response, this.state.currencyCache);
+        console.log('Transactions data: ', transactions);
         return transactions;
       })
       .catch(error => {
-        console.error("Failed to load transactions data.", error);
+        console.error('Failed to load transactions data.', error);
       });
   }
 
   loadStaticPortfolioData() {
     const currencyCache = parseCurrencyReponse(CURRENCIES_API_RESPONSE);
     const portfolioByDate = parsePortfolioResponse(PORTFOLIO_API_RESPONSE);
-    const transactionsByDate = parseTransactionsResponse(
-      TRANSACTIONS_API_RESPONSE,
-      currencyCache
-    );
+    const transactionsByDate = parseTransactionsResponse(TRANSACTIONS_API_RESPONSE, currencyCache);
 
     this.setState({ currencyCache });
     this.computePortfolios(portfolioByDate, transactionsByDate);
   }
 
   componentDidMount() {
-    if (!this.state.addon && process.env.NODE_ENV === "development") {
-      this.loadStaticPortfolioData();
+    if (!this.state.addon && process.env.NODE_ENV === 'development') {
+      setTimeout(() => this.loadStaticPortfolioData(), 1000);
     }
   }
 
   render() {
     return (
       <div style={{ paddingTop: 4, paddingBottom: 4 }}>
-        {this.state.isLoaded && (
+        {this.state.isLoaded ? (
           <>
-            <DepositVsPortfolioValueTimeline
-              portfolios={this.state.portfolios}
-            />
+            <DepositVsPortfolioValueTimeline portfolios={this.state.portfolios} />
             <PerformanceTimeline portfolios={this.state.portfolios} />
           </>
+        ) : (
+          <div className="App-header">
+            <Loader type="Circles" color="#a04ba5" height="75" width="75" />
+          </div>
         )}
       </div>
     );

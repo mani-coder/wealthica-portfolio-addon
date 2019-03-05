@@ -12,6 +12,7 @@
     "moment": "^2.24.0",
     "react": "^16.8.3",
     "react-dom": "^16.8.3",
+    "react-loader-spinner": "^2.3.0",
     "react-scripts": "2.1.5",
     "typescript": "^3.3.3333"
   },
