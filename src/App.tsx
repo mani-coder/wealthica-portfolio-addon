@@ -10,6 +10,11 @@ import {
 } from "./api";
 import { PortfolioData, Portfolio } from "./types";
 import { TRANSACTIONS_FROM_DATE } from "./constants";
+import DepositVsPortfolioValueTimeline from "./charts/DepositsVsPortfolioValueTimeline";
+import { CURRENCIES_API_RESPONSE } from "./mocks/currencies";
+import { PORTFOLIO_API_RESPONSE } from "./mocks/portfolio";
+import { TRANSACTIONS_API_RESPONSE } from "./mocks/transactions";
+import PerformanceTimeline from "./charts/PerformanceTimeline";
 
 type State = {
   addon: any;
@@ -90,6 +95,10 @@ class App extends Component<Props, State> {
     const portfolioByDate = await this.loadPortfolioData(options);
     const transactionsByDate = await this.loadTransactions(options);
 
+    this.computePortfolios(portfolioByDate, transactionsByDate);
+  }
+
+  computePortfolios = (portfolioByDate, transactionsByDate) => {
     const portfolioPerDay = Object.keys(portfolioByDate).reduce(
       (hash, date) => {
         const data = transactionsByDate[date] || {};
@@ -128,7 +137,7 @@ class App extends Component<Props, State> {
 
     this.setState({ portfolios, portfolioPerDay, isLoaded: true });
     console.log("Loaded the data", portfolios);
-  }
+  };
 
   async loadPortfolioAndTransactions(options) {
     return {
@@ -195,21 +204,35 @@ class App extends Component<Props, State> {
       });
   }
 
+  loadStaticPortfolioData() {
+    const currencyCache = parseCurrencyReponse(CURRENCIES_API_RESPONSE);
+    const portfolioByDate = parsePortfolioResponse(PORTFOLIO_API_RESPONSE);
+    const transactionsByDate = parseTransactionsResponse(
+      TRANSACTIONS_API_RESPONSE,
+      currencyCache
+    );
+
+    this.setState({ currencyCache });
+    this.computePortfolios(portfolioByDate, transactionsByDate);
+  }
+
+  componentDidMount() {
+    if (!this.state.addon && process.env.NODE_ENV === "development") {
+      this.loadStaticPortfolioData();
+    }
+  }
+
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>Wealthica React Portfolio add using highcharts.</p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
+      <div style={{ paddingTop: 4, paddingBottom: 4 }}>
+        {this.state.isLoaded && (
+          <>
+            <DepositVsPortfolioValueTimeline
+              portfolios={this.state.portfolios}
+            />
+            <PerformanceTimeline portfolios={this.state.portfolios} />
+          </>
+        )}
       </div>
     );
   }

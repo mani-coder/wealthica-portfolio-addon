@@ -7,7 +7,7 @@ import {
   CURRENCY_RESPONSE_JSON,
   PORTFOLIO_RESPONSE_JSON,
   TRANSACTIONS_RESPONSE_JSON
-} from "./mocks/transactions";
+} from "./mocks/response-data";
 
 test("Verify Currency Response Parsing", () => {
   const cache = parseCurrencyReponse(CURRENCY_RESPONSE_JSON);
