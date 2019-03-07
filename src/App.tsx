@@ -15,6 +15,7 @@ import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions';
 import DepositVsPortfolioValueTimeline from './charts/DepositsVsPortfolioValueTimeline';
 import ProfitLossTimeline from './charts/ProfitLossTimeline';
 import ProfitLossPercentageTimeline from './charts/ProfitLossPercentageTimeline';
+import moment from 'moment';
 
 type State = {
   addon: any;
@@ -122,15 +123,17 @@ class App extends Component<Props, State> {
         return totalDeposits;
       }, 0);
 
-    sortedDates.forEach(date => {
-      const portfolio = portfolioPerDay[date];
-      deposits += portfolio.deposit - portfolio.withdrawal;
-      portfolios.push({
-        date: date,
-        value: portfolio.value,
-        deposits: deposits,
+    sortedDates
+      .filter(date => moment(date).isoWeekday() <= 5)
+      .forEach(date => {
+        const portfolio = portfolioPerDay[date];
+        deposits += portfolio.deposit - portfolio.withdrawal;
+        portfolios.push({
+          date: date,
+          value: portfolio.value,
+          deposits: deposits,
+        });
       });
-    });
 
     this.setState({ portfolios, portfolioPerDay, isLoaded: true });
     console.log('Loaded the data', portfolios);
