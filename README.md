@@ -1,3 +1,6 @@
+
+## Wealthica Developer Add-on (Portfolio vs Deposits analyser)
+
 Wealthica developer addon to compare the portfolio value against the total deposits made as of the date.
 
 Steps to load the addon:
@@ -9,3 +12,12 @@ Steps to load the addon:
 You can take a quick look at the charts using the demo data.
 
 Hope this add-on is useful to you!
+
+## Samples
+
+![Deposits Vs Portfolio](https://github.com/mani-coder/wealthica-portfolio-addon/blob/master/public/samples/Deposit%20Vs%20Portofolio%20Value.png)
+
+![P/L Percentage Timeline](https://github.com/mani-coder/wealthica-portfolio-addon/blob/master/public/samples/Profit%20Loss%20Percentage%20Timeline.png)
+
+![P/L Value Timeline](https://github.com/mani-coder/wealthica-portfolio-addon/blob/master/public/samples/Profit%20Loss%20Value%20Timeline.png)
+
