@@ -7,11 +7,14 @@ import Loader from 'react-loader-spinner';
 import { parseCurrencyReponse, parsePortfolioResponse, parseTransactionsResponse } from './api';
 import { PortfolioData, Portfolio } from './types';
 import { TRANSACTIONS_FROM_DATE } from './constants';
-import DepositVsPortfolioValueTimeline from './charts/DepositsVsPortfolioValueTimeline';
 import { CURRENCIES_API_RESPONSE } from './mocks/currencies';
 import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio';
 import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions';
-import PerformanceTimeline from './charts/PerformanceTimeline';
+// import { PORTFOLIO_API_RESPONSE, TRANSACTIONS_API_RESPONSE } from './mocks/prod';
+
+import DepositVsPortfolioValueTimeline from './charts/DepositsVsPortfolioValueTimeline';
+import ProfitLossTimeline from './charts/ProfitLossTimeline';
+import ProfitLossPercentageTimeline from './charts/ProfitLossPercentageTimeline';
 
 type State = {
   addon: any;
@@ -200,8 +203,8 @@ class App extends Component<Props, State> {
   }
 
   componentDidMount() {
-    if (!this.state.addon && process.env.NODE_ENV === 'development') {
-      setTimeout(() => this.loadStaticPortfolioData(), 1000);
+    if (!this.state.addon) {
+      setTimeout(() => this.loadStaticPortfolioData(), 100);
     }
   }
 
@@ -210,8 +213,14 @@ class App extends Component<Props, State> {
       <div style={{ paddingTop: 4, paddingBottom: 4 }}>
         {this.state.isLoaded ? (
           <>
+            {!this.state.addon && (
+              <p style={{ fontWeight: 'bolder', textAlign: 'center', color: '#C00316', textDecoration: 'underline' }}>
+                !! This is sample data !!
+              </p>
+            )}
             <DepositVsPortfolioValueTimeline portfolios={this.state.portfolios} />
-            <PerformanceTimeline portfolios={this.state.portfolios} />
+            <ProfitLossPercentageTimeline portfolios={this.state.portfolios} />
+            <ProfitLossTimeline portfolios={this.state.portfolios} />
           </>
         ) : (
           <div className="App-header">

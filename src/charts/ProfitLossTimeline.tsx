@@ -8,38 +8,64 @@ type Props = {
   portfolios: Portfolio[];
 };
 
-export default class DepositVsPortfolioValueTimeline extends Component<Props> {
+export default class ProfitLossTimeline extends Component<Props> {
   getSeries() {
     return [
       {
-        name: 'Portfolio',
-        data: this.props.portfolios.map(portfolio => [moment(portfolio.date).valueOf(), portfolio.value]),
-        type: 'spline',
-        color: '#4E2E5E',
-      },
-      {
-        name: 'Deposits',
-        data: this.props.portfolios.map(portfolio => [moment(portfolio.date).valueOf(), portfolio.deposits]),
-        type: 'spline',
-        color: '#C00316',
+        name: 'Portfolio Value',
+        data: this.props.portfolios.map(portfolio => [
+          moment(portfolio.date).valueOf(),
+          portfolio.value - portfolio.deposits,
+        ]),
+        tooltip: {
+          valueDecimals: 2,
+        },
+        type: 'column',
       },
     ];
   }
   getOptions() {
     return {
       title: {
-        text: 'Deposits Vs Portfolio Value',
+        text: 'Profit/Loss ($)',
       },
       rangeSelector: {
         selected: 5,
       },
+
+      scrollbar: {
+        barBackgroundColor: 'gray',
+        barBorderRadius: 7,
+        barBorderWidth: 0,
+        buttonBackgroundColor: 'gray',
+        buttonBorderWidth: 0,
+        buttonBorderRadius: 7,
+        trackBackgroundColor: 'none',
+        trackBorderWidth: 1,
+        trackBorderRadius: 8,
+        trackBorderColor: '#CCC',
+      },
+      plotOptions: {
+        column: {
+          zones: [
+            {
+              value: -0.00000001,
+              color: '#FF897C',
+            },
+            {
+              color: '#84C341',
+            },
+          ],
+        },
+      },
+
       yAxis: [
         {
           opposite: false,
           plotLines: [
             {
               value: 0,
-              width: 2,
+              width: 1,
               color: 'silver',
             },
           ],
@@ -48,7 +74,6 @@ export default class DepositVsPortfolioValueTimeline extends Component<Props> {
           linkedTo: 0,
         },
       ],
-      plotOptions: {},
       tooltip: {
         pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b><br/>',
         valueDecimals: 2,
