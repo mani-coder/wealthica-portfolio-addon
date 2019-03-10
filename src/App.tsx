@@ -125,7 +125,7 @@ class App extends Component<Props, State> {
       .filter(date => date < sortedDates[0])
       .reduce((totalDeposits, date) => {
         const transaction = transactionsByDate[date];
-        totalDeposits += transaction.deposit + transaction.withdrawal;
+        totalDeposits += transaction.deposit - transaction.withdrawal;
         return totalDeposits;
       }, 0);
 
