@@ -4,8 +4,8 @@ import './App.css';
 
 import { Addon } from '@wealthica/wealthica.js/index';
 import Loader from 'react-loader-spinner';
-import { parseCurrencyReponse, parsePortfolioResponse, parseTransactionsResponse } from './api';
-import { PortfolioData, Portfolio } from './types';
+import { parseCurrencyReponse, parsePortfolioResponse, parseTransactionsResponse, parsePositionsResponse } from './api';
+import { PortfolioData, Portfolio, Position } from './types';
 import { TRANSACTIONS_FROM_DATE } from './constants';
 import { CURRENCIES_API_RESPONSE } from './mocks/currencies';
 import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio';
@@ -16,12 +16,15 @@ import DepositVsPortfolioValueTimeline from './charts/DepositsVsPortfolioValueTi
 import ProfitLossTimeline from './charts/ProfitLossTimeline';
 import ProfitLossPercentageTimeline from './charts/ProfitLossPercentageTimeline';
 import moment from 'moment';
+import { POSITIONS_API_RESPONSE } from './mocks/positions';
+import PositionsCharts from './charts/PositionsCharts';
 
 type State = {
   addon: any;
   currencyCache: { [key: string]: number };
   portfolioPerDay: { [key: string]: PortfolioData };
   portfolios: Portfolio[];
+  positions: Position[];
   isLoaded: boolean;
 };
 type Props = {};
@@ -35,6 +38,7 @@ class App extends Component<Props, State> {
       currencyCache: {},
       portfolioPerDay: {},
       portfolios: [],
+      positions: [],
       isLoaded: false,
     };
   }
@@ -92,6 +96,8 @@ class App extends Component<Props, State> {
 
   async loadData(options) {
     await this.loadCurrenciesCache();
+
+    this.loadPositions(options);
 
     const portfolioByDate = await this.loadPortfolioData(options);
     const transactionsByDate = await this.loadTransactions(options);
@@ -171,6 +177,30 @@ class App extends Component<Props, State> {
       });
   }
 
+  loadPositions(options) {
+    console.log('Loading positions data.');
+    const query = {
+      assets: true,
+      groups: options.groupsFilter,
+      institutions: options.institutionsFilter,
+      investments: options.investmentsFilter === 'all' ? null : options.investmentsFilter,
+    };
+    return this.state.addon
+      .request({
+        query,
+        method: 'GET',
+        endpoint: 'positions',
+      })
+      .then(response => {
+        const positions = parsePositionsResponse(response);
+        console.log('Positions data: ', positions);
+        this.setState({ positions });
+      })
+      .catch(error => {
+        console.error('Failed to load position data.', error);
+      });
+  }
+
   loadTransactions(options) {
     console.log('Loading transactions data.');
     const fromDate = options.dateRangeFilter && options.dateRangeFilter[0];
@@ -200,8 +230,10 @@ class App extends Component<Props, State> {
     const currencyCache = parseCurrencyReponse(CURRENCIES_API_RESPONSE);
     const portfolioByDate = parsePortfolioResponse(PORTFOLIO_API_RESPONSE);
     const transactionsByDate = parseTransactionsResponse(TRANSACTIONS_API_RESPONSE, currencyCache);
+    const positions = parsePositionsResponse(POSITIONS_API_RESPONSE);
 
-    this.setState({ currencyCache });
+    console.log(positions);
+    this.setState({ currencyCache, positions });
     this.computePortfolios(portfolioByDate, transactionsByDate);
   }
 
@@ -224,6 +256,7 @@ class App extends Component<Props, State> {
             <DepositVsPortfolioValueTimeline portfolios={this.state.portfolios} />
             <ProfitLossPercentageTimeline portfolios={this.state.portfolios} />
             <ProfitLossTimeline portfolios={this.state.portfolios} />
+            {!!this.state.positions.length && <PositionsCharts positions={this.state.positions} />}
           </>
         ) : (
           <div className="App-header">

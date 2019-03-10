@@ -1,5 +1,6 @@
 import { getDate, getCurrencyInCAD } from './utils';
 import { DATE_FORMAT } from './constants';
+import { Position } from './types';
 
 export const parseCurrencyReponse = (response: any) => {
   const date = getDate(response.from);
@@ -68,4 +69,10 @@ export const parseTransactionsResponse = (response: any, currencyCache: any) => 
     hash[dateKey] = portfolioData;
     return hash;
   }, {});
+};
+
+export const parsePositionsResponse = (response: any): Position[] => {
+  return response.map(position => {
+    return position as Position;
+  });
 };
