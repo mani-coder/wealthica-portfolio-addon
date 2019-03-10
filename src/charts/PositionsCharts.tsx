@@ -164,7 +164,7 @@ export default class PositionsCharts extends Component<Props> {
         />
         <HighchartsReact
           highcharts={Highcharts}
-          options={this.getOptions('Gain/Loss Ratio', 'Gain/Loss Percentage', this.getTopGainersLosers())}
+          options={this.getOptions('Gain/Loss Ratio', 'Gain/Loss (%)', this.getTopGainersLosers())}
         />
       </div>
     );
