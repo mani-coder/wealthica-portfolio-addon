@@ -61,12 +61,13 @@ export default class ProfitLossTimeline extends Component<Props> {
 
       yAxis: [
         {
+          tickInterval: 10000,
           opposite: false,
           plotLines: [
             {
               value: 0,
               width: 1,
-              color: 'silver',
+              color: 'black',
             },
           ],
         },
@@ -79,7 +80,26 @@ export default class ProfitLossTimeline extends Component<Props> {
         valueDecimals: 2,
         split: true,
       },
-
+      responsive: {
+        rules: [
+          {
+            condition: {
+              maxWidth: 500,
+            },
+            chartOptions: {
+              chart: {
+                height: 300,
+              },
+              subtitle: {
+                text: null,
+              },
+              navigator: {
+                enabled: false,
+              },
+            },
+          },
+        ],
+      },
       series: this.getSeries(),
     };
   }

@@ -25,6 +25,7 @@ export default class DepositVsPortfolioValueTimeline extends Component<Props> {
       },
     ];
   }
+
   getOptions() {
     return {
       title: {
@@ -55,6 +56,26 @@ export default class DepositVsPortfolioValueTimeline extends Component<Props> {
         split: true,
       },
 
+      responsive: {
+        rules: [
+          {
+            condition: {
+              maxWidth: 500,
+            },
+            chartOptions: {
+              chart: {
+                height: 300,
+              },
+              subtitle: {
+                text: null,
+              },
+              navigator: {
+                enabled: false,
+              },
+            },
+          },
+        ],
+      },
       series: this.getSeries(),
     };
   }
