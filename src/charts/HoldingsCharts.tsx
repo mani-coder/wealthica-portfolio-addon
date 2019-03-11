@@ -54,7 +54,7 @@ export default class HoldingsCharts extends Component<Props> {
         tooltip: {
           pointFormat: '<b>{point.y:.1f}%</b><br />Gain: {point.gain:.1f}%',
         },
-        center: ['75%', '25%'],
+        center: ['87%', '25%'],
         size: '100%',
         showInLegend: false,
       },
