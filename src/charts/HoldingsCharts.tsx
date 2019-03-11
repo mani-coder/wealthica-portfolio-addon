@@ -7,7 +7,7 @@ type Props = {
   positions: Position[];
 };
 
-export default class PositionsCharts extends Component<Props> {
+export default class HoldingsCharts extends Component<Props> {
   getPositionsSeries() {
     const marketValue = this.props.positions.reduce((sum, position) => {
       return sum + position.market_value;
@@ -15,7 +15,7 @@ export default class PositionsCharts extends Component<Props> {
     return [
       {
         type: 'column',
-        name: 'Positions',
+        name: 'Holdings',
         colorByPoint: true,
         data: this.props.positions
           .sort((a, b) => b.market_value - a.market_value)
@@ -160,7 +160,7 @@ export default class PositionsCharts extends Component<Props> {
       <div style={{ marginTop: 32, marginBottom: 32, flex: 1, flexDirection: 'row' }}>
         <HighchartsReact
           highcharts={Highcharts}
-          options={this.getOptions('Positions', 'Market Value ($)', this.getPositionsSeries())}
+          options={this.getOptions('Holdings', 'Market Value ($)', this.getPositionsSeries())}
         />
         <HighchartsReact
           highcharts={Highcharts}

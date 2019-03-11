@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
-// import logo from "./logo.svg";
 import './App.css';
+import './Collapsible.css';
 
 import { Addon } from '@wealthica/wealthica.js/index';
 import Loader from 'react-loader-spinner';
+import Collapsible from 'react-collapsible';
+
 import { parseCurrencyReponse, parsePortfolioResponse, parseTransactionsResponse, parsePositionsResponse } from './api';
 import { PortfolioData, Portfolio, Position } from './types';
 import { TRANSACTIONS_FROM_DATE } from './constants';
@@ -17,7 +19,7 @@ import ProfitLossTimeline from './charts/ProfitLossTimeline';
 import ProfitLossPercentageTimeline from './charts/ProfitLossPercentageTimeline';
 import moment from 'moment';
 import { POSITIONS_API_RESPONSE } from './mocks/positions';
-import PositionsCharts from './charts/PositionsCharts';
+import HoldingsCharts from './charts/HoldingsCharts';
 
 type State = {
   addon: any;
@@ -253,10 +255,20 @@ class App extends Component<Props, State> {
                 !! This is sample data !!
               </p>
             )}
-            <DepositVsPortfolioValueTimeline portfolios={this.state.portfolios} />
-            <ProfitLossPercentageTimeline portfolios={this.state.portfolios} />
-            <ProfitLossTimeline portfolios={this.state.portfolios} />
-            {!!this.state.positions.length && <PositionsCharts positions={this.state.positions} />}
+            <Collapsible trigger="Deposits Vs Portfolio Value Timeline" open>
+              <DepositVsPortfolioValueTimeline portfolios={this.state.portfolios} />
+            </Collapsible>
+            <Collapsible trigger="P/L Percentage Timeline" open>
+              <ProfitLossPercentageTimeline portfolios={this.state.portfolios} />
+            </Collapsible>
+            <Collapsible trigger="P/L Timeline" open>
+              <ProfitLossTimeline portfolios={this.state.portfolios} />
+            </Collapsible>
+            {!!this.state.positions.length && (
+              <Collapsible trigger="Holdings" open>
+                <HoldingsCharts positions={this.state.positions} />
+              </Collapsible>
+            )}
           </>
         ) : (
           <div className="App-header">
