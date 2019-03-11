@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Position } from '../types';
 import Highcharts from 'highcharts/highstock';
 import HighchartsReact from 'highcharts-react-official';
+import Collapsible from 'react-collapsible';
 
 type Props = {
   positions: Position[];
@@ -157,16 +158,20 @@ export default class HoldingsCharts extends Component<Props> {
 
   render() {
     return (
-      <div style={{ marginTop: 32, marginBottom: 32, flex: 1, flexDirection: 'row' }}>
-        <HighchartsReact
-          highcharts={Highcharts}
-          options={this.getOptions('Holdings', 'Market Value ($)', this.getPositionsSeries())}
-        />
-        <HighchartsReact
-          highcharts={Highcharts}
-          options={this.getOptions('Gain/Loss Ratio', 'Gain/Loss (%)', this.getTopGainersLosers())}
-        />
-      </div>
+      <>
+        <Collapsible trigger="Holdings" open>
+          <HighchartsReact
+            highcharts={Highcharts}
+            options={this.getOptions('Holdings', 'Market Value ($)', this.getPositionsSeries())}
+          />
+        </Collapsible>
+        <Collapsible trigger="Top Gainers/Losers" open>
+          <HighchartsReact
+            highcharts={Highcharts}
+            options={this.getOptions('Gain/Loss Ratio', 'Gain/Loss (%)', this.getTopGainersLosers())}
+          />
+        </Collapsible>
+      </>
     );
   }
 }

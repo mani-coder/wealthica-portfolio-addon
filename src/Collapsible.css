@@ -8,10 +8,10 @@
   padding: 10px;
   border: 1px solid #ebebeb;
   border-top: 0;
+  margin-bottom: 12px;
 }
 
 .Collapsible__contentInner p {
-  margin-bottom: 10px;
   font-size: 14px;
   line-height: 20px;
 }
