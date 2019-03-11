@@ -4,7 +4,6 @@ import './Collapsible.css';
 
 import { Addon } from '@wealthica/wealthica.js/index';
 import Loader from 'react-loader-spinner';
-import Collapsible from 'react-collapsible';
 
 import { parseCurrencyReponse, parsePortfolioResponse, parseTransactionsResponse, parsePositionsResponse } from './api';
 import { PortfolioData, Portfolio, Position } from './types';
@@ -255,20 +254,10 @@ class App extends Component<Props, State> {
                 !! This is sample data !!
               </p>
             )}
-            <Collapsible trigger="Deposits Vs Portfolio Value Timeline" open>
-              <DepositVsPortfolioValueTimeline portfolios={this.state.portfolios} />
-            </Collapsible>
-            <Collapsible trigger="P/L Percentage Timeline" open>
-              <ProfitLossPercentageTimeline portfolios={this.state.portfolios} />
-            </Collapsible>
-            <Collapsible trigger="P/L Timeline" open>
-              <ProfitLossTimeline portfolios={this.state.portfolios} />
-            </Collapsible>
-            {!!this.state.positions.length && (
-              <Collapsible trigger="Holdings" open>
-                <HoldingsCharts positions={this.state.positions} />
-              </Collapsible>
-            )}
+            <DepositVsPortfolioValueTimeline portfolios={this.state.portfolios} />
+            <ProfitLossPercentageTimeline portfolios={this.state.portfolios} />
+            <ProfitLossTimeline portfolios={this.state.portfolios} />
+            {!!this.state.positions.length && <HoldingsCharts positions={this.state.positions} />}
           </>
         ) : (
           <div className="App-header">
