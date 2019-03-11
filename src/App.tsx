@@ -261,7 +261,7 @@ class App extends Component<Props, State> {
           </>
         ) : (
           <div className="App-header">
-            <Loader type="Circles" color="#a04ba5" height="75" width="75" />
+            <Loader type="Circles" color="#7f3eab" height="75" width="75" />
           </div>
         )}
       </div>
