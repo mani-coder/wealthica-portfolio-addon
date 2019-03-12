@@ -4,31 +4,55 @@ import Highcharts from 'highcharts/highstock';
 import HighchartsReact from 'highcharts-react-official';
 import moment from 'moment';
 import Collapsible from 'react-collapsible';
+import { min, max } from '../utils';
 
 type Props = {
   portfolios: Portfolio[];
 };
 
-export default class ProfitLossTimeline extends Component<Props> {
+export default class ProfitLossPercentageTimeline extends Component<Props> {
   getSeries() {
+    const data = this.props.portfolios.map(portfolio => {
+      return {
+        x: moment(portfolio.date).valueOf(),
+        y: ((portfolio.value - portfolio.deposits) / portfolio.deposits) * 100,
+      };
+    });
     return [
       {
-        name: 'Portfolio Value',
-        data: this.props.portfolios.map(portfolio => [
-          moment(portfolio.date).valueOf(),
-          portfolio.value - portfolio.deposits,
-        ]),
+        id: 'dataseries',
+        name: 'P/L %',
+        data: data,
         tooltip: {
           valueDecimals: 2,
         },
-        type: 'column',
+        type: 'line',
+      },
+      {
+        type: 'flags',
+        name: 'Max Gain/Loss',
+        data: [
+          {
+            ...min(data, 'y'),
+            title: 'L',
+            text: 'Max Loss',
+          },
+          {
+            ...max(data, 'y'),
+            title: 'G',
+            text: 'Max Loss',
+          },
+        ],
+        onSeries: 'dataseries',
+        shape: 'squarepin',
+        width: 16,
       },
     ];
   }
   getOptions() {
     return {
       title: {
-        text: 'Profit/Loss ($)',
+        text: 'Profit/Loss (%)',
       },
       rangeSelector: {
         selected: 5,
@@ -47,7 +71,7 @@ export default class ProfitLossTimeline extends Component<Props> {
         trackBorderColor: '#CCC',
       },
       plotOptions: {
-        column: {
+        line: {
           zones: [
             {
               value: -0.00000001,
@@ -62,22 +86,31 @@ export default class ProfitLossTimeline extends Component<Props> {
 
       yAxis: [
         {
-          tickInterval: 10000,
+          labels: {
+            formatter: function(value) {
+              return `${value.value}%`;
+            },
+          },
           opposite: false,
           plotLines: [
             {
               value: 0,
               width: 1,
-              color: 'black',
+              color: 'silver',
             },
           ],
         },
         {
+          labels: {
+            formatter: function(value) {
+              return `${value.value}%`;
+            },
+          },
           linkedTo: 0,
         },
       ],
       tooltip: {
-        pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b><br/>',
+        pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}%</b><br/>',
         valueDecimals: 2,
         split: true,
       },
@@ -107,7 +140,7 @@ export default class ProfitLossTimeline extends Component<Props> {
 
   render() {
     return (
-      <Collapsible trigger="P/L Value Timeline" open>
+      <Collapsible trigger="P/L Ratio Timeline" open>
         <HighchartsReact highcharts={Highcharts} constructorType={'stockChart'} options={this.getOptions()} />
       </Collapsible>
     );

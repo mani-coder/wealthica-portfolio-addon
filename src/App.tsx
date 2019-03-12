@@ -4,21 +4,22 @@ import './Collapsible.css';
 
 import { Addon } from '@wealthica/wealthica.js/index';
 import Loader from 'react-loader-spinner';
+import moment from 'moment';
 
 import { parseCurrencyReponse, parsePortfolioResponse, parseTransactionsResponse, parsePositionsResponse } from './api';
 import { PortfolioData, Portfolio, Position } from './types';
 import { TRANSACTIONS_FROM_DATE } from './constants';
 import { CURRENCIES_API_RESPONSE } from './mocks/currencies';
+import { POSITIONS_API_RESPONSE } from './mocks/positions';
 import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio';
 import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions';
-// import { PORTFOLIO_API_RESPONSE, TRANSACTIONS_API_RESPONSE } from './mocks/prod';
+// import { POSITIONS_API_RESPONSE, PORTFOLIO_API_RESPONSE, TRANSACTIONS_API_RESPONSE } from './mocks/prod';
 
-import DepositVsPortfolioValueTimeline from './charts/DepositsVsPortfolioValueTimeline';
-import ProfitLossTimeline from './charts/ProfitLossTimeline';
-import ProfitLossPercentageTimeline from './charts/ProfitLossPercentageTimeline';
-import moment from 'moment';
-import { POSITIONS_API_RESPONSE } from './mocks/positions';
-import HoldingsCharts from './charts/HoldingsCharts';
+import DepositVsPortfolioValueTimeline from './components/DepositsVsPortfolioValueTimeline';
+import ProfitLossTimeline from './components/ProfitLossTimeline';
+import ProfitLossPercentageTimeline from './components/ProfitLossPercentageTimeline';
+import HoldingsCharts from './components/HoldingsCharts';
+import HoldingsTable from './components/HoldingsTable';
 
 type State = {
   addon: any;
@@ -257,7 +258,12 @@ class App extends Component<Props, State> {
             <DepositVsPortfolioValueTimeline portfolios={this.state.portfolios} />
             <ProfitLossPercentageTimeline portfolios={this.state.portfolios} />
             <ProfitLossTimeline portfolios={this.state.portfolios} />
-            {!!this.state.positions.length && <HoldingsCharts positions={this.state.positions} />}
+            {!!this.state.positions.length && (
+              <>
+                <HoldingsCharts positions={this.state.positions} />
+                <HoldingsTable positions={this.state.positions} />
+              </>
+            )}
           </>
         ) : (
           <div className="App-header">

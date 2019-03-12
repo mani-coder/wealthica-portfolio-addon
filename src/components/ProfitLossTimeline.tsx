@@ -9,26 +9,26 @@ type Props = {
   portfolios: Portfolio[];
 };
 
-export default class ProfitLossPercentageTimeline extends Component<Props> {
+export default class ProfitLossTimeline extends Component<Props> {
   getSeries() {
     return [
       {
-        name: 'P/L %',
+        name: 'Portfolio Value',
         data: this.props.portfolios.map(portfolio => [
           moment(portfolio.date).valueOf(),
-          ((portfolio.value - portfolio.deposits) / portfolio.deposits) * 100,
+          portfolio.value - portfolio.deposits,
         ]),
         tooltip: {
           valueDecimals: 2,
         },
-        type: 'line',
+        type: 'column',
       },
     ];
   }
   getOptions() {
     return {
       title: {
-        text: 'Profit/Loss (%)',
+        text: 'Profit/Loss ($)',
       },
       rangeSelector: {
         selected: 5,
@@ -47,7 +47,7 @@ export default class ProfitLossPercentageTimeline extends Component<Props> {
         trackBorderColor: '#CCC',
       },
       plotOptions: {
-        line: {
+        column: {
           zones: [
             {
               value: -0.00000001,
@@ -62,31 +62,21 @@ export default class ProfitLossPercentageTimeline extends Component<Props> {
 
       yAxis: [
         {
-          labels: {
-            formatter: function(value) {
-              return `${value.value}%`;
-            },
-          },
           opposite: false,
           plotLines: [
             {
               value: 0,
               width: 1,
-              color: 'silver',
+              color: 'black',
             },
           ],
         },
         {
-          labels: {
-            formatter: function(value) {
-              return `${value.value}%`;
-            },
-          },
           linkedTo: 0,
         },
       ],
       tooltip: {
-        pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}%</b><br/>',
+        pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b><br/>',
         valueDecimals: 2,
         split: true,
       },
@@ -116,7 +106,7 @@ export default class ProfitLossPercentageTimeline extends Component<Props> {
 
   render() {
     return (
-      <Collapsible trigger="P/L Ratio Timeline" open>
+      <Collapsible trigger="P/L Value Timeline" open>
         <HighchartsReact highcharts={Highcharts} constructorType={'stockChart'} options={this.getOptions()} />
       </Collapsible>
     );
