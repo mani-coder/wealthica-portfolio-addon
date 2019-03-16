@@ -27,6 +27,12 @@ export type Security = {
   aliases: string[];
 };
 
+export type Investment = {
+  quantity: number;
+  book_value: number;
+  currency: string;
+};
+
 export type Position = {
   security: Security;
   value: number;
@@ -37,4 +43,5 @@ export type Position = {
   gain_currency_amount: number;
   currency: string;
   gain_amount: number;
+  investments: Investment[];
 };
