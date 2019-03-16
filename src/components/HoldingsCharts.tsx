@@ -24,11 +24,11 @@ export default class HoldingsCharts extends Component<Props> {
           percentage: (position.market_value / marketValue) * 100,
           gain: position.gain_percent * 100,
           profit: position.gain_amount.toLocaleString(),
-          buyPrice: position.investments
-            .reduce((cost, investment) => {
-              return (cost + investment.book_value / investment.quantity) / 2;
-            }, 0)
-            .toLocaleString(),
+          buyPrice: (
+            position.investments.reduce((cost, investment) => {
+              return cost + investment.book_value / investment.quantity;
+            }, 0) / position.investments.length
+          ).toLocaleString(),
           shares: position.quantity,
           lastPrice: position.security.last_price.toLocaleString(),
           currency: position.security.currency.toUpperCase(),
