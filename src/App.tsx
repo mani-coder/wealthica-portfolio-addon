@@ -28,6 +28,7 @@ type State = {
   portfolios: Portfolio[];
   positions: Position[];
   isLoaded: boolean;
+  privateMode: boolean;
 };
 type Props = {};
 
@@ -42,6 +43,7 @@ class App extends Component<Props, State> {
       portfolios: [],
       positions: [],
       isLoaded: false,
+      privateMode: true,
     };
   }
 
@@ -100,6 +102,7 @@ class App extends Component<Props, State> {
     await this.loadCurrenciesCache();
 
     this.loadPositions(options);
+    this.setState({ privateMode: options.privateMode });
 
     const portfolioByDate = await this.loadPortfolioData(options);
     const transactionsByDate = await this.loadTransactions(options);
@@ -255,13 +258,16 @@ class App extends Component<Props, State> {
                 !! This is sample data !!
               </p>
             )}
-            <DepositVsPortfolioValueTimeline portfolios={this.state.portfolios} />
+            <DepositVsPortfolioValueTimeline
+              portfolios={this.state.portfolios}
+              isPrivateMode={this.state.privateMode}
+            />
             <ProfitLossPercentageTimeline portfolios={this.state.portfolios} />
-            <ProfitLossTimeline portfolios={this.state.portfolios} />
+            <ProfitLossTimeline portfolios={this.state.portfolios} isPrivateMode={this.state.privateMode} />
             {!!this.state.positions.length && (
               <>
-                <HoldingsCharts positions={this.state.positions} />
-                <HoldingsTable positions={this.state.positions} />
+                <HoldingsCharts positions={this.state.positions} isPrivateMode={this.state.privateMode} />
+                <HoldingsTable positions={this.state.positions} isPrivateMode={this.state.privateMode} />
               </>
             )}
           </>
