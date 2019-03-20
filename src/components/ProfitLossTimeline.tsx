@@ -7,6 +7,7 @@ import Collapsible from 'react-collapsible';
 
 type Props = {
   portfolios: Portfolio[];
+  isPrivateMode: boolean;
 };
 
 export default class ProfitLossTimeline extends Component<Props> {
@@ -14,13 +15,13 @@ export default class ProfitLossTimeline extends Component<Props> {
     return [
       {
         name: 'Portfolio Value',
-        data: this.props.portfolios.map(portfolio => [
-          moment(portfolio.date).valueOf(),
-          portfolio.value - portfolio.deposits,
-        ]),
-        tooltip: {
-          valueDecimals: 2,
-        },
+        data: this.props.portfolios.map(portfolio => {
+          return {
+            x: moment(portfolio.date).valueOf(),
+            y: portfolio.value - portfolio.deposits,
+            displayValue: this.props.isPrivateMode ? '-' : (portfolio.value - portfolio.deposits).toLocaleString(),
+          };
+        }),
         type: 'column',
       },
     ];
@@ -62,6 +63,9 @@ export default class ProfitLossTimeline extends Component<Props> {
 
       yAxis: [
         {
+          labels: {
+            enabled: !this.props.isPrivateMode,
+          },
           opposite: false,
           plotLines: [
             {
@@ -72,11 +76,14 @@ export default class ProfitLossTimeline extends Component<Props> {
           ],
         },
         {
+          labels: {
+            enabled: !this.props.isPrivateMode,
+          },
           linkedTo: 0,
         },
       ],
       tooltip: {
-        pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b><br/>',
+        pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.displayValue}</b><br/>',
         valueDecimals: 2,
         split: true,
       },

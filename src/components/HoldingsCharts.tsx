@@ -3,10 +3,11 @@ import { Position } from '../types';
 import Highcharts from 'highcharts/highstock';
 import HighchartsReact from 'highcharts-react-official';
 import Collapsible from 'react-collapsible';
-import { getSymbol } from '../utils';
+import { getSymbol, formatCurrency } from '../utils';
 
 type Props = {
   positions: Position[];
+  isPrivateMode: boolean;
 };
 
 export default class HoldingsCharts extends Component<Props> {
@@ -20,6 +21,7 @@ export default class HoldingsCharts extends Component<Props> {
         return {
           name: getSymbol(position.security),
           y: position.market_value,
+          displayValue: formatCurrency(position.market_value, 1),
           marketValue: position.market_value.toLocaleString(),
           percentage: (position.market_value / marketValue) * 100,
           gain: position.gain_percent * 100,
@@ -55,8 +57,8 @@ export default class HoldingsCharts extends Component<Props> {
           valueDecimals: 1,
         },
         dataLabels: {
-          enabled: true,
-          format: '{point.y:.0f}',
+          enabled: !this.props.isPrivateMode,
+          format: '{point.displayValue}',
         },
         showInLegend: false,
       },
@@ -93,11 +95,11 @@ export default class HoldingsCharts extends Component<Props> {
             return {
               name: getSymbol(position.security),
               y: position.gain_percent * 100,
-              gain: position.gain_amount,
+              gain: position.gain_amount.toLocaleString(),
             };
           }),
         tooltip: {
-          pointFormat: '<b>{point.y:.1f}%</b><br />Gain: {point.gain:.2f} CAD',
+          pointFormat: '<b>{point.y:.1f}%</b><br />Gain: {point.gain} CAD',
         },
         dataLabels: {
           enabled: true,
@@ -156,6 +158,9 @@ export default class HoldingsCharts extends Component<Props> {
       },
 
       yAxis: {
+        labels: {
+          enabled: !this.props.isPrivateMode,
+        },
         title: {
           text: yAxisTitle,
         },
