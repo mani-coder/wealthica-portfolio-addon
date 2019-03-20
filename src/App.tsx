@@ -43,7 +43,7 @@ class App extends Component<Props, State> {
       portfolios: [],
       positions: [],
       isLoaded: false,
-      privateMode: true,
+      privateMode: false,
     };
   }
 
