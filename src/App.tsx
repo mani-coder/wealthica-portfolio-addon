@@ -244,7 +244,7 @@ class App extends Component<Props, State> {
 
   componentDidMount() {
     if (!this.state.addon) {
-      setTimeout(() => this.loadStaticPortfolioData(), 100);
+      setTimeout(() => this.loadStaticPortfolioData(), 0);
     }
   }
 

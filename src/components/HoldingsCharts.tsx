@@ -3,7 +3,7 @@ import { Position } from '../types';
 import Highcharts from 'highcharts/highstock';
 import HighchartsReact from 'highcharts-react-official';
 import Collapsible from 'react-collapsible';
-import { getSymbol, formatCurrency } from '../utils';
+import { getSymbol, formatCurrency, getURLParams } from '../utils';
 
 type Props = {
   positions: Position[];
@@ -182,6 +182,30 @@ export default class HoldingsCharts extends Component<Props> {
     };
   }
 
+  getPortfolioVisualizerLink() {
+    const marketValue = this.props.positions.reduce((sum, position) => {
+      return sum + position.market_value;
+    }, 0);
+
+    let remainingWeightage = 100;
+    const params = getURLParams(
+      this.props.positions.reduce((hash, position, index) => {
+        // symbol1=QD&allocation1_1=1&
+        // symbol2=TTD&allocation2_1=15
+        let weightage = Number(((position.market_value / marketValue) * 100).toFixed(1));
+        remainingWeightage -= weightage;
+        remainingWeightage = Number(remainingWeightage.toFixed(1));
+        if (index + 1 == this.props.positions.length) {
+          weightage += remainingWeightage;
+        }
+        hash[`symbol${index + 1}`] = getSymbol(position.security);
+        hash[`allocation${index + 1}_1`] = weightage;
+        return hash;
+      }, {}),
+    );
+    return `https://www.portfoliovisualizer.com/backtest-portfolio?s=y&timePeriod=4&initialAmount=10000&annualOperation=0&annualAdjustment=0&inflationAdjusted=true&annualPercentage=0.0&frequency=4&rebalanceType=1&showYield=false&reinvestDividends=true&${params}#analysisResults`;
+  }
+
   render() {
     const positionSeries = this.getPositionsSeries();
     return (
@@ -192,6 +216,16 @@ export default class HoldingsCharts extends Component<Props> {
             options={this.getOptions('', 'Market Value ($)', [positionSeries[0]])}
           />
           <HighchartsReact highcharts={Highcharts} options={this.getOptions('', '', [positionSeries[1]])} />
+          <div className="center">
+            <div
+              className="button"
+              onClick={() => {
+                window.open(this.getPortfolioVisualizerLink(), '_blank');
+              }}
+            >
+              Portfolio Visualizer
+            </div>
+          </div>
         </Collapsible>
         <Collapsible trigger="Top Losers/Gainers Chart" open>
           <HighchartsReact
