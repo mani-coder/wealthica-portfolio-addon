@@ -46,3 +46,11 @@ export const formatCurrency = (amount: number, digits: number) => {
   }
   return (amount / si[i].value).toFixed(digits).replace(rx, '$1') + si[i].symbol;
 };
+
+export const getURLParams = (values: { [id: string]: string }): string => {
+  return Object.keys(values)
+    .map(function(key) {
+      return key + '=' + values[key];
+    })
+    .join('&');
+};

@@ -35,3 +35,21 @@
 .right {
   text-align: right;
 }
+
+.center {
+  text-align: center;
+  text-justify: center;
+}
+
+.button {
+  font-weight: bold;
+  background-color: #9948d1;
+  border: none;
+  color: white;
+  padding: 16px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  cursor: pointer;
+}
