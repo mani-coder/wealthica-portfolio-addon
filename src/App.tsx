@@ -134,17 +134,17 @@ class App extends Component<Props, State> {
         return totalDeposits;
       }, 0);
 
-    sortedDates
-      .filter(date => moment(date).isoWeekday() <= 5)
-      .forEach(date => {
-        const portfolio = portfolioPerDay[date];
-        deposits += portfolio.deposit - portfolio.withdrawal;
+    sortedDates.forEach(date => {
+      const portfolio = portfolioPerDay[date];
+      deposits += portfolio.deposit - portfolio.withdrawal;
+      if (moment(date).isoWeekday() <= 5) {
         portfolios.push({
           date: date,
           value: portfolio.value,
           deposits: deposits,
         });
-      });
+      }
+    });
 
     this.setState({ portfolios, portfolioPerDay, isLoaded: true });
     console.log('Loaded the data', portfolios);
