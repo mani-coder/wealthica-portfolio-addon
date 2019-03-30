@@ -40,11 +40,12 @@ export const formatCurrency = (amount: number, digits: number) => {
   var rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
   var i;
   for (i = si.length - 1; i > 0; i--) {
-    if (amount >= si[i].value) {
+    if (Math.abs(amount) >= si[i].value) {
       break;
     }
   }
-  return (amount / si[i].value).toFixed(digits).replace(rx, '$1') + si[i].symbol;
+  const formattedAmount = (Math.abs(amount) / si[i].value).toFixed(digits).replace(rx, '$1') + si[i].symbol;
+  return amount < 0 ? `-${formattedAmount}` : formattedAmount;
 };
 
 export const getURLParams = (values: { [id: string]: string }): string => {
