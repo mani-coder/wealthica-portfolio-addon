@@ -14,11 +14,12 @@ export default class ProfitLossTimeline extends Component<Props> {
   getSeries() {
     return [
       {
-        name: 'Portfolio Value',
+        name: 'P/L',
         data: this.props.portfolios.map(portfolio => {
           return {
             x: moment(portfolio.date).valueOf(),
             y: portfolio.value - portfolio.deposits,
+            pnlRatio: ((portfolio.value - portfolio.deposits) / portfolio.deposits) * 100,
             displayValue: this.props.isPrivateMode ? '-' : (portfolio.value - portfolio.deposits).toLocaleString(),
           };
         }),
@@ -83,7 +84,8 @@ export default class ProfitLossTimeline extends Component<Props> {
         },
       ],
       tooltip: {
-        pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.displayValue}</b><br/>',
+        pointFormat:
+          '<span style="color:{series.color}">{series.name}</span>: <b>{point.displayValue} ({point.pnlRatio:.2f}%)</b><br/>',
         valueDecimals: 2,
         split: true,
       },

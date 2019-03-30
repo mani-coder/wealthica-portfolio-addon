@@ -4,10 +4,11 @@ import Highcharts from 'highcharts/highstock';
 import HighchartsReact from 'highcharts-react-official';
 import moment from 'moment';
 import Collapsible from 'react-collapsible';
-import { min, max } from '../utils';
+import { min, max, formatCurrency } from '../utils';
 
 type Props = {
   portfolios: Portfolio[];
+  isPrivateMode: boolean;
 };
 
 export default class ProfitLossPercentageTimeline extends Component<Props> {
@@ -16,6 +17,9 @@ export default class ProfitLossPercentageTimeline extends Component<Props> {
       return {
         x: moment(portfolio.date).valueOf(),
         y: ((portfolio.value - portfolio.deposits) / portfolio.deposits) * 100,
+        pnlValue: this.props.isPrivateMode
+          ? '-'
+          : formatCurrency(portfolio.value - portfolio.deposits, 2).toLocaleString(),
       };
     });
     return [
@@ -49,6 +53,7 @@ export default class ProfitLossPercentageTimeline extends Component<Props> {
       },
     ];
   }
+
   getOptions() {
     return {
       title: {
@@ -110,7 +115,8 @@ export default class ProfitLossPercentageTimeline extends Component<Props> {
         },
       ],
       tooltip: {
-        pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}%</b><br/>',
+        pointFormat:
+          '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}% (${point.pnlValue})</b><br/>',
         valueDecimals: 2,
         split: true,
       },
