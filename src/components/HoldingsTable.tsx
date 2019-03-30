@@ -42,19 +42,19 @@ export default class HoldingsTable extends Component<Props> {
       {
         id: 'marketValue',
         Header: 'Market Value',
-        accessor: d => (this.props.isPrivateMode ? '-' : Math.round(d.position.market_value)),
+        accessor: d => (this.props.isPrivateMode ? '-' : d.position.market_value.toFixed(0)),
         className: 'right',
       },
       {
         id: 'gainPercent',
         Header: 'Gain %',
-        accessor: d => Math.round(d.position.gain_percent * 100),
+        accessor: d => (d.position.gain_percent * 100).toFixed(1),
         className: 'right',
       },
       {
         id: 'gainAmount',
         Header: 'Gain Amount',
-        accessor: d => (this.props.isPrivateMode ? '-' : Math.round(d.position.gain_amount)),
+        accessor: d => (this.props.isPrivateMode ? '-' : d.position.gain_amount.toFixed(2)),
         className: 'right',
       },
       {

@@ -262,7 +262,7 @@ class App extends Component<Props, State> {
               portfolios={this.state.portfolios}
               isPrivateMode={this.state.privateMode}
             />
-            <ProfitLossPercentageTimeline portfolios={this.state.portfolios} />
+            <ProfitLossPercentageTimeline portfolios={this.state.portfolios} isPrivateMode={this.state.privateMode} />
             <ProfitLossTimeline portfolios={this.state.portfolios} isPrivateMode={this.state.privateMode} />
             {!!this.state.positions.length && (
               <>
