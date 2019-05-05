@@ -33,6 +33,17 @@ export type Investment = {
   currency: string;
 };
 
+export type Transaction = {
+  date: string;
+  symbol: string;
+  amount: number;
+  currency: string;
+  type: string;
+  price?: number;
+  shares?: number;
+  fees?: number;
+};
+
 export type Position = {
   security: Security;
   value: number;
@@ -44,6 +55,7 @@ export type Position = {
   currency: string;
   gain_amount: number;
   investments: Investment[];
+  transactions: Transaction[];
 };
 
 export type Account = {
