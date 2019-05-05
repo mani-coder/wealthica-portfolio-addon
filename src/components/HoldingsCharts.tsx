@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Position } from '../types';
+import { Position, Account } from '../types';
 import Highcharts from 'highcharts/highstock';
 import HighchartsReact from 'highcharts-react-official';
 import Collapsible from 'react-collapsible';
@@ -7,6 +7,7 @@ import { getSymbol, formatCurrency, getURLParams } from '../utils';
 
 type Props = {
   positions: Position[];
+  accounts: Account[];
   isPrivateMode: boolean;
 };
 
@@ -110,35 +111,75 @@ export default class HoldingsCharts extends Component<Props> {
     ];
   }
 
-  // getUSDCADSeries() {
-  //   return [
-  //     {
-  //       name: 'USD vs CAD Stocks',
-  //       colorByPoint: true,
-  //       data: [
-  //         {
-  //           name: 'USD Stocks',
-  //           y: this.props.positions
-  //             .filter(position => position.security.currency === 'usd')
-  //             .reduce((sum, position) => {
-  //               return sum + position.market_value;
-  //             }, 0),
-  //         },
-  //         {
-  //           name: 'CAD Stocks',
-  //           y: this.props.positions
-  //             .filter(position => position.security.currency === 'cad')
-  //             .reduce((sum, position) => {
-  //               return sum + position.market_value;
-  //             }, 0),
-  //         },
-  //       ],
-  //       tooltip: {
-  //         pointFormat: '<b>{point.percentage:.1f}%</b>',
-  //       },
-  //     },
-  //   ];
-  // }
+  getUSDCADSeries() {
+    const cashByCurrency = this.props.accounts.reduce((hash, account) => {
+      const data = hash[account.currency] || { type: 'Cash', currency: account.currency, value: 0 };
+      data.value += account.cash;
+      hash[account.currency] = data;
+      return hash;
+    }, {});
+    const positionDataByCurrency = this.props.positions.reduce((hash, position) => {
+      const data = hash[position.security.currency] || {
+        type: 'Stocks',
+        currency: position.security.currency,
+        value: 0,
+        gain: 0,
+      };
+      data.value += position.market_value;
+      data.gain += position.gain_amount;
+      hash[position.security.currency] = data;
+      return hash;
+    }, {});
+    const totalValue = Object.keys(positionDataByCurrency).reduce(
+      (sum, currency) => {
+        return sum + positionDataByCurrency[currency].value;
+      },
+      Object.keys(cashByCurrency).reduce((sum, currency) => {
+        return sum + cashByCurrency[currency].value;
+      }, 0),
+    );
+
+    return {
+      type: 'pie',
+      name: 'USD vs CAD',
+      colorByPoint: true,
+      center: ['80%', '30%'],
+      size: 150,
+      data: Object.keys(positionDataByCurrency)
+        .map(currency => {
+          const data = positionDataByCurrency[currency];
+          return {
+            name: `${currency.toUpperCase()} Stocks`,
+            y: data.value,
+            displayValue: data.value.toLocaleString(),
+            gain: data.gain.toLocaleString(),
+            gain_percent: (data.gain / data.value) * 100,
+            totalValue: totalValue.toLocaleString(),
+          };
+        })
+        .concat(
+          Object.keys(cashByCurrency).map(currency => {
+            const data = cashByCurrency[currency];
+            return {
+              name: `${currency.toUpperCase()} Cash`,
+              y: data.value,
+              displayValue: data.value.toLocaleString(),
+              gain: 'N/A',
+              gain_percent: 0,
+              totalValue: totalValue.toLocaleString(),
+            };
+          }),
+        ),
+      tooltip: {
+        pointFormat: `<b>{point.percentage:.1f}%</b>
+        <br />Value: {point.displayValue}
+        <br />Gain: {point.gain}
+        <br />Gain %: {point.gain_percent:.2f}
+        <br />Total Value: {point.totalValue}
+        `,
+      },
+    };
+  }
 
   getOptions(title, yAxisTitle, series) {
     return {
@@ -213,7 +254,7 @@ export default class HoldingsCharts extends Component<Props> {
         <Collapsible trigger="Holdings Chart" open>
           <HighchartsReact
             highcharts={Highcharts}
-            options={this.getOptions('', 'Market Value ($)', [positionSeries[0]])}
+            options={this.getOptions('', 'Market Value ($)', [positionSeries[0], this.getUSDCADSeries()])}
           />
           <HighchartsReact highcharts={Highcharts} options={this.getOptions('', '', [positionSeries[1]])} />
           <div className="center">

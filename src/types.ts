@@ -45,3 +45,10 @@ export type Position = {
   gain_amount: number;
   investments: Investment[];
 };
+
+export type Account = {
+  id: string;
+  currency: string;
+  cash: number;
+  value: number;
+};
