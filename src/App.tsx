@@ -226,8 +226,8 @@ class App extends Component<Props, State> {
       .then(response => {
         const accounts = parseInstitutionsResponse(
           response,
-          options.groupsFilter || [],
-          options.institutionsFilter || [],
+          options.groupsFilter ? options.groupsFilter.split(',') : [],
+          options.institutionsFilter ? options.institutionsFilter.split(',') : [],
         );
         console.log('Accounts data: ', accounts);
         return accounts;
