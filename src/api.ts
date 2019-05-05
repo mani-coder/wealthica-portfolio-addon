@@ -102,9 +102,10 @@ export const parseSecurityTransactionsResponse = (response: any): Transaction[] 
       return {
         date: getDate(transaction.date).format(DATE_FORMAT),
         symbol: getSymbol(transaction.security),
+        price: Math.abs(transaction.currency_amount / transaction.quantity).toFixed(3),
+        type: transaction.type,
         amount: transaction.currency_amount,
         currency: transaction.security.currency,
-        type: transaction.type,
         shares: transaction.quantity,
         fees: transaction.fee,
       };

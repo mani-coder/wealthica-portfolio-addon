@@ -11,6 +11,20 @@ type Props = {
 };
 
 export default class HoldingsCharts extends Component<Props> {
+  getDrillDown(): any {
+    return {
+      series: this.props.positions.map(position => {
+        return {
+          id: getSymbol(position.security),
+          name: getSymbol(position.security),
+          data: position.transactions.map(transaction => {
+            return [transaction.date, transaction.price];
+          }),
+        };
+      }),
+    };
+  }
+
   getPositionsSeries() {
     const marketValue = this.props.positions.reduce((sum, position) => {
       return sum + position.market_value;
@@ -20,6 +34,7 @@ export default class HoldingsCharts extends Component<Props> {
       .map(position => {
         return {
           name: getSymbol(position.security),
+          // drilldown: getSymbol(position.security),
           y: position.market_value,
           displayValue: formatCurrency(position.market_value, 1),
           marketValue: position.market_value.toLocaleString(),
@@ -61,6 +76,7 @@ export default class HoldingsCharts extends Component<Props> {
           format: '{point.displayValue}',
         },
         showInLegend: false,
+        drilldown: this.getDrillDown(),
       },
       {
         type: 'pie',
@@ -183,6 +199,8 @@ export default class HoldingsCharts extends Component<Props> {
   getOptions = (title: string, yAxisTitle: string, series: any): Highcharts.Options => {
     return {
       series,
+      // drilldown: this.getDrillDown(),
+
       title: {
         text: title,
       },
