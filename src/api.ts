@@ -91,7 +91,7 @@ export const parseTransactionsResponse = (response: any, currencyCache: any) => 
   }, {});
 };
 
-export const parseSecurityTransactionsResponse = (response: any): Transaction[] => {
+export const parseSecurityTransactionsResponse = (response: any, currencyCache: any): Transaction[] => {
   return response
     .filter(
       transaction =>
@@ -99,12 +99,20 @@ export const parseSecurityTransactionsResponse = (response: any): Transaction[] 
         transaction.security,
     )
     .map(transaction => {
+      const date = getDate(transaction.date);
+
+      let amount = Number(transaction.currency_amount);
+      amount =
+        transaction.investment && transaction.investment.includes(':usd')
+          ? getCurrencyInCAD(date, amount, currencyCache)
+          : amount;
+
       return {
-        date: getDate(transaction.date).format(DATE_FORMAT),
+        date,
         symbol: getSymbol(transaction.security),
         price: Math.abs(transaction.currency_amount / transaction.quantity).toFixed(3),
         type: transaction.type,
-        amount: transaction.currency_amount,
+        amount: Math.abs(amount),
         currency: transaction.security.currency,
         shares: transaction.quantity,
         fees: transaction.fee,

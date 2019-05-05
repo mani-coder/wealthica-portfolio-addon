@@ -124,7 +124,7 @@ class App extends Component<Props, State> {
   }
 
   computePositions(positions, transactions) {
-    const securityTransactions = parseSecurityTransactionsResponse(transactions);
+    const securityTransactions = parseSecurityTransactionsResponse(transactions, this.state.currencyCache);
     const securityTransactionsBySymbol = securityTransactions.reduce((hash, transaction) => {
       if (!hash[transaction.symbol]) {
         hash[transaction.symbol] = [];
