@@ -6,8 +6,14 @@ import { Addon } from '@wealthica/wealthica.js/index';
 import Loader from 'react-loader-spinner';
 import moment from 'moment';
 
-import { parseCurrencyReponse, parsePortfolioResponse, parseTransactionsResponse, parsePositionsResponse } from './api';
-import { PortfolioData, Portfolio, Position } from './types';
+import {
+  parseCurrencyReponse,
+  parsePortfolioResponse,
+  parseTransactionsResponse,
+  parsePositionsResponse,
+  parseInstitutionsResponse,
+} from './api';
+import { PortfolioData, Portfolio, Position, Account } from './types';
 import { TRANSACTIONS_FROM_DATE } from './constants';
 import { CURRENCIES_API_RESPONSE } from './mocks/currencies';
 import { POSITIONS_API_RESPONSE } from './mocks/positions';
@@ -20,6 +26,7 @@ import ProfitLossTimeline from './components/ProfitLossTimeline';
 import ProfitLossPercentageTimeline from './components/ProfitLossPercentageTimeline';
 import HoldingsCharts from './components/HoldingsCharts';
 import HoldingsTable from './components/HoldingsTable';
+import { INSTITUITIONS_DATA } from './mocks/institutions';
 
 type State = {
   addon: any;
@@ -27,6 +34,7 @@ type State = {
   portfolioPerDay: { [key: string]: PortfolioData };
   portfolios: Portfolio[];
   positions: Position[];
+  accounts: Account[];
   isLoaded: boolean;
   privateMode: boolean;
 };
@@ -42,6 +50,7 @@ class App extends Component<Props, State> {
       portfolioPerDay: {},
       portfolios: [],
       positions: [],
+      accounts: [],
       isLoaded: false,
       privateMode: false,
     };
@@ -106,11 +115,12 @@ class App extends Component<Props, State> {
 
     const portfolioByDate = await this.loadPortfolioData(options);
     const transactionsByDate = await this.loadTransactions(options);
+    const accounts = await this.loadInstitutionsData(options);
 
-    this.computePortfolios(portfolioByDate, transactionsByDate);
+    this.computePortfolios(portfolioByDate, transactionsByDate, accounts);
   }
 
-  computePortfolios = (portfolioByDate, transactionsByDate) => {
+  computePortfolios = (portfolioByDate, transactionsByDate, accounts) => {
     const portfolioPerDay = Object.keys(portfolioByDate).reduce((hash, date) => {
       const data = transactionsByDate[date] || {};
       hash[date] = {
@@ -146,16 +156,9 @@ class App extends Component<Props, State> {
       }
     });
 
-    this.setState({ portfolios, portfolioPerDay, isLoaded: true });
+    this.setState({ portfolios, portfolioPerDay, isLoaded: true, accounts });
     console.log('Loaded the data', portfolios);
   };
-
-  async loadPortfolioAndTransactions(options) {
-    return {
-      portfolio: this.loadPortfolioData(options),
-      transactions: this.loadTransactions(options),
-    };
-  }
 
   loadPortfolioData(options) {
     console.log('Loading portfolio data.');
@@ -206,6 +209,30 @@ class App extends Component<Props, State> {
       });
   }
 
+  loadInstitutionsData(options) {
+    console.log('Loading institutions data..');
+    const query = {
+      assets: true,
+      groups: options.groupsFilter,
+      institutions: options.institutionsFilter,
+      investments: options.investmentsFilter === 'all' ? null : options.investmentsFilter,
+    };
+    return this.state.addon
+      .request({
+        query,
+        method: 'GET',
+        endpoint: 'institutions',
+      })
+      .then(response => {
+        const accounts = parseInstitutionsResponse(response);
+        console.log('Accounts data: ', accounts);
+        return accounts;
+      })
+      .catch(error => {
+        console.error('Failed to load position data.', error);
+      });
+  }
+
   loadTransactions(options) {
     console.log('Loading transactions data.');
     const fromDate = options.dateRangeFilter && options.dateRangeFilter[0];
@@ -236,10 +263,12 @@ class App extends Component<Props, State> {
     const portfolioByDate = parsePortfolioResponse(PORTFOLIO_API_RESPONSE);
     const transactionsByDate = parseTransactionsResponse(TRANSACTIONS_API_RESPONSE, currencyCache);
     const positions = parsePositionsResponse(POSITIONS_API_RESPONSE);
+    const accounts = parseInstitutionsResponse(INSTITUITIONS_DATA);
 
     console.log(positions);
     this.setState({ currencyCache, positions });
-    this.computePortfolios(portfolioByDate, transactionsByDate);
+    this.computePortfolios(portfolioByDate, transactionsByDate, accounts);
+    console.log(this.state);
   }
 
   componentDidMount() {
@@ -266,7 +295,11 @@ class App extends Component<Props, State> {
             <ProfitLossTimeline portfolios={this.state.portfolios} isPrivateMode={this.state.privateMode} />
             {!!this.state.positions.length && (
               <>
-                <HoldingsCharts positions={this.state.positions} isPrivateMode={this.state.privateMode} />
+                <HoldingsCharts
+                  positions={this.state.positions}
+                  accounts={this.state.accounts}
+                  isPrivateMode={this.state.privateMode}
+                />
                 <HoldingsTable positions={this.state.positions} isPrivateMode={this.state.privateMode} />
               </>
             )}
