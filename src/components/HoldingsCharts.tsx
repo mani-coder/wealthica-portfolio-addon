@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import { Position, Account } from '../types';
-import Highcharts from 'highcharts/highstock';
-import HighchartsReact from 'highcharts-react-official';
 import Collapsible from 'react-collapsible';
 import { getSymbol, formatCurrency, getURLParams } from '../utils';
+import Charts from './Charts';
 
 type Props = {
   positions: Position[];
@@ -181,7 +180,7 @@ export default class HoldingsCharts extends Component<Props> {
     };
   }
 
-  getOptions(title, yAxisTitle, series) {
+  getOptions = (title: string, yAxisTitle: string, series: any): Highcharts.Options => {
     return {
       series,
       title: {
@@ -221,7 +220,7 @@ export default class HoldingsCharts extends Component<Props> {
         },
       },
     };
-  }
+  };
 
   getPortfolioVisualizerLink() {
     const marketValue = this.props.positions.reduce((sum, position) => {
@@ -252,11 +251,8 @@ export default class HoldingsCharts extends Component<Props> {
     return (
       <>
         <Collapsible trigger="Holdings Chart" open>
-          <HighchartsReact
-            highcharts={Highcharts}
-            options={this.getOptions('', 'Market Value ($)', [positionSeries[0], this.getUSDCADSeries()])}
-          />
-          <HighchartsReact highcharts={Highcharts} options={this.getOptions('', '', [positionSeries[1]])} />
+          <Charts options={this.getOptions('', 'Market Value ($)', [positionSeries[0], this.getUSDCADSeries()])} />
+          <Charts options={this.getOptions('', '', [positionSeries[1]])} />
           <div className="center">
             <div
               className="button"
@@ -269,10 +265,7 @@ export default class HoldingsCharts extends Component<Props> {
           </div>
         </Collapsible>
         <Collapsible trigger="Top Losers/Gainers Chart" open>
-          <HighchartsReact
-            highcharts={Highcharts}
-            options={this.getOptions('P/L Ratio Per Stock', 'Gain/Loss (%)', this.getTopGainersLosers())}
-          />
+          <Charts options={this.getOptions('P/L Ratio Per Stock', 'Gain/Loss (%)', this.getTopGainersLosers())} />
         </Collapsible>
       </>
     );

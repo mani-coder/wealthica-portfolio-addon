@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
 import { Portfolio } from '../types';
-import Highcharts from 'highcharts/highstock';
-import HighchartsReact from 'highcharts-react-official';
 import moment from 'moment';
 import Collapsible from 'react-collapsible';
-// import { formatCurrency } from '../utils';
+import Charts from './Charts';
 
 type Props = {
   portfolios: Portfolio[];
@@ -12,7 +10,7 @@ type Props = {
 };
 
 export default class DepositVsPortfolioValueTimeline extends Component<Props> {
-  getSeries() {
+  getSeries(): any {
     return [
       {
         name: 'Portfolio',
@@ -41,7 +39,7 @@ export default class DepositVsPortfolioValueTimeline extends Component<Props> {
     ];
   }
 
-  getOptions() {
+  getOptions(): Highcharts.Options {
     return {
       title: {
         text: 'Deposits Vs Portfolio Value',
@@ -88,7 +86,7 @@ export default class DepositVsPortfolioValueTimeline extends Component<Props> {
                 height: 300,
               },
               subtitle: {
-                text: null,
+                text: undefined,
               },
               navigator: {
                 enabled: true,
@@ -104,7 +102,7 @@ export default class DepositVsPortfolioValueTimeline extends Component<Props> {
   render() {
     return (
       <Collapsible trigger="Deposits Vs Portfolio Value Timeline" open>
-        <HighchartsReact highcharts={Highcharts} constructorType={'stockChart'} options={this.getOptions()} />
+        <Charts constructorType={'stockChart'} options={this.getOptions()} />
       </Collapsible>
     );
   }
