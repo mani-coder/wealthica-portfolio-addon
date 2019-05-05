@@ -3,6 +3,9 @@ import { Position, Account } from '../types';
 import Collapsible from 'react-collapsible';
 import { getSymbol, formatCurrency, getURLParams } from '../utils';
 import Charts from './Charts';
+import moment from 'moment';
+import _ from 'lodash';
+import * as Highcharts from 'highcharts';
 
 type Props = {
   positions: Position[];
@@ -10,16 +13,61 @@ type Props = {
   isPrivateMode: boolean;
 };
 
+const TYPE_TO_COLOR = {
+  buy: '#84C341',
+  sell: '#FF897C',
+  income: 'green',
+  dividend: 'green',
+  distribution: 'green',
+  tax: 'yellow',
+  fee: 'yellow',
+};
+
 export default class HoldingsCharts extends Component<Props> {
   getDrillDown(): any {
     return {
       series: this.props.positions.map(position => {
         return {
+          type: 'column',
           id: getSymbol(position.security),
           name: getSymbol(position.security),
           data: position.transactions.map(transaction => {
-            return [transaction.date, transaction.price];
+            const isBuySell = ['buy', 'sell'].includes(transaction.type);
+            const type = _.startCase(transaction.type);
+            return {
+              name: moment(transaction.date).format('MMM D, Y'),
+              y: transaction.amount,
+              color: TYPE_TO_COLOR[transaction.type],
+              displayValue: transaction.amount.toLocaleString(),
+              type,
+              price: isBuySell ? transaction.price : 'N/A',
+              shares: isBuySell ? transaction.shares : 'N/A',
+              label: isBuySell
+                ? `${transaction.price}@${transaction.shares}`
+                : `${type}@${transaction.amount.toLocaleString()}`,
+              transaction,
+            };
           }),
+          legend: {
+            enabled: true,
+            align: 'right',
+            verticalAlign: 'top',
+            layout: 'vertical',
+            x: 0,
+            y: 100,
+          },
+
+          tooltip: {
+            useHTML: true,
+            pointFormat: `<b>{point.label}</b>
+            <br />Type: {point.type}`,
+            valueDecimals: 1,
+          },
+          dataLabels: {
+            enabled: !this.props.isPrivateMode,
+            format: '{point.label}',
+          },
+          // showInLegend: true,
         };
       }),
     };
@@ -34,7 +82,7 @@ export default class HoldingsCharts extends Component<Props> {
       .map(position => {
         return {
           name: getSymbol(position.security),
-          // drilldown: getSymbol(position.security),
+          drilldown: getSymbol(position.security),
           y: position.market_value,
           displayValue: formatCurrency(position.market_value, 1),
           marketValue: position.market_value.toLocaleString(),
@@ -76,7 +124,6 @@ export default class HoldingsCharts extends Component<Props> {
           format: '{point.displayValue}',
         },
         showInLegend: false,
-        drilldown: this.getDrillDown(),
       },
       {
         type: 'pie',
@@ -158,8 +205,8 @@ export default class HoldingsCharts extends Component<Props> {
       type: 'pie',
       name: 'USD vs CAD',
       colorByPoint: true,
-      center: ['80%', '30%'],
-      size: 150,
+      // center: ['80%', '30%'],
+      // size: 150,
       data: Object.keys(positionDataByCurrency)
         .map(currency => {
           const data = positionDataByCurrency[currency];
@@ -199,7 +246,7 @@ export default class HoldingsCharts extends Component<Props> {
   getOptions = (title: string, yAxisTitle: string, series: any): Highcharts.Options => {
     return {
       series,
-      // drilldown: this.getDrillDown(),
+      drilldown: this.getDrillDown(),
 
       title: {
         text: title,
@@ -266,10 +313,11 @@ export default class HoldingsCharts extends Component<Props> {
 
   render() {
     const positionSeries = this.getPositionsSeries();
+
     return (
       <>
         <Collapsible trigger="Holdings Chart" open>
-          <Charts options={this.getOptions('', 'Market Value ($)', [positionSeries[0], this.getUSDCADSeries()])} />
+          <Charts options={this.getOptions('', 'Market Value ($)', [positionSeries[0]])} />
           <Charts options={this.getOptions('', '', [positionSeries[1]])} />
           <div className="center">
             <div
@@ -282,6 +330,11 @@ export default class HoldingsCharts extends Component<Props> {
             </div>
           </div>
         </Collapsible>
+
+        <Collapsible trigger="USD/CAD Composition" open>
+          <Charts options={this.getOptions('USD/CAD Composition', '', [this.getUSDCADSeries()])} />
+        </Collapsible>
+
         <Collapsible trigger="Top Losers/Gainers Chart" open>
           <Charts options={this.getOptions('P/L Ratio Per Stock', 'Gain/Loss (%)', this.getTopGainersLosers())} />
         </Collapsible>
