@@ -224,7 +224,11 @@ class App extends Component<Props, State> {
         endpoint: 'institutions',
       })
       .then(response => {
-        const accounts = parseInstitutionsResponse(response);
+        const accounts = parseInstitutionsResponse(
+          response,
+          options.groupsFilter || [],
+          options.institutionsFilter || [],
+        );
         console.log('Accounts data: ', accounts);
         return accounts;
       })
