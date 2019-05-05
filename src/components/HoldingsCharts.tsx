@@ -26,6 +26,13 @@ const TYPE_TO_COLOR = {
 export default class HoldingsCharts extends Component<Props> {
   getDrillDown(): any {
     return {
+      activeAxisLabelStyle: {
+        textDecoration: 'none',
+      },
+      activeDataLabelStyle: {
+        textDecoration: 'none',
+      },
+
       series: this.props.positions.map(position => {
         return {
           type: 'column',
@@ -37,7 +44,7 @@ export default class HoldingsCharts extends Component<Props> {
             return {
               name: moment(transaction.date).format('MMM D, Y'),
               y: transaction.amount,
-              color: TYPE_TO_COLOR[transaction.type],
+              color: TYPE_TO_COLOR[transaction.type.toLowerCase()],
               displayValue: transaction.amount.toLocaleString(),
               type,
               price: isBuySell ? transaction.price : 'N/A',
@@ -104,7 +111,7 @@ export default class HoldingsCharts extends Component<Props> {
         type: 'column',
         name: 'Holdings',
         colorByPoint: true,
-        data: data,
+        data,
 
         tooltip: {
           useHTML: true,
@@ -129,7 +136,7 @@ export default class HoldingsCharts extends Component<Props> {
         type: 'pie',
         name: 'Holdings',
         colorByPoint: true,
-        data: data,
+        data,
 
         tooltip: {
           pointFormat: `<b>{point.percentage:.1f}%</b>
