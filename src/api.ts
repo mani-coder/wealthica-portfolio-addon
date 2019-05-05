@@ -1,6 +1,6 @@
-import { getDate, getCurrencyInCAD } from './utils';
+import { getDate, getCurrencyInCAD, getSymbol } from './utils';
 import { DATE_FORMAT } from './constants';
-import { Position, Account } from './types';
+import { Position, Account, Transaction } from './types';
 
 export const parseCurrencyReponse = (response: any) => {
   const date = getDate(response.from);
@@ -89,6 +89,26 @@ export const parseTransactionsResponse = (response: any, currencyCache: any) => 
     hash[dateKey] = portfolioData;
     return hash;
   }, {});
+};
+
+export const parseSecurityTransactionsResponse = (response: any): Transaction[] => {
+  return response
+    .filter(
+      transaction =>
+        ['sell', 'buy', 'income', 'dividend', 'distribution', 'tax', 'fee'].includes(transaction.type) &&
+        transaction.security,
+    )
+    .map(transaction => {
+      return {
+        date: getDate(transaction.date).format(DATE_FORMAT),
+        symbol: getSymbol(transaction.security),
+        amount: transaction.currency_amount,
+        currency: transaction.security.currency,
+        type: transaction.type,
+        shares: transaction.quantity,
+        fees: transaction.fee,
+      };
+    });
 };
 
 export const parsePositionsResponse = (response: any): Position[] => {

@@ -12,6 +12,7 @@ import {
   parseTransactionsResponse,
   parsePositionsResponse,
   parseInstitutionsResponse,
+  parseSecurityTransactionsResponse,
 } from './api';
 import { PortfolioData, Portfolio, Position, Account } from './types';
 import { TRANSACTIONS_FROM_DATE } from './constants';
@@ -27,6 +28,7 @@ import ProfitLossPercentageTimeline from './components/ProfitLossPercentageTimel
 import HoldingsCharts from './components/HoldingsCharts';
 import HoldingsTable from './components/HoldingsTable';
 import { INSTITUITIONS_DATA } from './mocks/institutions';
+import { getSymbol } from './utils';
 
 type State = {
   addon: any;
@@ -110,14 +112,32 @@ class App extends Component<Props, State> {
   async loadData(options) {
     await this.loadCurrenciesCache();
 
-    this.loadPositions(options);
+    const positions = await this.loadPositions(options);
     this.setState({ privateMode: options.privateMode });
 
     const portfolioByDate = await this.loadPortfolioData(options);
-    const transactionsByDate = await this.loadTransactions(options);
+    const { transactionsByDate, transactions } = await this.loadTransactions(options);
     const accounts = await this.loadInstitutionsData(options);
 
+    this.computePositions(positions, transactions);
     this.computePortfolios(portfolioByDate, transactionsByDate, accounts);
+  }
+
+  computePositions(positions, transactions) {
+    const securityTransactions = parseSecurityTransactionsResponse(transactions);
+    const securityTransactionsBySymbol = securityTransactions.reduce((hash, transaction) => {
+      if (!hash[transaction.symbol]) {
+        hash[transaction.symbol] = [];
+      }
+      hash[transaction.symbol].push(transaction);
+      return hash;
+    }, {});
+
+    positions.forEach(position => {
+      position.transactions = securityTransactionsBySymbol[getSymbol(position.security)] || [];
+    });
+
+    this.setState({ positions });
   }
 
   computePortfolios = (portfolioByDate, transactionsByDate, accounts) => {
@@ -202,7 +222,7 @@ class App extends Component<Props, State> {
       .then(response => {
         const positions = parsePositionsResponse(response);
         console.log('Positions data: ', positions);
-        this.setState({ positions });
+        return positions;
       })
       .catch(error => {
         console.error('Failed to load position data.', error);
@@ -253,9 +273,9 @@ class App extends Component<Props, State> {
         endpoint: 'transactions',
       })
       .then(response => {
-        const transactions = parseTransactionsResponse(response, this.state.currencyCache);
-        console.log('Transactions data: ', transactions);
-        return transactions;
+        const transactionsByDate = parseTransactionsResponse(response, this.state.currencyCache);
+        console.log('Transactions data: ', transactionsByDate);
+        return { transactionsByDate, transactions: response };
       })
       .catch(error => {
         console.error('Failed to load transactions data.', error);
@@ -274,7 +294,8 @@ class App extends Component<Props, State> {
     );
 
     console.log(positions);
-    this.setState({ currencyCache, positions });
+    this.setState({ currencyCache });
+    this.computePositions(positions, TRANSACTIONS_API_RESPONSE);
     this.computePortfolios(portfolioByDate, transactionsByDate, accounts);
     console.log(this.state);
   }
