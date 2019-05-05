@@ -17,11 +17,11 @@ export const parseCurrencyReponse = (response: any) => {
 export const parseInstitutionsResponse = (response: any, groups?: string[], institutions?: string[]): Account[] => {
   const accounts: Account[] = [];
   return response
-    .filter(institution => !institutions || institutions.includes(institution.id))
+    .filter(institution => !institutions || !institutions.length || institutions.includes(institution.id))
     .reduce((accounts, instutition) => {
       return accounts.concat(
         instutition.investments
-          .filter(account => !groups || groups.includes(account.group))
+          .filter(account => !groups || !groups.length || groups.includes(account.group))
           .map(account => {
             return {
               id: account._id,

@@ -267,7 +267,11 @@ class App extends Component<Props, State> {
     const portfolioByDate = parsePortfolioResponse(PORTFOLIO_API_RESPONSE);
     const transactionsByDate = parseTransactionsResponse(TRANSACTIONS_API_RESPONSE, currencyCache);
     const positions = parsePositionsResponse(POSITIONS_API_RESPONSE);
-    const accounts = parseInstitutionsResponse(INSTITUITIONS_DATA);
+    const accounts = parseInstitutionsResponse(
+      INSTITUITIONS_DATA,
+      // ['5fsgsfgsfdgsfgs436fdgsgsfd'],
+      // ['5bff61005f70de000476a47d'],
+    );
 
     console.log(positions);
     this.setState({ currencyCache, positions });
