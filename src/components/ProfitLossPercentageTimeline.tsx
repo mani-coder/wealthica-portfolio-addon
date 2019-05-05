@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import { Portfolio } from '../types';
-import Highcharts from 'highcharts/highstock';
-import HighchartsReact from 'highcharts-react-official';
 import moment from 'moment';
 import Collapsible from 'react-collapsible';
 import { min, max, formatCurrency } from '../utils';
+import Charts from './Charts';
 
 type Props = {
   portfolios: Portfolio[];
@@ -12,7 +11,7 @@ type Props = {
 };
 
 export default class ProfitLossPercentageTimeline extends Component<Props> {
-  getSeries() {
+  getSeries(): any {
     const data = this.props.portfolios.map(portfolio => {
       return {
         x: moment(portfolio.date).valueOf(),
@@ -54,7 +53,7 @@ export default class ProfitLossPercentageTimeline extends Component<Props> {
     ];
   }
 
-  getOptions() {
+  getOptions(): Highcharts.Options {
     return {
       title: {
         text: 'Profit/Loss (%)',
@@ -92,9 +91,7 @@ export default class ProfitLossPercentageTimeline extends Component<Props> {
       yAxis: [
         {
           labels: {
-            formatter: function(value) {
-              return `${value.value}%`;
-            },
+            format: '{value}%',
           },
           opposite: false,
           plotLines: [
@@ -107,9 +104,7 @@ export default class ProfitLossPercentageTimeline extends Component<Props> {
         },
         {
           labels: {
-            formatter: function(value) {
-              return `${value.value}%`;
-            },
+            format: '{value}%',
           },
           linkedTo: 0,
         },
@@ -131,7 +126,7 @@ export default class ProfitLossPercentageTimeline extends Component<Props> {
                 height: 300,
               },
               subtitle: {
-                text: null,
+                text: undefined,
               },
               navigator: {
                 enabled: false,
@@ -147,7 +142,7 @@ export default class ProfitLossPercentageTimeline extends Component<Props> {
   render() {
     return (
       <Collapsible trigger="P/L Ratio Timeline" open>
-        <HighchartsReact highcharts={Highcharts} constructorType={'stockChart'} options={this.getOptions()} />
+        <Charts constructorType={'stockChart'} options={this.getOptions()} />
       </Collapsible>
     );
   }
