@@ -3,9 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@types/node": "^11.10.4",
-    "@types/react": "^16.8.6",
-    "@types/react-dom": "^16.8.2",
     "@wealthica/wealthica.js": "0.0.10",
     "highcharts": "^7.0.3",
     "highcharts-react-official": "^2.0.0",
@@ -15,8 +12,7 @@
     "react-dom": "^16.8.3",
     "react-loader-spinner": "^2.3.0",
     "react-scripts": "2.1.5",
-    "react-table": "^6.9.2",
-    "typescript": "^3.3.3333"
+    "react-table": "^6.9.2"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -37,6 +33,10 @@
   ],
   "homepage": "https://mani-coder.github.io/wealthica-portfolio-addon/",
   "devDependencies": {
+    "@types/node": "^11.10.4",
+    "@types/react": "^16.8.6",
+    "@types/react-dom": "^16.8.2",
+    "typescript": "^3.3.3333",
     "@types/jest": "^24.0.9",
     "gh-pages": "^2.0.1",
     "jest": "^23.6.0",
