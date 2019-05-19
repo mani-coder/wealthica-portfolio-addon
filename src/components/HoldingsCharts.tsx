@@ -1,16 +1,85 @@
 import React, { Component } from 'react';
-import { Position } from '../types';
-import Highcharts from 'highcharts/highstock';
-import HighchartsReact from 'highcharts-react-official';
+import { Position, Account } from '../types';
 import Collapsible from 'react-collapsible';
 import { getSymbol, formatCurrency, getURLParams } from '../utils';
+import Charts from './Charts';
+import moment from 'moment';
+import _ from 'lodash';
+import * as Highcharts from 'highcharts';
 
 type Props = {
   positions: Position[];
+  accounts: Account[];
   isPrivateMode: boolean;
 };
 
+const TYPE_TO_COLOR = {
+  buy: '#84C341',
+  sell: '#FF897C',
+  income: 'green',
+  dividend: 'green',
+  distribution: 'green',
+  tax: 'yellow',
+  fee: 'yellow',
+};
+
 export default class HoldingsCharts extends Component<Props> {
+  getDrillDown(): any {
+    return {
+      activeAxisLabelStyle: {
+        textDecoration: 'none',
+      },
+      activeDataLabelStyle: {
+        textDecoration: 'none',
+      },
+
+      series: this.props.positions.map(position => {
+        return {
+          type: 'column',
+          id: getSymbol(position.security),
+          name: getSymbol(position.security),
+          data: position.transactions.map(transaction => {
+            const isBuySell = ['buy', 'sell'].includes(transaction.type);
+            const type = _.startCase(transaction.type);
+            return {
+              name: moment(transaction.date).format('MMM D, Y'),
+              y: transaction.amount,
+              color: TYPE_TO_COLOR[transaction.type.toLowerCase()],
+              displayValue: transaction.amount.toLocaleString(),
+              type,
+              price: isBuySell ? transaction.price : 'N/A',
+              shares: isBuySell ? transaction.shares : 'N/A',
+              label: isBuySell
+                ? `${transaction.price}@${transaction.shares}`
+                : `${type}@${transaction.amount.toLocaleString()}`,
+              transaction,
+            };
+          }),
+          legend: {
+            enabled: true,
+            align: 'right',
+            verticalAlign: 'top',
+            layout: 'vertical',
+            x: 0,
+            y: 100,
+          },
+
+          tooltip: {
+            useHTML: true,
+            pointFormat: `<b>{point.label}</b>
+            <br />Type: {point.type}`,
+            valueDecimals: 1,
+          },
+          dataLabels: {
+            enabled: !this.props.isPrivateMode,
+            format: '{point.label}',
+          },
+          // showInLegend: true,
+        };
+      }),
+    };
+  }
+
   getPositionsSeries() {
     const marketValue = this.props.positions.reduce((sum, position) => {
       return sum + position.market_value;
@@ -20,6 +89,7 @@ export default class HoldingsCharts extends Component<Props> {
       .map(position => {
         return {
           name: getSymbol(position.security),
+          drilldown: getSymbol(position.security),
           y: position.market_value,
           displayValue: formatCurrency(position.market_value, 1),
           marketValue: position.market_value.toLocaleString(),
@@ -41,7 +111,7 @@ export default class HoldingsCharts extends Component<Props> {
         type: 'column',
         name: 'Holdings',
         colorByPoint: true,
-        data: data,
+        data,
 
         tooltip: {
           useHTML: true,
@@ -66,7 +136,7 @@ export default class HoldingsCharts extends Component<Props> {
         type: 'pie',
         name: 'Holdings',
         colorByPoint: true,
-        data: data,
+        data,
 
         tooltip: {
           pointFormat: `<b>{point.percentage:.1f}%</b>
@@ -110,39 +180,81 @@ export default class HoldingsCharts extends Component<Props> {
     ];
   }
 
-  // getUSDCADSeries() {
-  //   return [
-  //     {
-  //       name: 'USD vs CAD Stocks',
-  //       colorByPoint: true,
-  //       data: [
-  //         {
-  //           name: 'USD Stocks',
-  //           y: this.props.positions
-  //             .filter(position => position.security.currency === 'usd')
-  //             .reduce((sum, position) => {
-  //               return sum + position.market_value;
-  //             }, 0),
-  //         },
-  //         {
-  //           name: 'CAD Stocks',
-  //           y: this.props.positions
-  //             .filter(position => position.security.currency === 'cad')
-  //             .reduce((sum, position) => {
-  //               return sum + position.market_value;
-  //             }, 0),
-  //         },
-  //       ],
-  //       tooltip: {
-  //         pointFormat: '<b>{point.percentage:.1f}%</b>',
-  //       },
-  //     },
-  //   ];
-  // }
+  getUSDCADSeries() {
+    const cashByCurrency = this.props.accounts.reduce((hash, account) => {
+      const data = hash[account.currency] || { type: 'Cash', currency: account.currency, value: 0 };
+      data.value += account.cash;
+      hash[account.currency] = data;
+      return hash;
+    }, {});
+    const positionDataByCurrency = this.props.positions.reduce((hash, position) => {
+      const data = hash[position.security.currency] || {
+        type: 'Stocks',
+        currency: position.security.currency,
+        value: 0,
+        gain: 0,
+      };
+      data.value += position.market_value;
+      data.gain += position.gain_amount;
+      hash[position.security.currency] = data;
+      return hash;
+    }, {});
+    const totalValue = Object.keys(positionDataByCurrency).reduce(
+      (sum, currency) => {
+        return sum + positionDataByCurrency[currency].value;
+      },
+      Object.keys(cashByCurrency).reduce((sum, currency) => {
+        return sum + cashByCurrency[currency].value;
+      }, 0),
+    );
 
-  getOptions(title, yAxisTitle, series) {
+    return {
+      type: 'pie',
+      name: 'USD vs CAD',
+      colorByPoint: true,
+      // center: ['80%', '30%'],
+      // size: 150,
+      data: Object.keys(positionDataByCurrency)
+        .map(currency => {
+          const data = positionDataByCurrency[currency];
+          return {
+            name: `${currency.toUpperCase()} Stocks`,
+            y: data.value,
+            displayValue: data.value.toLocaleString(),
+            gain: data.gain.toLocaleString(),
+            gain_percent: (data.gain / data.value) * 100,
+            totalValue: totalValue.toLocaleString(),
+          };
+        })
+        .concat(
+          Object.keys(cashByCurrency).map(currency => {
+            const data = cashByCurrency[currency];
+            return {
+              name: `${currency.toUpperCase()} Cash`,
+              y: data.value,
+              displayValue: data.value.toLocaleString(),
+              gain: 'N/A',
+              gain_percent: 0,
+              totalValue: totalValue.toLocaleString(),
+            };
+          }),
+        ),
+      tooltip: {
+        pointFormat: `<b>{point.percentage:.1f}%</b>
+        <br />Value: {point.displayValue}
+        <br />Gain: {point.gain}
+        <br />Gain %: {point.gain_percent:.2f}
+        <br />Total Value: {point.totalValue}
+        `,
+      },
+    };
+  }
+
+  getOptions = (title: string, yAxisTitle: string, series: any): Highcharts.Options => {
     return {
       series,
+      drilldown: this.getDrillDown(),
+
       title: {
         text: title,
       },
@@ -180,7 +292,7 @@ export default class HoldingsCharts extends Component<Props> {
         },
       },
     };
-  }
+  };
 
   getPortfolioVisualizerLink() {
     const marketValue = this.props.positions.reduce((sum, position) => {
@@ -208,14 +320,12 @@ export default class HoldingsCharts extends Component<Props> {
 
   render() {
     const positionSeries = this.getPositionsSeries();
+
     return (
       <>
         <Collapsible trigger="Holdings Chart" open>
-          <HighchartsReact
-            highcharts={Highcharts}
-            options={this.getOptions('', 'Market Value ($)', [positionSeries[0]])}
-          />
-          <HighchartsReact highcharts={Highcharts} options={this.getOptions('', '', [positionSeries[1]])} />
+          <Charts options={this.getOptions('', 'Market Value ($)', [positionSeries[0]])} />
+          <Charts options={this.getOptions('', '', [positionSeries[1]])} />
           <div className="center">
             <div
               className="button"
@@ -227,11 +337,13 @@ export default class HoldingsCharts extends Component<Props> {
             </div>
           </div>
         </Collapsible>
+
+        <Collapsible trigger="USD/CAD Composition" open>
+          <Charts options={this.getOptions('USD/CAD Composition', '', [this.getUSDCADSeries()])} />
+        </Collapsible>
+
         <Collapsible trigger="Top Losers/Gainers Chart" open>
-          <HighchartsReact
-            highcharts={Highcharts}
-            options={this.getOptions('P/L Ratio Per Stock', 'Gain/Loss (%)', this.getTopGainersLosers())}
-          />
+          <Charts options={this.getOptions('P/L Ratio Per Stock', 'Gain/Loss (%)', this.getTopGainersLosers())} />
         </Collapsible>
       </>
     );

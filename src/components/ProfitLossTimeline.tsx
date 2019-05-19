@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import { Portfolio } from '../types';
-import Highcharts from 'highcharts/highstock';
-import HighchartsReact from 'highcharts-react-official';
 import moment from 'moment';
 import Collapsible from 'react-collapsible';
+import Charts from './Charts';
 
 type Props = {
   portfolios: Portfolio[];
@@ -11,7 +10,7 @@ type Props = {
 };
 
 export default class ProfitLossTimeline extends Component<Props> {
-  getSeries() {
+  getSeries(): any {
     return [
       {
         name: 'P/L',
@@ -27,7 +26,7 @@ export default class ProfitLossTimeline extends Component<Props> {
       },
     ];
   }
-  getOptions() {
+  getOptions(): Highcharts.Options {
     return {
       title: {
         text: 'Profit/Loss ($)',
@@ -100,7 +99,7 @@ export default class ProfitLossTimeline extends Component<Props> {
                 height: 300,
               },
               subtitle: {
-                text: null,
+                text: undefined,
               },
               navigator: {
                 enabled: false,
@@ -116,7 +115,7 @@ export default class ProfitLossTimeline extends Component<Props> {
   render() {
     return (
       <Collapsible trigger="P/L Value Timeline" open>
-        <HighchartsReact highcharts={Highcharts} constructorType={'stockChart'} options={this.getOptions()} />
+        <Charts constructorType={'stockChart'} options={this.getOptions()} />
       </Collapsible>
     );
   }

@@ -1,6 +1,6 @@
-import { getDate, getCurrencyInCAD } from './utils';
+import { getDate, getCurrencyInCAD, getSymbol } from './utils';
 import { DATE_FORMAT } from './constants';
-import { Position } from './types';
+import { Position, Account, Transaction } from './types';
 
 export const parseCurrencyReponse = (response: any) => {
   const date = getDate(response.from);
@@ -12,6 +12,26 @@ export const parseCurrencyReponse = (response: any) => {
     date.add(1, 'days');
     return hash;
   }, {});
+};
+
+export const parseInstitutionsResponse = (response: any, groups?: string[], institutions?: string[]): Account[] => {
+  const accounts: Account[] = [];
+  return response
+    .filter(institution => !institutions || !institutions.length || institutions.includes(institution.id))
+    .reduce((accounts, instutition) => {
+      return accounts.concat(
+        instutition.investments
+          .filter(account => !groups || !groups.length || groups.includes(account.group))
+          .map(account => {
+            return {
+              id: account._id,
+              cash: account.cash,
+              value: account.value,
+              currency: account.currency,
+            };
+          }),
+      );
+    }, accounts);
 };
 
 export const parsePortfolioResponse = (response: any) => {
@@ -31,7 +51,7 @@ export const parsePortfolioResponse = (response: any) => {
 export const parseTransactionsResponse = (response: any, currencyCache: any) => {
   return response.reduce((hash, transaction) => {
     const type = transaction.type;
-    if (['sell', 'buy'].includes(type)) {
+    if (['sell', 'buy', 'unknown'].includes(type)) {
       return hash;
     }
     const date = getDate(transaction.date);
@@ -69,6 +89,35 @@ export const parseTransactionsResponse = (response: any, currencyCache: any) => 
     hash[dateKey] = portfolioData;
     return hash;
   }, {});
+};
+
+export const parseSecurityTransactionsResponse = (response: any, currencyCache: any): Transaction[] => {
+  return response
+    .filter(
+      transaction =>
+        ['sell', 'buy', 'income', 'dividend', 'distribution', 'tax', 'fee'].includes(transaction.type.toLowerCase()) &&
+        transaction.security,
+    )
+    .map(transaction => {
+      const date = getDate(transaction.date);
+
+      let amount = Number(transaction.currency_amount);
+      amount =
+        transaction.investment && transaction.investment.includes(':usd')
+          ? getCurrencyInCAD(date, amount, currencyCache)
+          : amount;
+
+      return {
+        date,
+        symbol: getSymbol(transaction.security),
+        price: Math.abs(transaction.currency_amount / transaction.quantity).toFixed(3),
+        type: transaction.type,
+        amount: Math.abs(amount),
+        currency: transaction.security.currency,
+        shares: transaction.quantity,
+        fees: transaction.fee,
+      };
+    });
 };
 
 export const parsePositionsResponse = (response: any): Position[] => {
