@@ -6,12 +6,16 @@ import Charts from './Charts';
 import moment from 'moment';
 import _ from 'lodash';
 import * as Highcharts from 'highcharts';
+import StockTimeline from './StockTimeline';
 
 type Props = {
   positions: Position[];
   accounts: Account[];
   isPrivateMode: boolean;
-  onStockClick: (symbol: string) => void;
+};
+
+type State = {
+  timelineSymbol?: string;
 };
 
 const TYPE_TO_COLOR = {
@@ -24,7 +28,14 @@ const TYPE_TO_COLOR = {
   fee: 'yellow',
 };
 
-export default class HoldingsCharts extends Component<Props> {
+export default class HoldingsCharts extends Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      timelineSymbol: undefined,
+    };
+  }
+
   getDrillDown(): any {
     return {
       activeAxisLabelStyle: {
@@ -136,7 +147,7 @@ export default class HoldingsCharts extends Component<Props> {
       {
         events: {
           click: event => {
-            this.props.onStockClick(event.point.name);
+            this.setState({ timelineSymbol: event.point.name });
           },
         },
         type: 'pie',
@@ -332,6 +343,16 @@ export default class HoldingsCharts extends Component<Props> {
         <Collapsible trigger="Holdings Chart" open>
           <Charts options={this.getOptions('', 'Market Value ($)', [positionSeries[0]])} />
           <Charts options={this.getOptions('', '', [positionSeries[1]])} />
+
+          {this.state.timelineSymbol && (
+            <StockTimeline
+              symbol={this.state.timelineSymbol}
+              position={
+                this.props.positions.filter(position => getSymbol(position.security) === this.state.timelineSymbol)[0]
+              }
+            />
+          )}
+
           <div className="center">
             <div
               className="button"
