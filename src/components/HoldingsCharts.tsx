@@ -11,6 +11,7 @@ type Props = {
   positions: Position[];
   accounts: Account[];
   isPrivateMode: boolean;
+  onStockClick: (symbol: string) => void;
 };
 
 const TYPE_TO_COLOR = {
@@ -133,6 +134,11 @@ export default class HoldingsCharts extends Component<Props> {
         showInLegend: false,
       },
       {
+        events: {
+          click: event => {
+            this.props.onStockClick(event.point.name);
+          },
+        },
         type: 'pie',
         name: 'Holdings',
         colorByPoint: true,
@@ -250,10 +256,10 @@ export default class HoldingsCharts extends Component<Props> {
     };
   }
 
-  getOptions = (title: string, yAxisTitle: string, series: any): Highcharts.Options => {
+  getOptions = (title: string, yAxisTitle: string, series: any, drilldown?: boolean): Highcharts.Options => {
     return {
       series,
-      drilldown: this.getDrillDown(),
+      // drilldown: drilldown ? this.getDrillDown() : undefined,
 
       title: {
         text: title,

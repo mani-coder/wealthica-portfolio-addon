@@ -4,7 +4,7 @@ import './Collapsible.css';
 
 import { Addon } from '@wealthica/wealthica.js/index';
 import Loader from 'react-loader-spinner';
-import moment from 'moment';
+import moment, { Moment } from 'moment';
 
 import {
   parseCurrencyReponse,
@@ -17,10 +17,10 @@ import {
 import { PortfolioData, Portfolio, Position, Account } from './types';
 import { TRANSACTIONS_FROM_DATE } from './constants';
 import { CURRENCIES_API_RESPONSE } from './mocks/currencies';
-import { POSITIONS_API_RESPONSE } from './mocks/positions';
-import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio';
-import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions';
-// import { POSITIONS_API_RESPONSE, PORTFOLIO_API_RESPONSE, TRANSACTIONS_API_RESPONSE } from './mocks/prod';
+// import { POSITIONS_API_RESPONSE } from './mocks/positions';
+// import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio';
+// import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions';
+import { POSITIONS_API_RESPONSE, PORTFOLIO_API_RESPONSE, TRANSACTIONS_API_RESPONSE } from './mocks/prod';
 
 import DepositVsPortfolioValueTimeline from './components/DepositsVsPortfolioValueTimeline';
 import ProfitLossTimeline from './components/ProfitLossTimeline';
@@ -28,7 +28,8 @@ import ProfitLossPercentageTimeline from './components/ProfitLossPercentageTimel
 import HoldingsCharts from './components/HoldingsCharts';
 import HoldingsTable from './components/HoldingsTable';
 import { INSTITUITIONS_DATA } from './mocks/institutions';
-import { getSymbol } from './utils';
+import { getSymbol, getDate } from './utils';
+import StockTimeline from './components/StockTimeline';
 
 type State = {
   addon: any;
@@ -39,6 +40,8 @@ type State = {
   accounts: Account[];
   isLoaded: boolean;
   privateMode: boolean;
+  timelineSymbol?: string;
+  firstTransactionDate?: Moment;
 };
 type Props = {};
 
@@ -137,7 +140,7 @@ class App extends Component<Props, State> {
       position.transactions = securityTransactionsBySymbol[getSymbol(position.security)] || [];
     });
 
-    this.setState({ positions });
+    this.setState({ positions, firstTransactionDate: getDate(!!transactions ? transactions[0].date : undefined) });
   }
 
   computePortfolios = (portfolioByDate, transactionsByDate, accounts) => {
@@ -328,9 +331,16 @@ class App extends Component<Props, State> {
                   positions={this.state.positions}
                   accounts={this.state.accounts}
                   isPrivateMode={this.state.privateMode}
+                  onStockClick={symbol => {
+                    console.log(symbol);
+                    this.setState({ timelineSymbol: symbol });
+                  }}
                 />
                 <HoldingsTable positions={this.state.positions} isPrivateMode={this.state.privateMode} />
               </>
+            )}
+            {this.state.timelineSymbol && this.state.firstTransactionDate && (
+              <StockTimeline symbol={this.state.timelineSymbol} startDate={this.state.firstTransactionDate} />
             )}
           </>
         ) : (
