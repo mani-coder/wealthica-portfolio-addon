@@ -2,7 +2,7 @@ export const DATE_FORMAT = 'YYYY-MM-DD';
 export const TRANSACTIONS_FROM_DATE = '2010-01-01';
 
 export const TYPE_TO_COLOR = {
-  buy: 'purple',
+  buy: '#9948d1',
   sell: '#FF897C',
   income: 'green',
   dividend: 'green',
