@@ -78,26 +78,26 @@ class StockTimeline extends Component<Props, State> {
     const closePrices = this.state.data.chart.result[0].indicators.quote[0].close;
 
     const data: { x: number; y: number }[] = [];
-    // let minPrice, maxPrice, minTimestamp, maxTimestamp;
+    let minPrice, maxPrice, minTimestamp, maxTimestamp;
     timestamps.forEach((timestamp, index) => {
       data.push({
         x: timestamp * 1000,
         y: closePrices[index],
       });
-      // if (index === 0) {
-      //   maxPrice = minPrice = closePrices[index];
-      //   minTimestamp = maxTimestamp = timestamp;
-      // }
-      // if (closePrices[index] < minPrice) {
-      //   minPrice = closePrices[index];
-      //   minTimestamp = timestamp;
-      // }
-      // if (closePrices[index] > maxPrice) {
-      //   maxPrice = closePrices[index];
-      //   maxTimestamp = timestamp;
-      // }
+      if (index === 0) {
+        maxPrice = minPrice = closePrices[index];
+        minTimestamp = maxTimestamp = timestamp;
+      }
+      if (closePrices[index] < minPrice) {
+        minPrice = closePrices[index];
+        minTimestamp = timestamp;
+      }
+      if (closePrices[index] > maxPrice) {
+        maxPrice = closePrices[index];
+        maxTimestamp = timestamp;
+      }
     });
-    // console.log(minTimestamp, maxTimestamp);
+    console.log(minTimestamp, maxTimestamp);
 
     return [
       {
@@ -110,31 +110,35 @@ class StockTimeline extends Component<Props, State> {
           valueDecimals: 2,
         },
       },
-      // {
-      //   name: 'High/Low',
-      //   shape: 'squarepin',
-      //   type: 'flags',
-      //   onSeries: 'dataseries',
-      //   width: 25,
+      {
+        name: 'High/Low',
+        shape: 'circlepin',
+        type: 'flags',
 
-      //   data: [
-      //     {
-      //       x: minTimestamp * 1000,
-      //       title: 'L',
-      //       text: 'Low Price',
-      //     },
-      //     {
-      //       x: maxTimestamp * 1000,
-      //       title: 'H',
-      //       text: 'High Price',
-      //     },
-      //   ],
-      // color: 'purple',
-      // fillColor: 'purple',
-      // style: {
-      //   color: 'white',
-      // },
-      // },
+        tooltip: {
+          pointFormat: '<b>{point.text}</b>',
+          valueDecimals: 2,
+          split: true,
+        },
+
+        data: [
+          {
+            x: minTimestamp * 1000,
+            title: 'L',
+            text: `Low Price: $${formatCurrency(minPrice, 2)}`,
+          },
+          {
+            x: maxTimestamp * 1000,
+            title: 'H',
+            text: `High Price: $${formatCurrency(maxPrice, 2)}`,
+          },
+        ],
+        color: '#7cb5ec',
+        fillColor: '#7cb5ec',
+        style: {
+          color: 'white',
+        },
+      },
       this.getFlags('buy'),
       this.getFlags('sell'),
       this.getFlags('income'),
@@ -184,6 +188,20 @@ class StockTimeline extends Component<Props, State> {
     return {
       title: {
         text: `${this.props.symbol}`,
+        style: {
+          color: 'purple',
+          textDecoration: 'underline',
+          fontWeight: 'bold',
+        },
+      },
+      subtitle: {
+        text: `Shares: ${this.props.position.quantity}, Value: $${formatCurrency(
+          this.props.position.book_value,
+          2,
+        )}, Profit: $${formatCurrency(this.props.position.gain_amount, 2)}`,
+        style: {
+          color: '#1F2A33',
+        },
       },
       rangeSelector: {
         selected: 5,
