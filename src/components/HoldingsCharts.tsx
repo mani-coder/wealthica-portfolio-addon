@@ -261,13 +261,31 @@ export default class HoldingsCharts extends Component<Props, State> {
     };
   }
 
-  getOptions = (title: string, yAxisTitle: string, series: any, drilldown?: boolean): Highcharts.Options => {
+  getOptions = ({
+    title,
+    yAxisTitle,
+    subtitle,
+    series,
+    drilldown,
+  }: {
+    series: any;
+    title?: string;
+    subtitle?: string;
+    yAxisTitle?: string;
+    drilldown?: boolean;
+  }): Highcharts.Options => {
     return {
       series,
       drilldown: drilldown ? this.getDrillDown() : {},
 
       title: {
         text: title,
+      },
+      subtitle: {
+        text: subtitle,
+        style: {
+          color: '#1F2A33',
+        },
       },
       xAxis: {
         type: 'category',
@@ -335,8 +353,15 @@ export default class HoldingsCharts extends Component<Props, State> {
     return (
       <>
         <Collapsible trigger="Holdings Chart" open>
-          <Charts options={this.getOptions('', 'Market Value ($)', [positionSeries[0]], true)} />
-          <Charts options={this.getOptions('', '', [positionSeries[1]])} />
+          <Charts
+            options={this.getOptions({
+              yAxisTitle: 'Market Value ($)',
+              subtitle: '(click on a stock to view transactions)',
+              series: [positionSeries[0]],
+              drilldown: true,
+            })}
+          />
+          <Charts options={this.getOptions({ series: [positionSeries[1]] })} />
 
           {this.state.timelineSymbol && (
             <StockTimeline
@@ -360,11 +385,17 @@ export default class HoldingsCharts extends Component<Props, State> {
         </Collapsible>
 
         <Collapsible trigger="USD/CAD Composition" open>
-          <Charts options={this.getOptions('USD/CAD Composition', '', [this.getUSDCADSeries()])} />
+          <Charts options={this.getOptions({ title: 'USD/CAD Composition', series: [this.getUSDCADSeries()] })} />
         </Collapsible>
 
         <Collapsible trigger="Top Losers/Gainers Chart" open>
-          <Charts options={this.getOptions('P/L Ratio Per Stock', 'Gain/Loss (%)', this.getTopGainersLosers())} />
+          <Charts
+            options={this.getOptions({
+              title: 'P/L Ratio Per Stock',
+              yAxisTitle: 'Gain/Loss (%)',
+              series: this.getTopGainersLosers(),
+            })}
+          />
         </Collapsible>
       </>
     );

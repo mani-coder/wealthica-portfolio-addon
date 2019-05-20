@@ -189,7 +189,7 @@ class StockTimeline extends Component<Props, State> {
       title: {
         text: `${this.props.symbol}`,
         style: {
-          color: 'purple',
+          color: '#1F2A33',
           textDecoration: 'underline',
           fontWeight: 'bold',
         },
@@ -201,6 +201,7 @@ class StockTimeline extends Component<Props, State> {
         )}, Profit: $${formatCurrency(this.props.position.gain_amount, 2)}`,
         style: {
           color: '#1F2A33',
+          fontWeight: 'bold',
         },
       },
       rangeSelector: {
