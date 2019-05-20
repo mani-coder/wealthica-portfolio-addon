@@ -7,6 +7,7 @@ import moment from 'moment';
 import _ from 'lodash';
 import * as Highcharts from 'highcharts';
 import StockTimeline from './StockTimeline';
+import { TYPE_TO_COLOR } from '../constants';
 
 type Props = {
   positions: Position[];
@@ -16,16 +17,6 @@ type Props = {
 
 type State = {
   timelineSymbol?: string;
-};
-
-const TYPE_TO_COLOR = {
-  buy: '#84C341',
-  sell: '#FF897C',
-  income: 'green',
-  dividend: 'green',
-  distribution: 'green',
-  tax: 'yellow',
-  fee: 'yellow',
 };
 
 export default class HoldingsCharts extends Component<Props, State> {
@@ -62,7 +53,7 @@ export default class HoldingsCharts extends Component<Props, State> {
               price: isBuySell ? transaction.price : 'N/A',
               shares: isBuySell ? transaction.shares : 'N/A',
               label: isBuySell
-                ? `${transaction.price}@${transaction.shares}`
+                ? `${transaction.shares}@${transaction.price}`
                 : `${type}@${transaction.amount.toLocaleString()}`,
               transaction,
             };
@@ -145,15 +136,18 @@ export default class HoldingsCharts extends Component<Props, State> {
         showInLegend: false,
       },
       {
-        events: {
-          click: event => {
-            this.setState({ timelineSymbol: event.point.name });
-          },
-        },
         type: 'pie',
         name: 'Holdings',
         colorByPoint: true,
-        data,
+        data: data.map(position => ({ ...position, drilldown: undefined })),
+
+        events: {
+          click: event => {
+            if (event.point.name && this.state.timelineSymbol !== event.point.name) {
+              this.setState({ timelineSymbol: event.point.name });
+            }
+          },
+        },
 
         tooltip: {
           pointFormat: `<b>{point.percentage:.1f}%</b>
@@ -270,7 +264,7 @@ export default class HoldingsCharts extends Component<Props, State> {
   getOptions = (title: string, yAxisTitle: string, series: any, drilldown?: boolean): Highcharts.Options => {
     return {
       series,
-      // drilldown: drilldown ? this.getDrillDown() : undefined,
+      drilldown: drilldown ? this.getDrillDown() : {},
 
       title: {
         text: title,
@@ -341,7 +335,7 @@ export default class HoldingsCharts extends Component<Props, State> {
     return (
       <>
         <Collapsible trigger="Holdings Chart" open>
-          <Charts options={this.getOptions('', 'Market Value ($)', [positionSeries[0]])} />
+          <Charts options={this.getOptions('', 'Market Value ($)', [positionSeries[0]], true)} />
           <Charts options={this.getOptions('', '', [positionSeries[1]])} />
 
           {this.state.timelineSymbol && (
