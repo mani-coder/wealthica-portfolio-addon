@@ -361,7 +361,12 @@ export default class HoldingsCharts extends Component<Props, State> {
               drilldown: true,
             })}
           />
-          <Charts options={this.getOptions({ series: [positionSeries[1]] })} />
+          <Charts
+            options={this.getOptions({
+              subtitle: '(click on a stock to view timeline and transactions)',
+              series: [positionSeries[1]],
+            })}
+          />
 
           {this.state.timelineSymbol && (
             <StockTimeline
