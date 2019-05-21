@@ -47,7 +47,12 @@ class StockTimeline extends Component<Props, State> {
     }
 
     this.setState({ loading: true });
-    const startDate = this.props.position.transactions[0].date.clone().subtract('months', 1);
+    const startDate = (this.props.position.transactions && this.props.position.transactions.length
+      ? this.props.position.transactions[0].date
+      : moment()
+    )
+      .clone()
+      .subtract('months', 1);
     const endDate = moment()
       .startOf('day')
       .unix();
@@ -74,6 +79,9 @@ class StockTimeline extends Component<Props, State> {
   }
 
   getSeries(): any {
+    if (this.state.data.chart.error) {
+      return [{}];
+    }
     const timestamps = this.state.data.chart.result[0].timestamp;
     const closePrices = this.state.data.chart.result[0].indicators.quote[0].close;
 
@@ -97,14 +105,13 @@ class StockTimeline extends Component<Props, State> {
         maxTimestamp = timestamp;
       }
     });
-    console.log(minTimestamp, maxTimestamp);
 
     return [
       {
         id: 'dataseries',
         name: this.props.symbol,
         data,
-        type: 'spline',
+        type: 'line',
 
         tooltip: {
           valueDecimals: 2,
