@@ -146,22 +146,22 @@ class StockTimeline extends Component<Props, State> {
       },
       this.getFlags('buy'),
       this.getFlags('sell'),
-      this.getFlags('income'),
-      this.getFlags('dividend'),
-      this.getFlags('distribution'),
-      this.getFlags('tax'),
-      this.getFlags('fee'),
+      this.getFlags('income', true),
+      this.getFlags('dividend', true),
+      this.getFlags('distribution', true),
+      this.getFlags('tax', true),
+      this.getFlags('fee', true),
     ];
   }
 
-  getFlags = (type: string): any => {
+  getFlags = (type: string, onSeries?: boolean): any => {
     const isBuySell = ['buy', 'sell'].includes(type);
 
     return {
       name: _.startCase(type),
       shape: 'squarepin',
       type: 'flags',
-      onSeries: 'dataseries',
+      onSeries: onSeries ? undefined : 'dataseries',
       width: 25,
 
       tooltip: {
@@ -176,7 +176,7 @@ class StockTimeline extends Component<Props, State> {
         .reduce(
           (array, transaction) => {
             const lastTransaction = array.pop();
-            if (lastTransaction && lastTransaction.date === transaction.date) {
+            if (lastTransaction && lastTransaction.date.valueOf() === transaction.date.valueOf()) {
               array.push({
                 ...lastTransaction,
                 shares:
@@ -257,13 +257,6 @@ class StockTimeline extends Component<Props, State> {
       yAxis: [
         {
           opposite: false,
-          plotLines: [
-            {
-              value: 0,
-              width: 1,
-              color: 'silver',
-            },
-          ],
         },
         {
           linkedTo: 0,
