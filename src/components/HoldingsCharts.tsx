@@ -109,12 +109,23 @@ export default class HoldingsCharts extends Component<Props, State> {
           currency: position.security.currency.toUpperCase(),
         };
       });
+
+    const events = {
+      click: event => {
+        console.log(event);
+        if (event.point.name && this.state.timelineSymbol !== event.point.name) {
+          this.setState({ timelineSymbol: event.point.name });
+        }
+      },
+    };
+
     return [
       {
         type: 'column',
         name: 'Holdings',
         colorByPoint: true,
         data,
+        events,
 
         tooltip: {
           useHTML: true,
@@ -140,14 +151,7 @@ export default class HoldingsCharts extends Component<Props, State> {
         name: 'Holdings',
         colorByPoint: true,
         data: data.map(position => ({ ...position, drilldown: undefined })),
-
-        events: {
-          click: event => {
-            if (event.point.name && this.state.timelineSymbol !== event.point.name) {
-              this.setState({ timelineSymbol: event.point.name });
-            }
-          },
-        },
+        events,
 
         tooltip: {
           pointFormat: `<b>{point.percentage:.1f}%</b>
