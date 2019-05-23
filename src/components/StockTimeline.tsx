@@ -3,9 +3,9 @@ import moment from 'moment';
 import React, { Component } from 'react';
 import Loader from 'react-loader-spinner';
 import { TYPE_TO_COLOR } from '../constants';
-import { Position } from '../types';
-import Charts from './Charts';
+import { Position, Transaction } from '../types';
 import { formatCurrency } from '../utils';
+import Charts from './Charts';
 
 type Props = {
   symbol: string;
@@ -53,9 +53,7 @@ class StockTimeline extends Component<Props, State> {
     )
       .clone()
       .subtract('months', 1);
-    const endDate = moment()
-      .startOf('day')
-      .unix();
+    const endDate = moment().unix();
 
     const url = `https://query1.finance.yahoo.com/v7/finance/chart/${
       this.props.symbol
@@ -174,8 +172,36 @@ class StockTimeline extends Component<Props, State> {
 
       data: this.props.position.transactions
         .filter(t => t.type === type)
+        .sort((a, b) => a.date.valueOf() - b.date.valueOf())
+        .reduce(
+          (array, transaction) => {
+            const lastTransaction = array.pop();
+            if (lastTransaction && lastTransaction.date === transaction.date) {
+              array.push({
+                ...lastTransaction,
+                shares:
+                  transaction.shares && lastTransaction.shares
+                    ? lastTransaction.shares + transaction.shares
+                    : lastTransaction.shares,
+                amount: transaction.amount + lastTransaction.amount,
+                price:
+                  transaction.price && lastTransaction.price
+                    ? (transaction.price + lastTransaction.price) / 2
+                    : lastTransaction.price,
+              });
+            } else {
+              if (lastTransaction) {
+                array.push(lastTransaction);
+              }
+              array.push(transaction);
+            }
+            return array;
+          },
+          [] as Transaction[],
+        )
         .map(transaction => {
           return {
+            transaction,
             x: transaction.date.valueOf(),
             title: isBuySell ? transaction.shares : type.charAt(0).toUpperCase(),
             text: isBuySell
