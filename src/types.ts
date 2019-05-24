@@ -1,3 +1,5 @@
+import { Moment } from 'moment';
+
 // This is the data of the portfolio on the single day.
 export type PortfolioData = {
   value?: number; // combined portfolio value on a given day
@@ -34,7 +36,7 @@ export type Investment = {
 };
 
 export type Transaction = {
-  date: string;
+  date: Moment;
   symbol: string;
   amount: number;
   currency: string;

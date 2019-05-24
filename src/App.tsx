@@ -1,34 +1,31 @@
-import React, { Component } from 'react';
-import './App.css';
-import './Collapsible.css';
-
 import { Addon } from '@wealthica/wealthica.js/index';
+import moment, { Moment } from 'moment';
+import React, { Component } from 'react';
 import Loader from 'react-loader-spinner';
-import moment from 'moment';
-
 import {
   parseCurrencyReponse,
-  parsePortfolioResponse,
-  parseTransactionsResponse,
-  parsePositionsResponse,
   parseInstitutionsResponse,
+  parsePortfolioResponse,
+  parsePositionsResponse,
   parseSecurityTransactionsResponse,
+  parseTransactionsResponse,
 } from './api';
-import { PortfolioData, Portfolio, Position, Account } from './types';
+import './App.css';
+import './Collapsible.css';
+import DepositVsPortfolioValueTimeline from './components/DepositsVsPortfolioValueTimeline';
+import HoldingsCharts from './components/HoldingsCharts';
+import HoldingsTable from './components/HoldingsTable';
+import ProfitLossPercentageTimeline from './components/ProfitLossPercentageTimeline';
+import ProfitLossTimeline from './components/ProfitLossTimeline';
 import { TRANSACTIONS_FROM_DATE } from './constants';
 import { CURRENCIES_API_RESPONSE } from './mocks/currencies';
+import { INSTITUITIONS_DATA } from './mocks/institutions';
 import { POSITIONS_API_RESPONSE } from './mocks/positions';
 import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio';
 import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions';
-// import { POSITIONS_API_RESPONSE, PORTFOLIO_API_RESPONSE, TRANSACTIONS_API_RESPONSE } from './mocks/prod';
-
-import DepositVsPortfolioValueTimeline from './components/DepositsVsPortfolioValueTimeline';
-import ProfitLossTimeline from './components/ProfitLossTimeline';
-import ProfitLossPercentageTimeline from './components/ProfitLossPercentageTimeline';
-import HoldingsCharts from './components/HoldingsCharts';
-import HoldingsTable from './components/HoldingsTable';
-import { INSTITUITIONS_DATA } from './mocks/institutions';
-import { getSymbol } from './utils';
+// import { PORTFOLIO_API_RESPONSE, POSITIONS_API_RESPONSE, TRANSACTIONS_API_RESPONSE } from './mocks/prod';
+import { Account, Portfolio, PortfolioData, Position } from './types';
+import { getDate, getSymbol } from './utils';
 
 type State = {
   addon: any;
@@ -39,6 +36,7 @@ type State = {
   accounts: Account[];
   isLoaded: boolean;
   privateMode: boolean;
+  firstTransactionDate?: Moment;
 };
 type Props = {};
 
@@ -137,7 +135,7 @@ class App extends Component<Props, State> {
       position.transactions = securityTransactionsBySymbol[getSymbol(position.security)] || [];
     });
 
-    this.setState({ positions });
+    this.setState({ positions, firstTransactionDate: getDate(!!transactions ? transactions[0].date : undefined) });
   }
 
   computePortfolios = (portfolioByDate, transactionsByDate, accounts) => {

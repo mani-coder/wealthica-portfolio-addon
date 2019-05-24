@@ -26,6 +26,7 @@ export default class ProfitLossTimeline extends Component<Props> {
       },
     ];
   }
+
   getOptions(): Highcharts.Options {
     return {
       title: {
