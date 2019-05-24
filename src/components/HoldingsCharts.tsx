@@ -6,6 +6,8 @@ import Charts from './Charts';
 import moment from 'moment';
 import _ from 'lodash';
 import * as Highcharts from 'highcharts';
+import StockTimeline from './StockTimeline';
+import { TYPE_TO_COLOR } from '../constants';
 
 type Props = {
   positions: Position[];
@@ -13,17 +15,18 @@ type Props = {
   isPrivateMode: boolean;
 };
 
-const TYPE_TO_COLOR = {
-  buy: '#84C341',
-  sell: '#FF897C',
-  income: 'green',
-  dividend: 'green',
-  distribution: 'green',
-  tax: 'yellow',
-  fee: 'yellow',
+type State = {
+  timelineSymbol?: string;
 };
 
-export default class HoldingsCharts extends Component<Props> {
+export default class HoldingsCharts extends Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      timelineSymbol: undefined,
+    };
+  }
+
   getDrillDown(): any {
     return {
       activeAxisLabelStyle: {
@@ -50,7 +53,7 @@ export default class HoldingsCharts extends Component<Props> {
               price: isBuySell ? transaction.price : 'N/A',
               shares: isBuySell ? transaction.shares : 'N/A',
               label: isBuySell
-                ? `${transaction.price}@${transaction.shares}`
+                ? `${transaction.shares}@${transaction.price}`
                 : `${type}@${transaction.amount.toLocaleString()}`,
               transaction,
             };
@@ -106,12 +109,23 @@ export default class HoldingsCharts extends Component<Props> {
           currency: position.security.currency.toUpperCase(),
         };
       });
+
+    const events = {
+      click: event => {
+        console.log(event);
+        if (event.point.name && this.state.timelineSymbol !== event.point.name) {
+          this.setState({ timelineSymbol: event.point.name });
+        }
+      },
+    };
+
     return [
       {
         type: 'column',
         name: 'Holdings',
         colorByPoint: true,
         data,
+        events,
 
         tooltip: {
           useHTML: true,
@@ -136,7 +150,8 @@ export default class HoldingsCharts extends Component<Props> {
         type: 'pie',
         name: 'Holdings',
         colorByPoint: true,
-        data,
+        data: data.map(position => ({ ...position, drilldown: undefined })),
+        events,
 
         tooltip: {
           pointFormat: `<b>{point.percentage:.1f}%</b>
@@ -250,13 +265,31 @@ export default class HoldingsCharts extends Component<Props> {
     };
   }
 
-  getOptions = (title: string, yAxisTitle: string, series: any): Highcharts.Options => {
+  getOptions = ({
+    title,
+    yAxisTitle,
+    subtitle,
+    series,
+    drilldown,
+  }: {
+    series: any;
+    title?: string;
+    subtitle?: string;
+    yAxisTitle?: string;
+    drilldown?: boolean;
+  }): Highcharts.Options => {
     return {
       series,
-      drilldown: this.getDrillDown(),
+      drilldown: drilldown ? this.getDrillDown() : {},
 
       title: {
         text: title,
+      },
+      subtitle: {
+        text: subtitle,
+        style: {
+          color: '#1F2A33',
+        },
       },
       xAxis: {
         type: 'category',
@@ -324,8 +357,30 @@ export default class HoldingsCharts extends Component<Props> {
     return (
       <>
         <Collapsible trigger="Holdings Chart" open>
-          <Charts options={this.getOptions('', 'Market Value ($)', [positionSeries[0]])} />
-          <Charts options={this.getOptions('', '', [positionSeries[1]])} />
+          <Charts
+            options={this.getOptions({
+              yAxisTitle: 'Market Value ($)',
+              subtitle: '(click on a stock to view transactions)',
+              series: [positionSeries[0]],
+              drilldown: true,
+            })}
+          />
+          <Charts
+            options={this.getOptions({
+              subtitle: '(click on a stock to view timeline and transactions)',
+              series: [positionSeries[1]],
+            })}
+          />
+
+          {this.state.timelineSymbol && (
+            <StockTimeline
+              symbol={this.state.timelineSymbol}
+              position={
+                this.props.positions.filter(position => getSymbol(position.security) === this.state.timelineSymbol)[0]
+              }
+            />
+          )}
+
           <div className="center">
             <div
               className="button"
@@ -339,11 +394,17 @@ export default class HoldingsCharts extends Component<Props> {
         </Collapsible>
 
         <Collapsible trigger="USD/CAD Composition" open>
-          <Charts options={this.getOptions('USD/CAD Composition', '', [this.getUSDCADSeries()])} />
+          <Charts options={this.getOptions({ title: 'USD/CAD Composition', series: [this.getUSDCADSeries()] })} />
         </Collapsible>
 
         <Collapsible trigger="Top Losers/Gainers Chart" open>
-          <Charts options={this.getOptions('P/L Ratio Per Stock', 'Gain/Loss (%)', this.getTopGainersLosers())} />
+          <Charts
+            options={this.getOptions({
+              title: 'P/L Ratio Per Stock',
+              yAxisTitle: 'Gain/Loss (%)',
+              series: this.getTopGainersLosers(),
+            })}
+          />
         </Collapsible>
       </>
     );
