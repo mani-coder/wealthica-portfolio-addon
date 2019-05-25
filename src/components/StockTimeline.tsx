@@ -10,6 +10,7 @@ import Charts from './Charts';
 type Props = {
   symbol: string;
   position: Position;
+  isPrivateMode: boolean;
 };
 
 type State = {
@@ -228,10 +229,12 @@ class StockTimeline extends Component<Props, State> {
         },
       },
       subtitle: {
-        text: `Shares: ${this.props.position.quantity}, Value: $${formatCurrency(
-          this.props.position.book_value,
-          2,
-        )}, Profit: $${formatCurrency(this.props.position.gain_amount, 2)}`,
+        text: this.props.isPrivateMode
+          ? 'Shares: -, Value: -, Profit: -'
+          : `Shares: ${this.props.position.quantity}, Value: $${formatCurrency(
+              this.props.position.book_value,
+              2,
+            )}, Profit: $${formatCurrency(this.props.position.gain_amount, 2)}`,
         style: {
           color: '#1F2A33',
           fontWeight: 'bold',

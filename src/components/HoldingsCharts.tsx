@@ -373,6 +373,7 @@ export default class HoldingsCharts extends Component<Props, State> {
 
           {this.state.timelineSymbol && (
             <StockTimeline
+              isPrivateMode={this.props.isPrivateMode}
               symbol={this.state.timelineSymbol}
               position={
                 this.props.positions.filter(position => getSymbol(position.security) === this.state.timelineSymbol)[0]
