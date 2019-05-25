@@ -206,7 +206,7 @@ class StockTimeline extends Component<Props, State> {
             x: transaction.date.valueOf(),
             title: isBuySell ? transaction.shares : type.charAt(0).toUpperCase(),
             text: isBuySell
-              ? `${transaction.shares}@${transaction.price}`
+              ? `${_.startCase(type)}: ${transaction.shares}@${transaction.price}`
               : `${_.startCase(type)}: $${formatCurrency(transaction.amount, 2)}`,
           };
         }),
