@@ -112,7 +112,6 @@ export default class HoldingsCharts extends Component<Props, State> {
 
     const events = {
       click: event => {
-        console.log(event);
         if (event.point.name && this.state.timelineSymbol !== event.point.name) {
           this.setState({ timelineSymbol: event.point.name });
         }
