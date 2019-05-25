@@ -1,15 +1,15 @@
 {
-  "main.css": "/wealthica-portfolio-addon/static/css/main.6bbf1dbd.chunk.css",
-  "main.js": "/wealthica-portfolio-addon/static/js/main.38585f57.chunk.js",
-  "main.js.map": "/wealthica-portfolio-addon/static/js/main.38585f57.chunk.js.map",
+  "main.css": "/wealthica-portfolio-addon/static/css/main.a9666248.chunk.css",
+  "main.js": "/wealthica-portfolio-addon/static/js/main.f2787317.chunk.js",
+  "main.js.map": "/wealthica-portfolio-addon/static/js/main.f2787317.chunk.js.map",
   "runtime~main.js": "/wealthica-portfolio-addon/static/js/runtime~main.cd0ef51b.js",
   "runtime~main.js.map": "/wealthica-portfolio-addon/static/js/runtime~main.cd0ef51b.js.map",
-  "static/css/2.db0f1a09.chunk.css": "/wealthica-portfolio-addon/static/css/2.db0f1a09.chunk.css",
-  "static/js/2.7c6f3b6a.chunk.js": "/wealthica-portfolio-addon/static/js/2.7c6f3b6a.chunk.js",
-  "static/js/2.7c6f3b6a.chunk.js.map": "/wealthica-portfolio-addon/static/js/2.7c6f3b6a.chunk.js.map",
+  "static/css/2.a7772683.chunk.css": "/wealthica-portfolio-addon/static/css/2.a7772683.chunk.css",
+  "static/js/2.4ba82e20.chunk.js": "/wealthica-portfolio-addon/static/js/2.4ba82e20.chunk.js",
+  "static/js/2.4ba82e20.chunk.js.map": "/wealthica-portfolio-addon/static/js/2.4ba82e20.chunk.js.map",
   "index.html": "/wealthica-portfolio-addon/index.html",
-  "precache-manifest.cd7d9520edb37a612add2bd5db12a09a.js": "/wealthica-portfolio-addon/precache-manifest.cd7d9520edb37a612add2bd5db12a09a.js",
+  "precache-manifest.d21faa9ae097f28d0b1aac56d0393e25.js": "/wealthica-portfolio-addon/precache-manifest.d21faa9ae097f28d0b1aac56d0393e25.js",
   "service-worker.js": "/wealthica-portfolio-addon/service-worker.js",
-  "static/css/2.db0f1a09.chunk.css.map": "/wealthica-portfolio-addon/static/css/2.db0f1a09.chunk.css.map",
-  "static/css/main.6bbf1dbd.chunk.css.map": "/wealthica-portfolio-addon/static/css/main.6bbf1dbd.chunk.css.map"
+  "static/css/2.a7772683.chunk.css.map": "/wealthica-portfolio-addon/static/css/2.a7772683.chunk.css.map",
+  "static/css/main.a9666248.chunk.css.map": "/wealthica-portfolio-addon/static/css/main.a9666248.chunk.css.map"
 }
