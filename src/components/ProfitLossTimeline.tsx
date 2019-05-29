@@ -68,13 +68,13 @@ export default class ProfitLossTimeline extends Component<Props> {
             enabled: !this.props.isPrivateMode,
           },
           opposite: false,
-          plotLines: [
-            {
-              value: 0,
-              width: 1,
-              color: 'black',
-            },
-          ],
+          // plotLines: [
+          //   {
+          //     value: 0,
+          //     width: 1,
+          //     color: 'black',
+          //   },
+          // ],
         },
         {
           labels: {
