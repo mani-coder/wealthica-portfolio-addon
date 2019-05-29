@@ -53,13 +53,13 @@ export default class DepositVsPortfolioValueTimeline extends Component<Props> {
             enabled: !this.props.isPrivateMode,
           },
           opposite: false,
-          plotLines: [
-            {
-              value: 0,
-              width: 2,
-              color: 'silver',
-            },
-          ],
+          // plotLines: [
+          //   {
+          //     value: 0,
+          //     width: 2,
+          //     color: 'silver',
+          //   },
+          // ],
         },
         {
           labels: {
