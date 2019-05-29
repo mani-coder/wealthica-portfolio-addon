@@ -10,6 +10,7 @@ import Charts from './Charts';
 type Props = {
   symbol: string;
   position: Position;
+  isPrivateMode: boolean;
 };
 
 type State = {
@@ -186,7 +187,7 @@ class StockTimeline extends Component<Props, State> {
                 amount: transaction.amount + lastTransaction.amount,
                 price:
                   transaction.price && lastTransaction.price
-                    ? (transaction.price + lastTransaction.price) / 2
+                    ? (Number(transaction.price) + Number(lastTransaction.price)) / 2
                     : lastTransaction.price,
               });
             } else {
@@ -228,10 +229,12 @@ class StockTimeline extends Component<Props, State> {
         },
       },
       subtitle: {
-        text: `Shares: ${this.props.position.quantity}, Value: $${formatCurrency(
-          this.props.position.book_value,
-          2,
-        )}, Profit: $${formatCurrency(this.props.position.gain_amount, 2)}`,
+        text: this.props.isPrivateMode
+          ? 'Shares: -, Value: -, Profit: -'
+          : `Shares: ${this.props.position.quantity}, Value: $${formatCurrency(
+              this.props.position.book_value,
+              2,
+            )}, Profit: $${formatCurrency(this.props.position.gain_amount, 2)}`,
         style: {
           color: '#1F2A33',
           fontWeight: 'bold',
@@ -256,6 +259,9 @@ class StockTimeline extends Component<Props, State> {
 
       yAxis: [
         {
+          title: {
+            text: 'Price ($)',
+          },
           opposite: false,
         },
         {
@@ -288,11 +294,13 @@ class StockTimeline extends Component<Props, State> {
         ],
       },
       series: this.getSeries(),
+      legend: {
+        enabled: true,
+      },
     };
   }
 
   render() {
-    console.log('Props -- ', this.props, this.state);
     return this.state.loading ? (
       <div style={{ textAlign: 'center', margin: '12px' }}>
         <Loader type="Circles" color="#7f3eab" height="75" width="75" />
