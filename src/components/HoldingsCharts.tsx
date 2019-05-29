@@ -350,6 +350,23 @@ export default class HoldingsCharts extends Component<Props, State> {
     return `https://www.portfoliovisualizer.com/backtest-portfolio?s=y&timePeriod=4&initialAmount=10000&annualOperation=0&annualAdjustment=0&inflationAdjusted=true&annualPercentage=0.0&frequency=4&rebalanceType=1&showYield=false&reinvestDividends=true&${params}#analysisResults`;
   }
 
+  renderStockTimeline() {
+    if (!this.state.timelineSymbol) {
+      return <></>;
+    }
+    const position = this.props.positions.filter(
+      position => getSymbol(position.security) === this.state.timelineSymbol,
+    )[0];
+
+    if (!position) {
+      return <></>;
+    }
+
+    return (
+      <StockTimeline isPrivateMode={this.props.isPrivateMode} symbol={this.state.timelineSymbol} position={position} />
+    );
+  }
+
   render() {
     const positionSeries = this.getPositionsSeries();
 
@@ -371,15 +388,7 @@ export default class HoldingsCharts extends Component<Props, State> {
             })}
           />
 
-          {this.state.timelineSymbol && (
-            <StockTimeline
-              isPrivateMode={this.props.isPrivateMode}
-              symbol={this.state.timelineSymbol}
-              position={
-                this.props.positions.filter(position => getSymbol(position.security) === this.state.timelineSymbol)[0]
-              }
-            />
-          )}
+          {this.renderStockTimeline()}
 
           <div className="center">
             <div

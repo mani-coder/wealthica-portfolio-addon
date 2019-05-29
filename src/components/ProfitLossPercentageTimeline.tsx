@@ -29,7 +29,7 @@ export default class ProfitLossPercentageTimeline extends Component<Props> {
         tooltip: {
           valueDecimals: 2,
         },
-        type: 'line',
+        type: 'spline',
       },
       {
         type: 'flags',
@@ -75,7 +75,7 @@ export default class ProfitLossPercentageTimeline extends Component<Props> {
         trackBorderColor: '#CCC',
       },
       plotOptions: {
-        line: {
+        spline: {
           zones: [
             {
               value: -0.00000001,

@@ -19,7 +19,9 @@ export default class ProfitLossTimeline extends Component<Props> {
             x: moment(portfolio.date).valueOf(),
             y: portfolio.value - portfolio.deposits,
             pnlRatio: ((portfolio.value - portfolio.deposits) / portfolio.deposits) * 100,
-            displayValue: this.props.isPrivateMode ? '-' : (portfolio.value - portfolio.deposits).toLocaleString(),
+            displayValue: this.props.isPrivateMode
+              ? '-'
+              : Number((portfolio.value - portfolio.deposits).toFixed(2)).toLocaleString(),
           };
         }),
         type: 'column',
