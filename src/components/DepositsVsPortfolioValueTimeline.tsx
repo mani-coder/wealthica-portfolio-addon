@@ -18,7 +18,7 @@ export default class DepositVsPortfolioValueTimeline extends Component<Props> {
           return {
             x: moment(portfolio.date).valueOf(),
             y: portfolio.value,
-            displayValue: this.props.isPrivateMode ? '-' : portfolio.value.toLocaleString(),
+            displayValue: this.props.isPrivateMode ? '-' : Number(portfolio.value.toFixed(2)).toLocaleString(),
           };
         }),
         type: 'spline',
@@ -30,7 +30,7 @@ export default class DepositVsPortfolioValueTimeline extends Component<Props> {
           return {
             x: moment(portfolio.date).valueOf(),
             y: portfolio.deposits,
-            displayValue: this.props.isPrivateMode ? '-' : portfolio.deposits.toLocaleString(),
+            displayValue: this.props.isPrivateMode ? '-' : Number(portfolio.deposits.toFixed(2)).toLocaleString(),
           };
         }),
         type: 'spline',
