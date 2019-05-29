@@ -112,7 +112,6 @@ export default class HoldingsCharts extends Component<Props, State> {
 
     const events = {
       click: event => {
-        console.log(event);
         if (event.point.name && this.state.timelineSymbol !== event.point.name) {
           this.setState({ timelineSymbol: event.point.name });
         }
@@ -374,6 +373,7 @@ export default class HoldingsCharts extends Component<Props, State> {
 
           {this.state.timelineSymbol && (
             <StockTimeline
+              isPrivateMode={this.props.isPrivateMode}
               symbol={this.state.timelineSymbol}
               position={
                 this.props.positions.filter(position => getSymbol(position.security) === this.state.timelineSymbol)[0]
