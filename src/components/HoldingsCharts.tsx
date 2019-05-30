@@ -95,7 +95,7 @@ export default class HoldingsCharts extends Component<Props, State> {
           .map(account => {
             const position = account.positions.filter(position => position.symbol === symbol)[0];
             return position
-              ? `<tr><td>${account.name} ${account.type}</td><td>${position.quantity}</td></tr>`
+              ? `<tr><td>${account.name} ${account.type}</td><td align="right">${position.quantity}</td></tr>`
               : undefined;
           })
           .filter(value => value)
@@ -119,7 +119,7 @@ export default class HoldingsCharts extends Component<Props, State> {
           shares: position.quantity,
           lastPrice: position.security.last_price.toLocaleString(),
           currency: position.security.currency.toUpperCase(),
-          accountsTable: `<table><tr><th>Account</th><th>Shares</th></tr>${accounts}</table>`,
+          accountsTable: `<table><tr><th>Account</th><th align="right">Shares</th></tr>${accounts}</table>`,
         };
       });
 
