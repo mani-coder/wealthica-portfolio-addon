@@ -138,7 +138,7 @@ class StockTimeline extends Component<Props, State> {
             title: 'H',
             text: `High Price: $${formatCurrency(maxPrice, 2)}`,
           },
-        ],
+        ].sort((a, b) => a.x - b.x),
         color: '#7cb5ec',
         fillColor: '#7cb5ec',
         style: {
