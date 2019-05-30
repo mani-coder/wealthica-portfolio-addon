@@ -143,13 +143,13 @@ export default class HoldingsCharts extends Component<Props, State> {
           useHTML: true,
           pointFormat: `<b>{point.marketValue}</b><br /><br />
           <table>
-            <tr><td>Weightage</td><td>{point.percentage:.1f}%</td></tr>
-            <tr><td>Gain</td><td>{point.gain:.1f}%</td></tr>
-            <tr><td>Profit</td><td>{point.profit}</td></tr>
-            <tr><td>Shares</td><td>{point.shares}</td></tr>
-            <tr><td>Currency</td><td>{point.currency}</td></tr>
-            <tr><td>Buy Price</td><td>{point.buyPrice}</td></tr>
-            <tr><td>Last Price</td><td>{point.lastPrice}</td></tr>
+            <tr><td>Weightage</td><td align="right">{point.percentage:.1f}%</td></tr>
+            <tr><td>Gain</td><td align="right">{point.gain:.1f}%</td></tr>
+            <tr><td>Profit</td><td align="right">{point.profit}</td></tr>
+            <tr><td>Shares</td><td align="right">{point.shares}</td></tr>
+            <tr><td>Currency</td><td align="right">{point.currency}</td></tr>
+            <tr><td>Buy Price</td><td align="right">{point.buyPrice}</td></tr>
+            <tr><td>Last Price</td><td align="right">{point.lastPrice}</td></tr>
           </table>
           <br />{point.accountsTable}
           `,
@@ -172,13 +172,13 @@ export default class HoldingsCharts extends Component<Props, State> {
           useHTML: true,
           pointFormat: `<b>{point.percentage:.1f}%</b><br /><br />
           <table>
-            <tr><td>Value</td><td>{point.marketValue}</td></tr>
-            <tr><td>Gain</td><td>{point.gain:.1f}%</td></tr>
-            <tr><td>Profit</td><td>{point.profit}</td></tr>
-            <tr><td>Shares</td><td>{point.shares}</td></tr>
-            <tr><td>Currency</td><td>{point.currency}</td></tr>
-            <tr><td>Buy Price</td><td>{point.buyPrice}</td></tr>
-            <tr><td>Last Price</td><td>{point.lastPrice}</td></tr>
+            <tr><td>Value</td><td align="right">{point.marketValue}</td></tr>
+            <tr><td>Gain</td><td align="right">{point.gain:.1f}%</td></tr>
+            <tr><td>Profit</td><td align="right">{point.profit}</td></tr>
+            <tr><td>Shares</td><td align="right">{point.shares}</td></tr>
+            <tr><td>Currency</td><td align="right">{point.currency}</td></tr>
+            <tr><td>Buy Price</td><td align="right">{point.buyPrice}</td></tr>
+            <tr><td>Last Price</td><td align="right">{point.lastPrice}</td></tr>
           </table>
           <br />{point.accountsTable}
           `,
@@ -261,8 +261,8 @@ export default class HoldingsCharts extends Component<Props, State> {
             displayValue: Number(data.value.toFixed(2)).toLocaleString(),
             totalValue,
 
-            additionalValue: `<tr><td>Gain ($) </td><td>${data.gain.toLocaleString()}</td></tr>
-            <tr><td>Gain (%)</td><td>${((data.gain / data.value) * 100).toFixed(2)}</td></tr>
+            additionalValue: `<tr><td>Gain ($) </td><td align="right">${data.gain.toLocaleString()}</td></tr>
+            <tr><td>Gain (%)</td><td align="right">${((data.gain / data.value) * 100).toFixed(2)}</td></tr>
             `,
           };
         })
@@ -276,7 +276,7 @@ export default class HoldingsCharts extends Component<Props, State> {
                 return `
                   <tr>
                     <td>${account.name} ${account.type}</td>
-                    <td>$${Number(account.cash.toFixed(2)).toLocaleString()}</td>
+                    <td align="right">$${Number(account.cash.toFixed(2)).toLocaleString()}</td>
                   </tr>`;
               })
               .join('');
@@ -294,8 +294,8 @@ export default class HoldingsCharts extends Component<Props, State> {
       tooltip: {
         useHTML: true,
         pointFormat: `<b>{point.percentage:.1f}%</b><br /><br />
-        <table><tr><td>Value</td><td>\${point.displayValue}</td></tr>
-        <tr><td>Total Value</td><td>\${point.totalValue}</td></tr>
+        <table><tr><td>Value</td><td align="right">\${point.displayValue}</td></tr>
+        <tr><td>Total Value</td><td align="right">\${point.totalValue}</td></tr>
         <tr><td colspan="2">======================</td></tr>
         {point.additionalValue}
         </table>`,
@@ -322,6 +322,10 @@ export default class HoldingsCharts extends Component<Props, State> {
 
       tooltip: {
         useHTML: true,
+        backgroundColor: '#FFF',
+        style: {
+          color: '#1F2A33',
+        },
       },
 
       title: {
