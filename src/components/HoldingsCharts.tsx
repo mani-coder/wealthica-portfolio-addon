@@ -90,6 +90,18 @@ export default class HoldingsCharts extends Component<Props, State> {
     const data = this.props.positions
       .sort((a, b) => b.market_value - a.market_value)
       .map(position => {
+        const symbol = getSymbol(position.security);
+        const accounts = this.props.accounts
+          .map(account => {
+            const position = account.positions.filter(position => position.symbol === symbol)[0];
+            return position
+              ? `<tr><td>${account.name} ${account.type}</td><td>${position.quantity}</td></tr>`
+              : undefined;
+          })
+          .filter(value => value)
+          .join('');
+        console.log('accounts: ', accounts);
+
         return {
           name: getSymbol(position.security),
           drilldown: getSymbol(position.security),
@@ -107,6 +119,7 @@ export default class HoldingsCharts extends Component<Props, State> {
           shares: position.quantity,
           lastPrice: position.security.last_price.toLocaleString(),
           currency: position.security.currency.toUpperCase(),
+          accountsTable: `<table><tr><th>Account</th><th>Shares</th></tr>${accounts}</table>`,
         };
       });
 
@@ -128,14 +141,17 @@ export default class HoldingsCharts extends Component<Props, State> {
 
         tooltip: {
           useHTML: true,
-          pointFormat: `<b>{point.marketValue}</b>
-          <br />Weightage: {point.percentage:.1f}%
-          <br />Gain: {point.gain:.1f}%
-          <br />Profit: {point.profit}
-          <br />Shares: {point.shares}
-          <br />Currency: {point.currency}
-          <br />Buy Price: {point.buyPrice}
-          <br />Last Price: {point.lastPrice}
+          pointFormat: `<b>{point.marketValue}</b><br /><br />
+          <table>
+            <tr><td>Weightage</td><td>{point.percentage:.1f}%</td></tr>
+            <tr><td>Gain</td><td>{point.gain:.1f}%</td></tr>
+            <tr><td>Profit</td><td>{point.profit}</td></tr>
+            <tr><td>Shares</td><td>{point.shares}</td></tr>
+            <tr><td>Currency</td><td>{point.currency}</td></tr>
+            <tr><td>Buy Price</td><td>{point.buyPrice}</td></tr>
+            <tr><td>Last Price</td><td>{point.lastPrice}</td></tr>
+          </table>
+          <br />{point.accountsTable}
           `,
           valueDecimals: 1,
         },
@@ -153,14 +169,18 @@ export default class HoldingsCharts extends Component<Props, State> {
         events,
 
         tooltip: {
-          pointFormat: `<b>{point.percentage:.1f}%</b>
-          <br />Value: {point.marketValue}
-          <br />Gain: {point.gain:.1f}%
-          <br />Profit: {point.profit}
-          <br />Shares: {point.shares}
-          <br />Currency: {point.currency}
-          <br />Buy Price: {point.buyPrice}
-          <br />Last Price: {point.lastPrice}
+          useHTML: true,
+          pointFormat: `<b>{point.percentage:.1f}%</b><br /><br />
+          <table>
+            <tr><td>Value</td><td>{point.marketValue}</td></tr>
+            <tr><td>Gain</td><td>{point.gain:.1f}%</td></tr>
+            <tr><td>Profit</td><td>{point.profit}</td></tr>
+            <tr><td>Shares</td><td>{point.shares}</td></tr>
+            <tr><td>Currency</td><td>{point.currency}</td></tr>
+            <tr><td>Buy Price</td><td>{point.buyPrice}</td></tr>
+            <tr><td>Last Price</td><td>{point.lastPrice}</td></tr>
+          </table>
+          <br />{point.accountsTable}
           `,
         },
       },
@@ -213,14 +233,18 @@ export default class HoldingsCharts extends Component<Props, State> {
       hash[position.security.currency] = data;
       return hash;
     }, {});
-    const totalValue = Object.keys(positionDataByCurrency).reduce(
-      (sum, currency) => {
-        return sum + positionDataByCurrency[currency].value;
-      },
-      Object.keys(cashByCurrency).reduce((sum, currency) => {
-        return sum + cashByCurrency[currency].value;
-      }, 0),
-    );
+    const totalValue = Number(
+      Object.keys(positionDataByCurrency)
+        .reduce(
+          (sum, currency) => {
+            return sum + positionDataByCurrency[currency].value;
+          },
+          Object.keys(cashByCurrency).reduce((sum, currency) => {
+            return sum + cashByCurrency[currency].value;
+          }, 0),
+        )
+        .toFixed(2),
+    ).toLocaleString();
 
     return {
       type: 'pie',
@@ -234,32 +258,47 @@ export default class HoldingsCharts extends Component<Props, State> {
           return {
             name: `${currency.toUpperCase()} Stocks`,
             y: data.value,
-            displayValue: data.value.toLocaleString(),
-            gain: data.gain.toLocaleString(),
-            gain_percent: (data.gain / data.value) * 100,
-            totalValue: totalValue.toLocaleString(),
+            displayValue: Number(data.value.toFixed(2)).toLocaleString(),
+            totalValue,
+
+            additionalValue: `<tr><td>Gain ($) </td><td>${data.gain.toLocaleString()}</td></tr>
+            <tr><td>Gain (%)</td><td>${((data.gain / data.value) * 100).toFixed(2)}</td></tr>
+            `,
           };
         })
         .concat(
           Object.keys(cashByCurrency).map(currency => {
             const data = cashByCurrency[currency];
+            const accountsTable = this.props.accounts
+              .filter(account => account.currency === currency && account.cash)
+              .sort((a, b) => b.cash - a.cash)
+              .map(account => {
+                return `
+                  <tr>
+                    <td>${account.name} ${account.type}</td>
+                    <td>$${Number(account.cash.toFixed(2)).toLocaleString()}</td>
+                  </tr>`;
+              })
+              .join('');
+
             return {
               name: `${currency.toUpperCase()} Cash`,
               y: data.value,
-              displayValue: data.value.toLocaleString(),
-              gain: 'N/A',
-              gain_percent: 0,
-              totalValue: totalValue.toLocaleString(),
+              displayValue: Number(data.value.toFixed(2)).toLocaleString(),
+              totalValue,
+
+              additionalValue: accountsTable,
             };
           }),
         ),
       tooltip: {
-        pointFormat: `<b>{point.percentage:.1f}%</b>
-        <br />Value: {point.displayValue}
-        <br />Gain: {point.gain}
-        <br />Gain %: {point.gain_percent:.2f}
-        <br />Total Value: {point.totalValue}
-        `,
+        useHTML: true,
+        pointFormat: `<b>{point.percentage:.1f}%</b><br /><br />
+        <table><tr><td>Value</td><td>\${point.displayValue}</td></tr>
+        <tr><td>Total Value</td><td>\${point.totalValue}</td></tr>
+        <tr><td colspan="2">======================</td></tr>
+        {point.additionalValue}
+        </table>`,
       },
     };
   }
@@ -280,6 +319,10 @@ export default class HoldingsCharts extends Component<Props, State> {
     return {
       series,
       drilldown: drilldown ? this.getDrillDown() : {},
+
+      tooltip: {
+        useHTML: true,
+      },
 
       title: {
         text: title,
