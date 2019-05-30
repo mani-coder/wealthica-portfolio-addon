@@ -62,7 +62,13 @@ export type Position = {
 
 export type Account = {
   id: string;
+  name: string;
+  type: string;
   currency: string;
   cash: number;
   value: number;
+  positions: {
+    symbol: string;
+    quantity: number;
+  }[];
 };

@@ -21,13 +21,19 @@ export const parseInstitutionsResponse = (response: any, groups?: string[], inst
     .reduce((accounts, instutition) => {
       return accounts.concat(
         instutition.investments
-          .filter(account => !groups || !groups.length || groups.includes(account.group))
+          .filter(account => (!groups || !groups.length || groups.includes(account.group)) && !account.ignored)
           .map(account => {
             return {
               id: account._id,
+              name: instutition.name,
+              type: account.name.includes('-') ? account.name.split('-')[1].trim() : account.name,
               cash: account.cash,
               value: account.value,
               currency: account.currency,
+              positions: (account.positions || []).map(position => ({
+                symbol: getSymbol(position.security),
+                quantity: position.quantity,
+              })),
             };
           }),
       );

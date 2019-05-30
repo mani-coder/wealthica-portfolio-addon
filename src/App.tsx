@@ -19,11 +19,16 @@ import ProfitLossPercentageTimeline from './components/ProfitLossPercentageTimel
 import ProfitLossTimeline from './components/ProfitLossTimeline';
 import { TRANSACTIONS_FROM_DATE } from './constants';
 import { CURRENCIES_API_RESPONSE } from './mocks/currencies';
-import { INSTITUITIONS_DATA } from './mocks/institutions';
+import { INSTITUTIONS_DATA } from './mocks/institutions';
 import { POSITIONS_API_RESPONSE } from './mocks/positions';
 import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio';
 import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions';
-// import { PORTFOLIO_API_RESPONSE, POSITIONS_API_RESPONSE, TRANSACTIONS_API_RESPONSE } from './mocks/prod';
+// import {
+//   INSTITUTIONS_DATA,
+//   PORTFOLIO_API_RESPONSE,
+//   POSITIONS_API_RESPONSE,
+//   TRANSACTIONS_API_RESPONSE,
+// } from './mocks/prod';
 import { Account, Portfolio, PortfolioData, Position } from './types';
 import { getDate, getSymbol } from './utils';
 
@@ -285,11 +290,7 @@ class App extends Component<Props, State> {
     const portfolioByDate = parsePortfolioResponse(PORTFOLIO_API_RESPONSE);
     const transactionsByDate = parseTransactionsResponse(TRANSACTIONS_API_RESPONSE, currencyCache);
     const positions = parsePositionsResponse(POSITIONS_API_RESPONSE);
-    const accounts = parseInstitutionsResponse(
-      INSTITUITIONS_DATA,
-      // ['5fsgsfgsfdgsfgs436fdgsgsfd'],
-      // ['5bff61005f70de000476a47d'],
-    );
+    const accounts = parseInstitutionsResponse(INSTITUTIONS_DATA);
 
     console.log(positions);
     this.setState({ currencyCache });
