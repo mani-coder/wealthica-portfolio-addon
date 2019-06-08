@@ -140,7 +140,10 @@ class App extends Component<Props, State> {
       position.transactions = securityTransactionsBySymbol[getSymbol(position.security)] || [];
     });
 
-    this.setState({ positions, firstTransactionDate: getDate(!!transactions ? transactions[0].date : undefined) });
+    this.setState({
+      positions,
+      firstTransactionDate: getDate(!!transactions && transactions.length ? transactions[0].date : undefined),
+    });
   }
 
   computePortfolios = (portfolioByDate, transactionsByDate, accounts) => {
