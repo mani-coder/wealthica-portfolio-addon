@@ -16,6 +16,7 @@ export type Portfolio = {
 };
 
 export type Security = {
+  id: string;
   currency: string;
   symbol: string;
   type: string;

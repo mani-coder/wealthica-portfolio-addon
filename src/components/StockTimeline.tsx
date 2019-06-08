@@ -1,21 +1,27 @@
 import _ from 'lodash';
-import moment from 'moment';
+import moment, { Moment } from 'moment';
 import React, { Component } from 'react';
 import Loader from 'react-loader-spinner';
 import { TYPE_TO_COLOR } from '../constants';
 import { Position, Transaction } from '../types';
-import { formatCurrency } from '../utils';
+import { formatCurrency, getDate } from '../utils';
 import Charts from './Charts';
 
 type Props = {
   symbol: string;
   position: Position;
   isPrivateMode: boolean;
+  addon?: any;
+};
+
+type SecurityHistoryTimeline = {
+  timestamp: Moment;
+  closePrice: number;
 };
 
 type State = {
   loading: boolean;
-  data?: any;
+  data?: SecurityHistoryTimeline[];
 };
 
 class StockTimeline extends Component<Props, State> {
@@ -42,7 +48,58 @@ class StockTimeline extends Component<Props, State> {
     this._mounted = false;
   }
 
+  parseSecuritiesResponse(response) {
+    if (this._mounted) {
+      const from = getDate(response.from);
+      const data: SecurityHistoryTimeline[] = [];
+      response.data
+        .filter(closePrice => closePrice)
+        .forEach((closePrice: number) => {
+          data.push({ timestamp: from.clone(), closePrice });
+
+          // Move the date forward.
+          from.add(1, 'days');
+        });
+      console.debug('Loaded the securities data --', data);
+      this.setState({ loading: false, data });
+    }
+  }
+
   fetchData() {
+    if (!this._mounted) {
+      return;
+    }
+    this.setState({ loading: true });
+
+    if (this.props.addon) {
+      this.props.addon
+        .request({
+          query: {},
+          method: 'GET',
+          endpoint: `securities/${this.props.position.security.id}/history`,
+        })
+        .then(response => {
+          this.parseSecuritiesResponse(response);
+        });
+    } else {
+      const url = `https://app.wealthica.com/api/securities/${this.props.position.security.id}/history`;
+      console.debug('Fetching stock data..', url);
+
+      fetch(`https://cors-anywhere.herokuapp.com/${url}`, {
+        cache: 'force-cache',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+        .then(response => response.json())
+        .then(response => {
+          this.parseSecuritiesResponse(response);
+        })
+        .catch(error => console.log(error));
+    }
+  }
+
+  fetchDataUsingYahoo() {
     if (!this._mounted) {
       return;
     }
@@ -60,7 +117,7 @@ class StockTimeline extends Component<Props, State> {
       this.props.symbol
     }?period1=${startDate.unix()}&period2=${endDate}&interval=1d&events=history`;
 
-    console.log('Fetching stock data..', url);
+    console.debug('Fetching stock data..', url);
 
     fetch(`https://cors-anywhere.herokuapp.com/${url}`, {
       cache: 'force-cache',
@@ -71,6 +128,9 @@ class StockTimeline extends Component<Props, State> {
       .then(response => response.json())
       .then(response => {
         if (this._mounted) {
+          // this.state.data.chart.error.
+          // const timestamps = this.state.data.chart.result[0].timestamp;
+          // const closePrices = this.state.data.chart.result[0].indicators.quote[0].close;
           this.setState({ loading: false, data: response });
         }
       })
@@ -78,29 +138,28 @@ class StockTimeline extends Component<Props, State> {
   }
 
   getSeries(): any {
-    if (this.state.data.chart.error) {
+    if (!this.state.data) {
       return [{}];
     }
-    const timestamps = this.state.data.chart.result[0].timestamp;
-    const closePrices = this.state.data.chart.result[0].indicators.quote[0].close;
 
     const data: { x: number; y: number }[] = [];
     let minPrice, maxPrice, minTimestamp, maxTimestamp;
-    timestamps.forEach((timestamp, index) => {
-      data.push({
-        x: timestamp * 1000,
-        y: closePrices[index],
-      });
+    this.state.data.forEach((_data, index) => {
+      const timestamp = _data.timestamp.valueOf();
+      const closePrice = _data.closePrice;
+
+      data.push({ x: timestamp, y: closePrice });
+
       if (index === 0) {
-        maxPrice = minPrice = closePrices[index];
+        maxPrice = minPrice = closePrice;
         minTimestamp = maxTimestamp = timestamp;
       }
-      if (closePrices[index] < minPrice) {
-        minPrice = closePrices[index];
+      if (closePrice < minPrice) {
+        minPrice = closePrice;
         minTimestamp = timestamp;
       }
-      if (closePrices[index] > maxPrice) {
-        maxPrice = closePrices[index];
+      if (closePrice > maxPrice) {
+        maxPrice = closePrice;
         maxTimestamp = timestamp;
       }
     });
@@ -129,12 +188,12 @@ class StockTimeline extends Component<Props, State> {
 
         data: [
           {
-            x: minTimestamp * 1000,
+            x: minTimestamp,
             title: 'L',
             text: `Low Price: $${formatCurrency(minPrice, 2)}`,
           },
           {
-            x: maxTimestamp * 1000,
+            x: maxTimestamp,
             title: 'H',
             text: `High Price: $${formatCurrency(maxPrice, 2)}`,
           },
