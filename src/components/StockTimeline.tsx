@@ -50,7 +50,7 @@ class StockTimeline extends Component<Props, State> {
 
   parseSecuritiesResponse(response) {
     if (this._mounted) {
-      const from = getDate(response.from);
+      const to = getDate(response.to);
       const data: SecurityHistoryTimeline[] = [];
       let prevPrice;
       response.data
@@ -63,14 +63,14 @@ class StockTimeline extends Component<Props, State> {
           if (changePercentage > 200) {
             closePrice = prevPrice;
           }
-          data.push({ timestamp: from.clone(), closePrice });
+          data.push({ timestamp: to.clone(), closePrice });
 
           // Move the date forward.
-          from.add(1, 'days');
+          to.subtract(1, 'days');
           prevPrice = closePrice;
         });
       console.debug('Loaded the securities data --', data);
-      this.setState({ loading: false, data });
+      this.setState({ loading: false, data: data.sort((a, b) => a.timestamp.valueOf() - b.timestamp.valueOf()) });
     }
   }
 
