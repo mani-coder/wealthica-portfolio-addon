@@ -55,6 +55,7 @@ class StockTimeline extends Component<Props, State> {
       let prevPrice;
       response.data
         .filter(closePrice => closePrice)
+        .reverse()
         .forEach((closePrice: number) => {
           if (!prevPrice) {
             prevPrice = closePrice;
@@ -69,8 +70,11 @@ class StockTimeline extends Component<Props, State> {
           to.subtract(1, 'days');
           prevPrice = closePrice;
         });
-      console.debug('Loaded the securities data --', data);
-      this.setState({ loading: false, data: data.sort((a, b) => a.timestamp.valueOf() - b.timestamp.valueOf()) });
+
+      const sortedData = data.sort((a, b) => a.timestamp.valueOf() - b.timestamp.valueOf());
+
+      console.debug('Loaded the securities data --', sortedData);
+      this.setState({ loading: false, data: sortedData });
     }
   }
 
