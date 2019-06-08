@@ -55,6 +55,7 @@ class StockTimeline extends Component<Props, State> {
       let prevPrice;
       response.data
         .filter(closePrice => closePrice)
+        .reverse()
         .forEach((closePrice: number) => {
           if (!prevPrice) {
             prevPrice = closePrice;
