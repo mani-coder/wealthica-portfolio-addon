@@ -141,8 +141,9 @@ export default class HoldingsCharts extends Component<Props, State> {
 
         tooltip: {
           useHTML: true,
+
           pointFormat: `<b>{point.marketValue}</b><br /><br />
-          <table>
+          <table width="100%">
             <tr><td>Weightage</td><td align="right">{point.percentage:.1f}%</td></tr>
             <tr><td>Gain</td><td align="right">{point.gain:.1f}%</td></tr>
             <tr><td>Profit</td><td align="right">{point.profit}</td></tr>
@@ -321,6 +322,8 @@ export default class HoldingsCharts extends Component<Props, State> {
       drilldown: drilldown ? this.getDrillDown() : {},
 
       tooltip: {
+        outside: true,
+
         useHTML: true,
         backgroundColor: '#FFF',
         style: {
