@@ -52,13 +52,22 @@ class StockTimeline extends Component<Props, State> {
     if (this._mounted) {
       const from = getDate(response.from);
       const data: SecurityHistoryTimeline[] = [];
+      let prevPrice;
       response.data
         .filter(closePrice => closePrice)
         .forEach((closePrice: number) => {
+          if (!prevPrice) {
+            prevPrice = closePrice;
+          }
+          const changePercentage = Math.abs((closePrice - prevPrice) / closePrice) * 100;
+          if (changePercentage > 200) {
+            closePrice = prevPrice;
+          }
           data.push({ timestamp: from.clone(), closePrice });
 
           // Move the date forward.
           from.add(1, 'days');
+          prevPrice = closePrice;
         });
       console.debug('Loaded the securities data --', data);
       this.setState({ loading: false, data });
@@ -80,7 +89,8 @@ class StockTimeline extends Component<Props, State> {
         })
         .then(response => {
           this.parseSecuritiesResponse(response);
-        });
+        })
+        .catch(error => console.log(error));
     } else {
       const url = `https://app.wealthica.com/api/securities/${this.props.position.security.id}/history`;
       console.debug('Fetching stock data..', url);
