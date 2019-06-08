@@ -16,9 +16,13 @@ Hope this add-on is useful to you!
 
 ## Samples
 
-![Deposits Vs Portfolio](https://github.com/mani-coder/wealthica-portfolio-addon/blob/master/public/samples/Deposit%20Vs%20Portofolio%20Value.png)
+![Deposits Vs Portfolio](https://raw.githubusercontent.com/mani-coder/wealthica-portfolio-addon/master/public/samples/Deposits%20Vs%20Portfolio%20Value.png)
 
-![P/L Percentage Timeline](https://github.com/mani-coder/wealthica-portfolio-addon/blob/master/public/samples/Profit%20Loss%20Percentage%20Timeline.png)
+![P/L Percentage Timeline](https://raw.githubusercontent.com/mani-coder/wealthica-portfolio-addon/master/public/samples/P%3AL%20Ratio%20Timeline.png)
 
-![P/L Value Timeline](https://github.com/mani-coder/wealthica-portfolio-addon/blob/master/public/samples/Profit%20Loss%20Value%20Timeline.png)
+![P/L Value Timeline](https://raw.githubusercontent.com/mani-coder/wealthica-portfolio-addon/master/public/samples/P%3AL%20Value%20Timeline.png)
+
+![Holdings Chart](https://raw.githubusercontent.com/mani-coder/wealthica-portfolio-addon/master/public/samples/Holdings%20Charts.png)
+
+![Stock Timeline With Transactions](https://raw.githubusercontent.com/mani-coder/wealthica-portfolio-addon/master/public/samples/Stock%20Timeline%20showing%20the%20transactions.png)
 
