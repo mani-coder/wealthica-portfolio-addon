@@ -19,16 +19,16 @@ import ProfitLossPercentageTimeline from './components/ProfitLossPercentageTimel
 import ProfitLossTimeline from './components/ProfitLossTimeline';
 import { TRANSACTIONS_FROM_DATE } from './constants';
 import { CURRENCIES_API_RESPONSE } from './mocks/currencies';
-import { INSTITUTIONS_DATA } from './mocks/institutions';
-import { POSITIONS_API_RESPONSE } from './mocks/positions';
-import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio';
-import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions';
-// import {
-//   INSTITUTIONS_DATA,
-//   PORTFOLIO_API_RESPONSE,
-//   POSITIONS_API_RESPONSE,
-//   TRANSACTIONS_API_RESPONSE,
-// } from './mocks/prod';
+// import { INSTITUTIONS_DATA } from './mocks/institutions';
+// import { POSITIONS_API_RESPONSE } from './mocks/positions';
+// import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio';
+// import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions';
+import {
+  INSTITUTIONS_DATA,
+  PORTFOLIO_API_RESPONSE,
+  POSITIONS_API_RESPONSE,
+  TRANSACTIONS_API_RESPONSE,
+} from './mocks/prod';
 import { Account, Portfolio, PortfolioData, Position } from './types';
 import { getDate, getSymbol } from './utils';
 
@@ -66,7 +66,7 @@ class App extends Component<Props, State> {
       const addon = new Addon({});
 
       addon.on('init', options => {
-        console.log('Addon initialization', options);
+        console.debug('Addon initialization', options);
         this.loadData(options);
       });
 
@@ -76,13 +76,13 @@ class App extends Component<Props, State> {
 
       addon.on('update', (options: any) => {
         // Update according to the received options
-        console.log('Addon update - options: ', options);
+        console.debug('Addon update - options: ', options);
         this.loadData(options);
       });
 
       return addon;
     } catch (error) {
-      console.log(error);
+      console.debug(error);
     }
 
     return null;
@@ -90,10 +90,10 @@ class App extends Component<Props, State> {
 
   async loadCurrenciesCache() {
     if (Object.keys(this.state.currencyCache).length) {
-      console.log('Skip re-loading currency cache.');
+      console.debug('Skip re-loading currency cache.');
       return;
     }
-    console.log('Loading currencies data.');
+    console.debug('Loading currencies data.');
     await this.state.addon
       .request({
         method: 'GET',
@@ -104,7 +104,7 @@ class App extends Component<Props, State> {
       })
       .then(response => {
         const currencyCache = parseCurrencyReponse(response);
-        console.log('Currency cache: ', currencyCache);
+        console.debug('Currency cache: ', currencyCache);
         this.setState({ currencyCache });
       })
       .catch(error => {
@@ -180,11 +180,11 @@ class App extends Component<Props, State> {
     });
 
     this.setState({ portfolios, portfolioPerDay, isLoaded: true, accounts });
-    console.log('Loaded the data', portfolios);
+    console.debug('Loaded the data', portfolios);
   };
 
   loadPortfolioData(options) {
-    console.log('Loading portfolio data.');
+    console.debug('Loading portfolio data.');
     const query = {
       from: options.dateRangeFilter && options.dateRangeFilter[0],
       to: options.dateRangeFilter && options.dateRangeFilter[1],
@@ -200,7 +200,7 @@ class App extends Component<Props, State> {
       })
       .then(response => {
         const portfolio = parsePortfolioResponse(response);
-        console.log('Portfolio data: ', portfolio);
+        console.debug('Portfolio data: ', portfolio);
         return portfolio;
       })
       .catch(error => {
@@ -209,7 +209,7 @@ class App extends Component<Props, State> {
   }
 
   loadPositions(options) {
-    console.log('Loading positions data.');
+    console.debug('Loading positions data.');
     const query = {
       assets: true,
       groups: options.groupsFilter,
@@ -224,7 +224,7 @@ class App extends Component<Props, State> {
       })
       .then(response => {
         const positions = parsePositionsResponse(response);
-        console.log('Positions data: ', positions);
+        console.debug('Positions data: ', positions);
         return positions;
       })
       .catch(error => {
@@ -233,7 +233,7 @@ class App extends Component<Props, State> {
   }
 
   loadInstitutionsData(options) {
-    console.log('Loading institutions data..');
+    console.debug('Loading institutions data..');
     const query = {
       assets: true,
       groups: options.groupsFilter,
@@ -252,7 +252,7 @@ class App extends Component<Props, State> {
           options.groupsFilter ? options.groupsFilter.split(',') : [],
           options.institutionsFilter ? options.institutionsFilter.split(',') : [],
         );
-        console.log('Accounts data: ', accounts);
+        console.debug('Accounts data: ', accounts);
         return accounts;
       })
       .catch(error => {
@@ -261,7 +261,7 @@ class App extends Component<Props, State> {
   }
 
   loadTransactions(options) {
-    console.log('Loading transactions data.');
+    console.debug('Loading transactions data.');
     const fromDate = options.dateRangeFilter && options.dateRangeFilter[0];
     const query = {
       from: fromDate && fromDate < TRANSACTIONS_FROM_DATE ? fromDate : TRANSACTIONS_FROM_DATE,
@@ -277,7 +277,7 @@ class App extends Component<Props, State> {
       })
       .then(response => {
         const transactionsByDate = parseTransactionsResponse(response, this.state.currencyCache);
-        console.log('Transactions data: ', transactionsByDate);
+        console.debug('Transactions data: ', transactionsByDate);
         return { transactionsByDate, transactions: response };
       })
       .catch(error => {
@@ -292,11 +292,11 @@ class App extends Component<Props, State> {
     const positions = parsePositionsResponse(POSITIONS_API_RESPONSE);
     const accounts = parseInstitutionsResponse(INSTITUTIONS_DATA);
 
-    console.log(positions);
+    console.debug(positions);
     this.setState({ currencyCache });
     this.computePositions(positions, TRANSACTIONS_API_RESPONSE);
     this.computePortfolios(portfolioByDate, transactionsByDate, accounts);
-    console.log(this.state);
+    console.debug(this.state);
   }
 
   componentDidMount() {
@@ -327,6 +327,7 @@ class App extends Component<Props, State> {
                   positions={this.state.positions}
                   accounts={this.state.accounts}
                   isPrivateMode={this.state.privateMode}
+                  addon={this.state.addon}
                 />
                 <HoldingsTable positions={this.state.positions} isPrivateMode={this.state.privateMode} />
               </>

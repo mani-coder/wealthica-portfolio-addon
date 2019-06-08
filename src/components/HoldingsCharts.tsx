@@ -13,6 +13,7 @@ type Props = {
   positions: Position[];
   accounts: Account[];
   isPrivateMode: boolean;
+  addon?: any;
 };
 
 type State = {
@@ -91,16 +92,16 @@ export default class HoldingsCharts extends Component<Props, State> {
       .sort((a, b) => b.market_value - a.market_value)
       .map(position => {
         const symbol = getSymbol(position.security);
+
         const accounts = this.props.accounts
           .map(account => {
             const position = account.positions.filter(position => position.symbol === symbol)[0];
-            return position
-              ? `<tr><td>${account.name} ${account.type}</td><td align="right">${position.quantity}</td></tr>`
-              : undefined;
+            return position ? { name: account.name, type: account.type, quantity: position.quantity } : undefined;
           })
           .filter(value => value)
+          .sort((a, b) => b!.quantity - a!.quantity)
+          .map(value => `<tr><td>${value!.name} ${value!.type}</td><td align="right">${value!.quantity}</td></tr>`)
           .join('');
-        console.log('accounts: ', accounts);
 
         return {
           name: getSymbol(position.security),
@@ -142,11 +143,11 @@ export default class HoldingsCharts extends Component<Props, State> {
         tooltip: {
           useHTML: true,
 
-          pointFormat: `<b>{point.marketValue}</b><br /><br />
+          pointFormat: `<b>C$ {point.marketValue}</b><br /><br />
           <table width="100%">
             <tr><td>Weightage</td><td align="right">{point.percentage:.1f}%</td></tr>
             <tr><td>Gain</td><td align="right">{point.gain:.1f}%</td></tr>
-            <tr><td>Profit</td><td align="right">{point.profit}</td></tr>
+            <tr><td>Profit</td><td align="right">C$ {point.profit}</td></tr>
             <tr><td>Shares</td><td align="right">{point.shares}</td></tr>
             <tr><td>Currency</td><td align="right">{point.currency}</td></tr>
             <tr><td>Buy Price</td><td align="right">{point.buyPrice}</td></tr>
@@ -172,10 +173,10 @@ export default class HoldingsCharts extends Component<Props, State> {
         tooltip: {
           useHTML: true,
           pointFormat: `<b>{point.percentage:.1f}%</b><br /><br />
-          <table>
-            <tr><td>Value</td><td align="right">{point.marketValue}</td></tr>
+          <table width="100%">
+            <tr><td>Value</td><td align="right">C$ {point.marketValue}</td></tr>
             <tr><td>Gain</td><td align="right">{point.gain:.1f}%</td></tr>
-            <tr><td>Profit</td><td align="right">{point.profit}</td></tr>
+            <tr><td>Profit</td><td align="right">C$ {point.profit}</td></tr>
             <tr><td>Shares</td><td align="right">{point.shares}</td></tr>
             <tr><td>Currency</td><td align="right">{point.currency}</td></tr>
             <tr><td>Buy Price</td><td align="right">{point.buyPrice}</td></tr>
@@ -413,7 +414,12 @@ export default class HoldingsCharts extends Component<Props, State> {
     }
 
     return (
-      <StockTimeline isPrivateMode={this.props.isPrivateMode} symbol={this.state.timelineSymbol} position={position} />
+      <StockTimeline
+        isPrivateMode={this.props.isPrivateMode}
+        symbol={this.state.timelineSymbol}
+        position={position}
+        addon={this.props.addon}
+      />
     );
   }
 
