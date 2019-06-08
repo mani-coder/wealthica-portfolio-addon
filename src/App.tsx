@@ -314,9 +314,12 @@ class App extends Component<Props, State> {
         {this.state.isLoaded ? (
           <>
             {!this.state.addon && (
-              <p style={{ fontWeight: 'bolder', textAlign: 'center', color: '#C00316', textDecoration: 'underline' }}>
-                !! This is sample data !!
-              </p>
+              <>
+                <p style={{ fontWeight: 'bolder', textAlign: 'center', color: '#C00316', textDecoration: 'underline' }}>
+                  <img src="./favicon.png" width="50" height="50" style={{ backgroundColor: '#fff' }} />
+                  !! This is sample data !!
+                </p>
+              </>
             )}
             <DepositVsPortfolioValueTimeline
               portfolios={this.state.portfolios}
