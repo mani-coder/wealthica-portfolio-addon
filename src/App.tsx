@@ -19,16 +19,16 @@ import ProfitLossPercentageTimeline from './components/ProfitLossPercentageTimel
 import ProfitLossTimeline from './components/ProfitLossTimeline';
 import { TRANSACTIONS_FROM_DATE } from './constants';
 import { CURRENCIES_API_RESPONSE } from './mocks/currencies';
-// import { INSTITUTIONS_DATA } from './mocks/institutions';
-// import { POSITIONS_API_RESPONSE } from './mocks/positions';
-// import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio';
-// import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions';
-import {
-  INSTITUTIONS_DATA,
-  PORTFOLIO_API_RESPONSE,
-  POSITIONS_API_RESPONSE,
-  TRANSACTIONS_API_RESPONSE,
-} from './mocks/prod';
+import { INSTITUTIONS_DATA } from './mocks/institutions';
+import { POSITIONS_API_RESPONSE } from './mocks/positions';
+import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio';
+import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions';
+// import {
+//   INSTITUTIONS_DATA,
+//   PORTFOLIO_API_RESPONSE,
+//   POSITIONS_API_RESPONSE,
+//   TRANSACTIONS_API_RESPONSE,
+// } from './mocks/prod';
 import { Account, Portfolio, PortfolioData, Position } from './types';
 import { getDate, getSymbol } from './utils';
 
