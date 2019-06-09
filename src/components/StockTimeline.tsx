@@ -64,7 +64,10 @@ class StockTimeline extends Component<Props, State> {
           if (changePercentage > 200) {
             closePrice = prevPrice;
           }
-          data.push({ timestamp: to.clone(), closePrice });
+          // Only weekdays.
+          if (to.isoWeekday() <= 5) {
+            data.push({ timestamp: to.clone(), closePrice });
+          }
 
           // Move the date forward.
           to.subtract(1, 'days');
