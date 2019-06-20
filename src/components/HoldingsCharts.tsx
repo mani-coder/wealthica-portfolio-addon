@@ -108,10 +108,10 @@ export default class HoldingsCharts extends Component<Props, State> {
           drilldown: getSymbol(position.security),
           y: position.market_value,
           displayValue: formatCurrency(position.market_value, 1),
-          marketValue: position.market_value.toLocaleString(),
-          percentage: (position.market_value / marketValue) * 100,
-          gain: position.gain_percent * 100,
-          profit: position.gain_amount.toLocaleString(),
+          marketValue: position.market_value ? position.market_value.toLocaleString() : position.market_value,
+          percentage: position.market_value ? (position.market_value / marketValue) * 100 : 0,
+          gain: position.gain_percent ? position.gain_percent * 100 : position.gain_percent,
+          profit: position.gain_amount ? position.gain_amount.toLocaleString() : position.gain_amount,
           buyPrice: (
             position.investments.reduce((cost, investment) => {
               return cost + investment.book_value / investment.quantity;
