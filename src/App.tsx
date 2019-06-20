@@ -14,14 +14,13 @@ import './App.css';
 import './Collapsible.css';
 import DepositVsPortfolioValueTimeline from './components/DepositsVsPortfolioValueTimeline';
 import HoldingsCharts from './components/HoldingsCharts';
-import HoldingsTable from './components/HoldingsTable';
 import ProfitLossPercentageTimeline from './components/ProfitLossPercentageTimeline';
 import ProfitLossTimeline from './components/ProfitLossTimeline';
 import { TRANSACTIONS_FROM_DATE } from './constants';
 import { CURRENCIES_API_RESPONSE } from './mocks/currencies';
 import { INSTITUTIONS_DATA } from './mocks/institutions';
-import { POSITIONS_API_RESPONSE } from './mocks/positions';
 import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio';
+import { POSITIONS_API_RESPONSE } from './mocks/positions';
 import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions';
 // import {
 //   INSTITUTIONS_DATA,
@@ -335,7 +334,7 @@ class App extends Component<Props, State> {
                   isPrivateMode={this.state.privateMode}
                   addon={this.state.addon}
                 />
-                <HoldingsTable positions={this.state.positions} isPrivateMode={this.state.privateMode} />
+                {/* <HoldingsTable positions={this.state.positions} isPrivateMode={this.state.privateMode} /> */}
               </>
             )}
           </>

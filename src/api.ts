@@ -90,7 +90,7 @@ export const parseTransactionsResponse = (response: any, currencyCache: any) => 
     } else if (type === 'withdrawal') {
       portfolioData.withdrawal += Math.abs(amount);
     } else {
-      console.error('Unknown type', type);
+      console.debug('Unhandled type', type);
     }
     hash[dateKey] = portfolioData;
     return hash;
