@@ -4,6 +4,7 @@ import Collapsible from 'react-collapsible';
 import { getSymbol, formatCurrency, getURLParams } from '../utils';
 import Charts from './Charts';
 import moment from 'moment';
+import _ from 'lodash';
 import * as Highcharts from 'highcharts';
 import StockTimeline from './StockTimeline';
 import { TYPE_TO_COLOR } from '../constants';
