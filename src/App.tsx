@@ -81,7 +81,7 @@ class App extends Component<Props, State> {
 
       return addon;
     } catch (error) {
-      console.debug(error);
+      console.warn('Falied to load the addon -- ', error);
     }
 
     return null;
