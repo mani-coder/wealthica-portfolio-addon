@@ -45,7 +45,7 @@ export default class DepositVsPortfolioValueTimeline extends Component<Props> {
         text: 'Deposits Vs Portfolio Value',
       },
       rangeSelector: {
-        selected: 5,
+        selected: 1,
       },
       yAxis: [
         {
@@ -53,13 +53,6 @@ export default class DepositVsPortfolioValueTimeline extends Component<Props> {
             enabled: !this.props.isPrivateMode,
           },
           opposite: false,
-          // plotLines: [
-          //   {
-          //     value: 0,
-          //     width: 2,
-          //     color: 'silver',
-          //   },
-          // ],
         },
         {
           labels: {

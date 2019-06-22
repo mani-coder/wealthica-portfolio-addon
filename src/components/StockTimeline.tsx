@@ -317,7 +317,7 @@ class StockTimeline extends Component<Props, State> {
         },
       },
       rangeSelector: {
-        selected: 5,
+        selected: 1,
       },
 
       scrollbar: {
