@@ -434,7 +434,7 @@ export default class HoldingsCharts extends Component<Props, State> {
               yAxisTitle: 'Market Value ($)',
               subtitle: '(click on a stock to view transactions)',
               series: [positionSeries[0]],
-              drilldown: true,
+              drilldown: false,
             })}
           />
 
