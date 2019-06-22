@@ -377,7 +377,7 @@ class StockTimeline extends Component<Props, State> {
   }
 
   render() {
-    return !this.state.data ? (
+    return this.state.loading ? (
       <div style={{ textAlign: 'center', margin: '12px' }}>
         <Loader type="Circles" color="#7f3eab" height="75" width="75" />
       </div>
