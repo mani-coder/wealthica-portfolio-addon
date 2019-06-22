@@ -35,7 +35,7 @@ export default class ProfitLossTimeline extends Component<Props> {
         text: 'Profit/Loss ($)',
       },
       rangeSelector: {
-        selected: 5,
+        selected: 1,
       },
 
       scrollbar: {
@@ -70,13 +70,6 @@ export default class ProfitLossTimeline extends Component<Props> {
             enabled: !this.props.isPrivateMode,
           },
           opposite: false,
-          // plotLines: [
-          //   {
-          //     value: 0,
-          //     width: 1,
-          //     color: 'black',
-          //   },
-          // ],
         },
         {
           labels: {
