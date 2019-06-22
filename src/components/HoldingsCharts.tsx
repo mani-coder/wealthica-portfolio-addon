@@ -189,13 +189,14 @@ export default class HoldingsCharts extends Component<Props, State> {
     ];
   }
 
-  getTopGainersLosers() {
+  getTopGainersLosers(gainers: boolean) {
     return [
       {
-        name: 'Top Losers / Gainers',
+        name: gainers ? 'Top Gainers' : 'Top Losers',
         type: 'column',
         colorByPoint: true,
         data: this.props.positions
+          .filter(position => (gainers ? position.gain_percent > 0 : position.gain_percent <= 0))
           .sort((a, b) => a.gain_percent - b.gain_percent)
           .map(position => {
             return {
@@ -205,7 +206,9 @@ export default class HoldingsCharts extends Component<Props, State> {
             };
           }),
         tooltip: {
-          pointFormat: '<b>{point.y:.1f}%</b><br />Gain: {point.gain} CAD',
+          pointFormat: gainers
+            ? '<b>{point.y:.1f}%</b><br />Gain: {point.gain} CAD'
+            : '<b>{point.y:.1f}%</b><br />Loss: {point.gain} CAD',
         },
         dataLabels: {
           enabled: true,
@@ -465,9 +468,16 @@ export default class HoldingsCharts extends Component<Props, State> {
         <Collapsible trigger="Top Losers/Gainers Chart" open>
           <Charts
             options={this.getOptions({
-              title: 'P/L Ratio Per Stock',
-              yAxisTitle: 'Gain/Loss (%)',
-              series: this.getTopGainersLosers(),
+              title: 'Top Gainers',
+              yAxisTitle: 'Gain (%)',
+              series: this.getTopGainersLosers(true),
+            })}
+          />
+          <Charts
+            options={this.getOptions({
+              title: 'Top Losers',
+              yAxisTitle: 'Loss (%)',
+              series: this.getTopGainersLosers(false),
             })}
           />
         </Collapsible>
