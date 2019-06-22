@@ -34,13 +34,14 @@
   ],
   "homepage": "https://mani-coder.github.io/wealthica-portfolio-addon/",
   "devDependencies": {
+    "@types/lodash": "^4.14.134",
+    "@types/jest": "^24.0.9",
     "@types/node": "^11.10.4",
     "@types/react": "^16.8.6",
     "@types/react-dom": "^16.8.2",
-    "typescript": "^3.3.3333",
-    "@types/jest": "^24.0.9",
     "gh-pages": "^2.0.1",
     "jest": "^23.6.0",
-    "ts-jest": "^23.0.0"
+    "ts-jest": "^23.0.0",
+    "typescript": "^3.3.3333"
   }
 }
