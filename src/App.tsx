@@ -30,6 +30,7 @@ import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions';
 // } from './mocks/prod';
 import { Account, Portfolio, PortfolioData, Position } from './types';
 import { getDate, getSymbol } from './utils';
+import _ from 'lodash';
 
 type State = {
   addon: any;
@@ -66,7 +67,7 @@ class App extends Component<Props, State> {
 
       addon.on('init', options => {
         console.debug('Addon initialization', options);
-        this.loadData(options);
+        this.load(options);
       });
 
       addon.on('reload', () => {
@@ -76,7 +77,7 @@ class App extends Component<Props, State> {
       addon.on('update', (options: any) => {
         // Update according to the received options
         console.debug('Addon update - options: ', options);
-        this.loadData(options);
+        this.load(options);
       });
 
       return addon;
@@ -110,6 +111,14 @@ class App extends Component<Props, State> {
         console.error('Failed to load currency data.', error);
       });
   }
+
+  load = _.debounce(
+    (options: any) => {
+      this.loadData(options);
+    },
+    250,
+    { leading: true },
+  );
 
   async loadData(options) {
     await this.loadCurrenciesCache();
