@@ -72,9 +72,10 @@ class App extends Component<Props, State> {
 
       addon.on('reload', () => {
         // Start reloading
+        console.debug('Reload invoked!');
       });
 
-      addon.on('update', (options: any) => {
+      addon.on('update', options => {
         // Update according to the received options
         console.debug('Addon update - options: ', options);
         this.load(options);
