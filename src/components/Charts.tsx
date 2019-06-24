@@ -17,14 +17,18 @@ type Props = {
 
 export default class Charts extends Component<Props> {
   render() {
-    const options = this.props.options;
-    return (
-      <HighchartsReact
-        highcharts={Highcharts}
-        constructorType={this.props.constructorType}
-        options={options}
-        oneToOne={true}
-      />
-    );
+    try {
+      const options = this.props.options;
+      return (
+        <HighchartsReact
+          highcharts={Highcharts}
+          constructorType={this.props.constructorType}
+          options={options}
+          oneToOne={true}
+        />
+      );
+    } catch {
+      console.debug('Failed to load high charts...');
+    }
   }
 }

@@ -45,7 +45,7 @@ export default class ProfitLossPercentageTimeline extends Component<Props> {
             title: 'G',
             text: 'Max Loss',
           },
-        ],
+        ].sort((a, b) => a.x - b.x),
         onSeries: 'dataseries',
         shape: 'squarepin',
         width: 16,
