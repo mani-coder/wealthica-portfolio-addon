@@ -42,6 +42,7 @@ type State = {
   isLoaded: boolean;
   privateMode: boolean;
   firstTransactionDate?: Moment;
+  options?: any;
 };
 type Props = {};
 
@@ -121,15 +122,27 @@ class App extends Component<Props, State> {
     { leading: true },
   );
 
+  mergeOptions(options) {
+    if (!this.state.options) {
+      this.setState({ options });
+    }
+    const oldOptions = this.state.options;
+    Object.keys(options).forEach(key => {
+      oldOptions[key] = options[key];
+    });
+    this.setState({ options: oldOptions });
+  }
+
   async loadData(options) {
     await this.loadCurrenciesCache();
+    this.mergeOptions(options);
 
-    const positions = await this.loadPositions(options);
-    this.setState({ privateMode: options.privateMode });
+    const positions = await this.loadPositions(this.state.options);
+    this.setState({ privateMode: this.state.options.privateMode });
 
-    const portfolioByDate = await this.loadPortfolioData(options);
-    const { transactionsByDate, transactions } = await this.loadTransactions(options);
-    const accounts = await this.loadInstitutionsData(options);
+    const portfolioByDate = await this.loadPortfolioData(this.state.options);
+    const { transactionsByDate, transactions } = await this.loadTransactions(this.state.options);
+    const accounts = await this.loadInstitutionsData(this.state.options);
 
     this.computePositions(positions, transactions);
     this.computePortfolios(portfolioByDate, transactionsByDate, accounts);
