@@ -281,7 +281,7 @@ class App extends Component<Props, State> {
         return accounts;
       })
       .catch(error => {
-        console.error('Failed to load position data.', error);
+        console.error('Failed to load institutions data.', error);
       });
   }
 

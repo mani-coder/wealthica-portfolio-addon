@@ -93,7 +93,7 @@ export default class HoldingsCharts extends Component<Props, State> {
       .map(position => {
         const symbol = getSymbol(position.security);
 
-        const accounts = this.props.accounts
+        const accounts = (this.props.accounts || [])
           .map(account => {
             const position = account.positions.filter(position => position.symbol === symbol)[0];
             return position ? { name: account.name, type: account.type, quantity: position.quantity } : undefined;
