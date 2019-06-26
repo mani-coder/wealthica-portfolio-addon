@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Position, Account } from '../types';
 import Collapsible from 'react-collapsible';
-import { getSymbol, formatCurrency, getURLParams } from '../utils';
+import { getSymbol, formatCurrency, getURLParams, formatMoney } from '../utils';
 import Charts from './Charts';
 import moment from 'moment';
 import _ from 'lodash';
@@ -49,13 +49,13 @@ export default class HoldingsCharts extends Component<Props, State> {
               name: moment(transaction.date).format('MMM D, Y'),
               y: transaction.amount,
               color: TYPE_TO_COLOR[transaction.type.toLowerCase()],
-              displayValue: transaction.amount.toLocaleString(),
+              displayValue: formatMoney(transaction.amount),
               type,
               price: isBuySell ? transaction.price : 'N/A',
               shares: isBuySell ? transaction.shares : 'N/A',
               label: isBuySell
                 ? `${transaction.shares}@${transaction.price}`
-                : `${type}@${transaction.amount.toLocaleString()}`,
+                : `${type}@${formatMoney(transaction.amount)}`,
               transaction,
             };
           }),
@@ -105,21 +105,21 @@ export default class HoldingsCharts extends Component<Props, State> {
 
         return {
           name: getSymbol(position.security),
-          drilldown: getSymbol(position.security),
+          // drilldown: getSymbol(position.security),
           y: position.market_value,
           displayValue: formatCurrency(position.market_value, 1),
-          marketValue: position.market_value ? position.market_value.toLocaleString() : position.market_value,
+          marketValue: formatMoney(position.market_value),
           percentage: position.market_value ? (position.market_value / marketValue) * 100 : 0,
           gain: position.gain_percent ? position.gain_percent * 100 : position.gain_percent,
-          profit: position.gain_amount ? position.gain_amount.toLocaleString() : position.gain_amount,
-          buyPrice: (
+          profit: formatMoney(position.gain_amount),
+          buyPrice: formatMoney(
             position.investments.reduce((cost, investment) => {
               return cost + investment.book_value / investment.quantity;
-            }, 0) / position.investments.length
-          ).toLocaleString(),
+            }, 0) / position.investments.length,
+          ),
           shares: position.quantity,
-          lastPrice: position.security.last_price.toLocaleString(),
-          currency: position.security.currency.toUpperCase(),
+          lastPrice: formatMoney(position.security.last_price),
+          currency: position.security.currency ? position.security.currency.toUpperCase() : position.security.currency,
           accountsTable: `<table><tr><th>Account</th><th align="right">Shares</th></tr>${accounts}</table>`,
         };
       });
@@ -202,7 +202,7 @@ export default class HoldingsCharts extends Component<Props, State> {
             return {
               name: getSymbol(position.security),
               y: position.gain_percent * 100,
-              gain: position.gain_amount.toLocaleString(),
+              gain: formatMoney(position.gain_amount),
             };
           }),
         tooltip: {
@@ -263,10 +263,10 @@ export default class HoldingsCharts extends Component<Props, State> {
           return {
             name: `${currency.toUpperCase()} Stocks`,
             y: data.value,
-            displayValue: Number(data.value.toFixed(2)).toLocaleString(),
+            displayValue: data.value ? Number(data.value.toFixed(2)).toLocaleString() : data.value,
             totalValue,
 
-            additionalValue: `<tr><td>Gain ($) </td><td align="right">${data.gain.toLocaleString()}</td></tr>
+            additionalValue: `<tr><td>Gain ($) </td><td align="right">${formatMoney(data.gain)}</td></tr>
             <tr><td>Gain (%)</td><td align="right">${((data.gain / data.value) * 100).toFixed(2)}</td></tr>
             `,
           };
@@ -281,7 +281,9 @@ export default class HoldingsCharts extends Component<Props, State> {
                 return `
                   <tr>
                     <td>${account.name} ${account.type}</td>
-                    <td align="right">$${Number(account.cash.toFixed(2)).toLocaleString()}</td>
+                    <td align="right">$${
+                      account.cash ? Number(account.cash.toFixed(2)).toLocaleString() : account.cash
+                    }</td>
                   </tr>`;
               })
               .join('');
@@ -289,7 +291,7 @@ export default class HoldingsCharts extends Component<Props, State> {
             return {
               name: `${currency.toUpperCase()} Cash`,
               y: data.value,
-              displayValue: Number(data.value.toFixed(2)).toLocaleString(),
+              displayValue: data.value ? Number(data.value.toFixed(2)).toLocaleString() : data.value,
               totalValue,
 
               additionalValue: accountsTable,
