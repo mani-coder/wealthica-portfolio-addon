@@ -26,7 +26,7 @@ export const parseInstitutionsResponse = (response: any, groups?: string[], inst
             return {
               id: account._id,
               name: instutition.name,
-              type: account.name.includes('-') ? account.name.split('-')[1].trim() : account.name,
+              type: account.name && account.name.includes('-') ? account.name.split('-')[1].trim() : account.name,
               cash: account.cash,
               value: account.value,
               currency: account.currency,
