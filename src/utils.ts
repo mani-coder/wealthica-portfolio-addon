@@ -23,7 +23,7 @@ export const formatMoney = (amount?: number) => {
 };
 
 export const getSymbol = (security: Security): string => {
-  return `${security.symbol}${security.currency === 'usd' ? '' : '.TO'}`;
+  return `${security.symbol || security.name}${security.currency === 'usd' ? '' : '.TO'}`;
 };
 
 export const min = (data: any[], field: string): any => {
