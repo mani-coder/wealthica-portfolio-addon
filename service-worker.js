@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.3/workbox-sw.js");
 
 importScripts(
-  "/wealthica-portfolio-addon/precache-manifest.cfc43f823707e9a1b33ca1ef2d017ea8.js"
+  "/wealthica-portfolio-addon/precache-manifest.3fb6de5d8540ddf146ce79e1a73a8dcc.js"
 );
 
 workbox.clientsClaim();
