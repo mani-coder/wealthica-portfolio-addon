@@ -141,11 +141,11 @@ class App extends Component<Props, State> {
     this.setState({ privateMode: this.state.options.privateMode });
 
     const portfolioByDate = await this.loadPortfolioData(this.state.options);
-    const { transactionsByDate, transactions } = await this.loadTransactions(this.state.options);
+    const transactions = await this.loadTransactions(this.state.options);
     const accounts = await this.loadInstitutionsData(this.state.options);
 
     this.computePositions(positions, transactions);
-    this.computePortfolios(portfolioByDate, transactionsByDate, accounts);
+    this.computePortfolios(portfolioByDate, transactions, accounts);
   }
 
   computePositions(positions, transactions) {
@@ -168,7 +168,10 @@ class App extends Component<Props, State> {
     });
   }
 
-  computePortfolios = (portfolioByDate, transactionsByDate, accounts) => {
+  computePortfolios = (portfolioByDate, transactions, accounts) => {
+    const transactionsByDate = parseTransactionsResponse(transactions, this.state.currencyCache, accounts);
+    console.debug('Transactions by date: ', transactionsByDate);
+
     const portfolioPerDay = Object.keys(portfolioByDate).reduce((hash, date) => {
       const data = transactionsByDate[date] || {};
       hash[date] = {
@@ -300,11 +303,7 @@ class App extends Component<Props, State> {
         method: 'GET',
         endpoint: 'transactions',
       })
-      .then(response => {
-        const transactionsByDate = parseTransactionsResponse(response, this.state.currencyCache);
-        console.debug('Transactions data: ', transactionsByDate);
-        return { transactionsByDate, transactions: response };
-      })
+      .then(response => response)
       .catch(error => {
         console.error('Failed to load transactions data.', error);
       });
@@ -313,14 +312,13 @@ class App extends Component<Props, State> {
   loadStaticPortfolioData() {
     const currencyCache = parseCurrencyReponse(CURRENCIES_API_RESPONSE);
     const portfolioByDate = parsePortfolioResponse(PORTFOLIO_API_RESPONSE);
-    const transactionsByDate = parseTransactionsResponse(TRANSACTIONS_API_RESPONSE, currencyCache);
     const positions = parsePositionsResponse(POSITIONS_API_RESPONSE);
     const accounts = parseInstitutionsResponse(INSTITUTIONS_DATA);
 
     console.debug(positions);
     this.setState({ currencyCache });
     this.computePositions(positions, TRANSACTIONS_API_RESPONSE);
-    this.computePortfolios(portfolioByDate, transactionsByDate, accounts);
+    this.computePortfolios(portfolioByDate, TRANSACTIONS_API_RESPONSE, accounts);
     console.debug(this.state);
   }
 

@@ -25,7 +25,9 @@ export const parseInstitutionsResponse = (response: any, groups?: string[], inst
           .map(account => {
             return {
               id: account._id,
+              institution: instutition.id,
               name: instutition.name,
+              created_at: getDate(instutition.creation_date),
               type: account.name && account.name.includes('-') ? account.name.split('-')[1].trim() : account.name,
               cash: account.cash,
               value: account.value,
@@ -54,13 +56,22 @@ export const parsePortfolioResponse = (response: any) => {
   }, {});
 };
 
-export const parseTransactionsResponse = (response: any, currencyCache: any) => {
+export const parseTransactionsResponse = (response: any, currencyCache: any, accounts: Account[]) => {
   return response.reduce((hash, transaction) => {
     const type = transaction.type;
     if (['sell', 'buy', 'unknown'].includes(type)) {
       return hash;
     }
-    const date = getDate(transaction.date);
+    let date = getDate(transaction.date);
+    if (['deposit', 'transfer', 'withdrawal'].includes(type)) {
+      // adjust the date of transaction, so that portfolio isn't screw'd up.
+      const account = accounts.find(account => account.institution === transaction.institution);
+      if (account && account.created_at > date) {
+        console.debug('Aligning transaction date with the account creation date', account, transaction);
+        date = account.created_at;
+      }
+    }
+
     const dateKey = date.format(DATE_FORMAT);
     const portfolioData = hash[dateKey]
       ? hash[dateKey]

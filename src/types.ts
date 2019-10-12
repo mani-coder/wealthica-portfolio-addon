@@ -68,6 +68,8 @@ export type Account = {
   currency: string;
   cash: number;
   value: number;
+  created_at: Moment;
+  institution: string;
   positions: {
     symbol: string;
     quantity: number;
