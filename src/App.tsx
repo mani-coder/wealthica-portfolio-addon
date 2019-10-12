@@ -345,9 +345,9 @@ class App extends Component<Props, State> {
               </>
             )}
 
-            {this.state.isLoadingOnUpdate && (
+            {!this.state.isLoadingOnUpdate && (
               <Flex width={1} justifyContent="center" alignItems="center">
-                <Loader type="ThreeDots" color="#7f3eab" height="75" width="75" />
+                <Loader type="ThreeDots" color="#7f3eab" height="30" width="75" />
               </Flex>
             )}
             <DepositVsPortfolioValueTimeline
