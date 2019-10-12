@@ -57,55 +57,57 @@ export const parsePortfolioResponse = (response: any) => {
 };
 
 export const parseTransactionsResponse = (response: any, currencyCache: any, accounts: Account[]) => {
-  return response.reduce((hash, transaction) => {
-    const type = transaction.type;
-    if (['sell', 'buy', 'unknown'].includes(type)) {
-      return hash;
-    }
-    let date = getDate(transaction.date);
-    if (['deposit', 'transfer', 'withdrawal'].includes(type)) {
-      // adjust the date of transaction, so that portfolio isn't screw'd up.
-      const account = accounts.find(account => account.institution === transaction.institution);
-      if (account && account.created_at > date) {
-        // console.debug('Aligning transaction date with the account creation date', account, transaction);
-        date = account.created_at;
+  return response
+    .filter(t => !t.deleted)
+    .reduce((hash, transaction) => {
+      const type = transaction.type;
+      if (['sell', 'buy', 'unknown'].includes(type)) {
+        return hash;
       }
-    }
+      let date = getDate(transaction.date);
+      if (['deposit', 'transfer', 'withdrawal'].includes(type)) {
+        // adjust the date of transaction, so that portfolio isn't screw'd up.
+        const account = accounts.find(account => account.institution === transaction.institution);
+        if (account && account.created_at > date) {
+          // console.debug('Aligning transaction date with the account creation date', account, transaction);
+          date = account.created_at;
+        }
+      }
 
-    const dateKey = date.format(DATE_FORMAT);
-    const portfolioData = hash[dateKey]
-      ? hash[dateKey]
-      : {
-          deposit: 0,
-          withdrawal: 0,
-          interest: 0,
-          income: 0,
-        };
+      const dateKey = date.format(DATE_FORMAT);
+      const portfolioData = hash[dateKey]
+        ? hash[dateKey]
+        : {
+            deposit: 0,
+            withdrawal: 0,
+            interest: 0,
+            income: 0,
+          };
 
-    let amount = Number(transaction.currency_amount);
-    amount =
-      transaction.investment && transaction.investment.includes(':usd')
-        ? getCurrencyInCAD(date, amount, currencyCache)
-        : amount;
+      let amount = Number(transaction.currency_amount);
+      amount =
+        transaction.investment && transaction.investment.includes(':usd')
+          ? getCurrencyInCAD(date, amount, currencyCache)
+          : amount;
 
-    if (['deposit'].includes(type)) {
-      portfolioData.deposit += amount;
-    } else if (type === 'transfer') {
-      if (transaction.origin_type === 'CON') {
+      if (['deposit'].includes(type)) {
         portfolioData.deposit += amount;
+      } else if (type === 'transfer') {
+        if (transaction.origin_type === 'CON') {
+          portfolioData.deposit += amount;
+        }
+      } else if (['fee', 'interest', 'tax'].includes(type)) {
+        portfolioData.interest += Math.abs(amount);
+      } else if (['income', 'dividend', 'distribution'].includes(type)) {
+        portfolioData.income += amount;
+      } else if (type === 'withdrawal') {
+        portfolioData.withdrawal += Math.abs(amount);
+      } else {
+        console.debug('Unhandled type', type);
       }
-    } else if (['fee', 'interest', 'tax'].includes(type)) {
-      portfolioData.interest += Math.abs(amount);
-    } else if (['income', 'dividend', 'distribution'].includes(type)) {
-      portfolioData.income += amount;
-    } else if (type === 'withdrawal') {
-      portfolioData.withdrawal += Math.abs(amount);
-    } else {
-      console.debug('Unhandled type', type);
-    }
-    hash[dateKey] = portfolioData;
-    return hash;
-  }, {});
+      hash[dateKey] = portfolioData;
+      return hash;
+    }, {});
 };
 
 export const parseSecurityTransactionsResponse = (response: any, currencyCache: any): Transaction[] => {
