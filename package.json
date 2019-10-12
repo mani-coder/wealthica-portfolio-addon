@@ -13,7 +13,8 @@
     "react-dom": "^16.8.3",
     "react-loader-spinner": "^2.3.0",
     "react-scripts": "2.1.5",
-    "react-table": "^6.9.2"
+    "react-table": "^6.9.2",
+    "rebass": "^4.0.6"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -34,11 +35,12 @@
   ],
   "homepage": "https://mani-coder.github.io/wealthica-portfolio-addon/",
   "devDependencies": {
-    "@types/lodash": "^4.14.134",
     "@types/jest": "^24.0.9",
+    "@types/lodash": "^4.14.144",
     "@types/node": "^11.10.4",
     "@types/react": "^16.8.6",
     "@types/react-dom": "^16.8.2",
+    "@types/rebass": "^4.0.1",
     "gh-pages": "^2.0.1",
     "jest": "^23.6.0",
     "ts-jest": "^23.0.0",
