@@ -210,7 +210,7 @@ class App extends Component<Props, State> {
       }
     });
 
-    this.setState({ portfolios, portfolioPerDay, isLoaded: true, accounts });
+    this.setState({ portfolios, portfolioPerDay, isLoaded: true, isLoadingOnUpdate: false, accounts });
     console.debug('Loaded the data', portfolios);
   };
 
@@ -345,7 +345,7 @@ class App extends Component<Props, State> {
               </>
             )}
 
-            {!this.state.isLoadingOnUpdate && (
+            {this.state.isLoadingOnUpdate && (
               <Flex width={1} justifyContent="center" alignItems="center">
                 <Loader type="ThreeDots" color="#7f3eab" height="75" width="75" />
               </Flex>
