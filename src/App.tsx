@@ -1,4 +1,5 @@
 import { Addon } from '@wealthica/wealthica.js/index';
+import _ from 'lodash';
 import moment, { Moment } from 'moment';
 import React, { Component } from 'react';
 import Loader from 'react-loader-spinner';
@@ -30,7 +31,7 @@ import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions';
 // } from './mocks/prod';
 import { Account, Portfolio, PortfolioData, Position } from './types';
 import { getDate, getSymbol } from './utils';
-import _ from 'lodash';
+import { Flex } from 'rebass';
 
 type State = {
   addon: any;
@@ -43,6 +44,7 @@ type State = {
   privateMode: boolean;
   firstTransactionDate?: Moment;
   options?: any;
+  isLoadingOnUpdate?: boolean;
 };
 type Props = {};
 
@@ -79,6 +81,7 @@ class App extends Component<Props, State> {
       addon.on('update', options => {
         // Update according to the received options
         console.debug('Addon update - options: ', options);
+        this.setState({ isLoadingOnUpdate: true });
         this.load(options);
       });
 
@@ -340,6 +343,12 @@ class App extends Component<Props, State> {
                   !! This is sample data !!
                 </p>
               </>
+            )}
+
+            {!this.state.isLoadingOnUpdate && (
+              <Flex width={1} justifyContent="center" alignItems="center">
+                <Loader type="ThreeDots" color="#7f3eab" height="75" width="75" />
+              </Flex>
             )}
             <DepositVsPortfolioValueTimeline
               portfolios={this.state.portfolios}
