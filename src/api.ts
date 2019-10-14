@@ -93,9 +93,7 @@ export const parseTransactionsResponse = (response: any, currencyCache: any, acc
       if (['deposit'].includes(type)) {
         portfolioData.deposit += amount;
       } else if (type === 'transfer') {
-        if (transaction.origin_type === 'CON') {
-          portfolioData.deposit += amount;
-        }
+        portfolioData.deposit += amount;
       } else if (['fee', 'interest', 'tax'].includes(type)) {
         portfolioData.interest += Math.abs(amount);
       } else if (['income', 'dividend', 'distribution'].includes(type)) {
