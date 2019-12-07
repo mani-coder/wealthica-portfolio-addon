@@ -115,7 +115,7 @@ export const parseSecurityTransactionsResponse = (response: any, currencyCache: 
     .filter(
       transaction =>
         ['sell', 'buy', 'income', 'dividend', 'distribution', 'tax', 'fee'].includes(transaction.type.toLowerCase()) &&
-        transaction.security,
+        (transaction.security || transaction.symbol),
     )
     .map(transaction => {
       const date = getDate(transaction.date);
@@ -128,11 +128,11 @@ export const parseSecurityTransactionsResponse = (response: any, currencyCache: 
 
       return {
         date,
-        symbol: getSymbol(transaction.security),
+        symbol: transaction.security ? getSymbol(transaction.security) : transaction.symbol,
         price: Math.abs(transaction.currency_amount / transaction.quantity).toFixed(3),
         type: transaction.type,
         amount: Math.abs(amount),
-        currency: transaction.security.currency,
+        currency: transaction.security ? transaction.security.currency : 'USD',
         shares: transaction.quantity,
         fees: transaction.fee,
       };

@@ -147,6 +147,7 @@ class App extends Component<Props, State> {
     const transactions = await this.loadTransactions(this.state.options);
     const accounts = await this.loadInstitutionsData(this.state.options);
 
+    console.debug('Transactions', transactions);
     this.computePositions(positions, transactions);
     this.computePortfolios(portfolioByDate, transactions, accounts);
   }
