@@ -87,19 +87,31 @@ class StockTimeline extends Component<Props, State> {
     }
     this.setState({ loading: true });
 
+    const startDate = moment.min(
+      (this.props.position.transactions && this.props.position.transactions.length
+        ? this.props.position.transactions[0].date
+        : moment()
+      )
+        .clone()
+        .subtract('months', 1),
+      moment().subtract('months', 6),
+    );
+
     if (this.props.addon) {
       this.props.addon
         .request({
           query: {},
           method: 'GET',
-          endpoint: `securities/${this.props.position.security.id}/history`,
+          endpoint: `securities/${this.props.position.security.id}/history?from=${startDate.format('YYYY-MM-DD')}`,
         })
         .then(response => {
           this.parseSecuritiesResponse(response);
         })
         .catch(error => console.log(error));
     } else {
-      const url = `https://app.wealthica.com/api/securities/${this.props.position.security.id}/history`;
+      const url = `https://app.wealthica.com/api/securities/${
+        this.props.position.security.id
+      }/history?from=${startDate.format('YYYY-MM-DD')}`;
       console.debug('Fetching stock data..', url);
 
       fetch(`https://cors-anywhere.herokuapp.com/${url}`, {
@@ -250,32 +262,29 @@ class StockTimeline extends Component<Props, State> {
       data: this.props.position.transactions
         .filter(t => t.type === type)
         .sort((a, b) => a.date.valueOf() - b.date.valueOf())
-        .reduce(
-          (array, transaction) => {
-            const lastTransaction = array.pop();
-            if (lastTransaction && lastTransaction.date.valueOf() === transaction.date.valueOf()) {
-              array.push({
-                ...lastTransaction,
-                shares:
-                  transaction.shares && lastTransaction.shares
-                    ? lastTransaction.shares + transaction.shares
-                    : lastTransaction.shares,
-                amount: transaction.amount + lastTransaction.amount,
-                price:
-                  transaction.price && lastTransaction.price
-                    ? (Number(transaction.price) + Number(lastTransaction.price)) / 2
-                    : lastTransaction.price,
-              });
-            } else {
-              if (lastTransaction) {
-                array.push(lastTransaction);
-              }
-              array.push(transaction);
+        .reduce((array, transaction) => {
+          const lastTransaction = array.pop();
+          if (lastTransaction && lastTransaction.date.valueOf() === transaction.date.valueOf()) {
+            array.push({
+              ...lastTransaction,
+              shares:
+                transaction.shares && lastTransaction.shares
+                  ? lastTransaction.shares + transaction.shares
+                  : lastTransaction.shares,
+              amount: transaction.amount + lastTransaction.amount,
+              price:
+                transaction.price && lastTransaction.price
+                  ? (Number(transaction.price) + Number(lastTransaction.price)) / 2
+                  : lastTransaction.price,
+            });
+          } else {
+            if (lastTransaction) {
+              array.push(lastTransaction);
             }
-            return array;
-          },
-          [] as Transaction[],
-        )
+            array.push(transaction);
+          }
+          return array;
+        }, [] as Transaction[])
         .map(transaction => {
           return {
             transaction,
