@@ -444,7 +444,9 @@ export default class HoldingsCharts extends Component<Props, State> {
 
     return (
       <Flex p={3} pt={3} width={1} flexDirection="column">
-        <Typography.Title level={4}>Search for a stock in your protofolio:</Typography.Title>
+        <Typography.Title style={{ textAlign: 'center' }} level={4}>
+          Search for a stock in your protofolio:
+        </Typography.Title>
         <Select
           showSearch
           value={this.state.timelineSymbol}
