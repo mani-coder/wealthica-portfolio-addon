@@ -15,9 +15,9 @@ export const getCurrencyInCAD = (date: Moment, value: number, currencyCache: any
   return multiplier ? value / multiplier : value;
 };
 
-export const formatMoney = (amount?: number) => {
+export const formatMoney = (amount?: number): string => {
   if (!amount) {
-    return amount;
+    return 'N/A';
   }
   return amount.toLocaleString();
 };
