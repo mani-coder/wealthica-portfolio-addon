@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@wealthica/wealthica.js": "0.0.10",
+    "antd": "^3.26.0",
     "highcharts": "^7.2.1",
     "highcharts-react-official": "^2.1.3",
     "lodash": "^4.17.15",
