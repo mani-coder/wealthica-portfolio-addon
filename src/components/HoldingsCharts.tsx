@@ -8,6 +8,10 @@ import _ from 'lodash';
 import * as Highcharts from 'highcharts';
 import StockTimeline from './StockTimeline';
 import { TYPE_TO_COLOR } from '../constants';
+import { Flex } from 'rebass';
+import Select from 'antd/es/select';
+import Typography from 'antd/es/typography';
+import StockDetails from './StockDetails';
 
 type Props = {
   positions: Position[];
@@ -428,6 +432,45 @@ export default class HoldingsCharts extends Component<Props, State> {
     );
   }
 
+  renderStockSelector() {
+    const options = this.props.positions
+      .map(position => getSymbol(position.security))
+      .sort()
+      .map((symbol, index) => (
+        <Select.Option key={index} value={symbol}>
+          {symbol}
+        </Select.Option>
+      ));
+
+    return (
+      <Flex p={3} pt={3} width={1} flexDirection="column">
+        <Typography.Title level={4}>Search for a stock in your protofolio:</Typography.Title>
+        <Select
+          showSearch
+          value={this.state.timelineSymbol}
+          placeholder="Enter a stock, e.g: FB, SHOP.TO"
+          showArrow
+          style={{ width: '100%' }}
+          onChange={symbol => this.setState({ timelineSymbol: symbol })}
+          filterOption={(inputValue, option) =>
+            (option!.props!.value! as string).toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
+          }
+        >
+          {options}
+        </Select>
+
+        {this.state.timelineSymbol && (
+          <StockDetails
+            symbol={this.state.timelineSymbol}
+            positions={this.props.positions}
+            accounts={this.props.accounts}
+            isPrivateMode={this.props.isPrivateMode}
+          />
+        )}
+      </Flex>
+    );
+  }
+
   render() {
     const positionSeries = this.getPositionsSeries();
 
@@ -443,12 +486,21 @@ export default class HoldingsCharts extends Component<Props, State> {
             })}
           />
 
-          <Charts
-            options={this.getOptions({
-              subtitle: '(click on a stock to view timeline and transactions)',
-              series: [positionSeries[1]],
-            })}
-          />
+          <Flex width={1} flexWrap="wrap" alignItems="stretch">
+            <Flex width={[1, 1, 2 / 3]} height="100%" justifyContent="center">
+              <Charts
+                options={this.getOptions({
+                  subtitle: '(click on a stock to view timeline and transactions)',
+                  series: [positionSeries[1]],
+                })}
+              />
+            </Flex>
+
+            <Flex width={[1, 1, 1 / 3]} pr={4} height="100%" justifyContent="center">
+              {this.renderStockSelector()}
+            </Flex>
+          </Flex>
+
           {this.renderStockTimeline()}
 
           <div className="center">
