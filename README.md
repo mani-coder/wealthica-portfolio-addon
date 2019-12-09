@@ -1,14 +1,13 @@
 
 ## Wealthica Developer Add-on (Portfolio vs Deposits analyser)
 
-Wealthica developer addon to compare the portfolio value against the total deposits made as of the date.
+Wealthica addon to compare the portfolio value against the total deposits made as of the date. This add-on has been added to the Wealthica's trusted third party addons -- https://app.wealthica.com/addons/details?id=mani-coder/wealthica-portfolio-addon.
 
 Steps to load the addon:
 
 1. Sign in into your Wealthica account
-2. Click on Add-Ons link in the navigation and select Developer Add-On
-   - If the "Developer Add-on" is missing, then click on "Get more add-ons" and install/add "Developer Add-On", then you will able to see it under Add-Ons navigation.
-3. Click the Settings icon in top right corner and add https://mani-coder.github.io/wealthica-portfolio-addon/ URL to the text box.
+2. Go to addons page -- https://app.wealthica.com/addons/
+3. Click P/L Timeline addon and install -- https://app.wealthica.com/addons/details?id=mani-coder/wealthica-portfolio-addon
 
 You can take a quick look at the charts using the demo data.
 
