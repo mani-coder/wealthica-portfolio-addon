@@ -49,14 +49,14 @@ export default (props: Props) => {
       <LabelValue label="Symbol" value={getSymbol(position.security)} />
       <LabelValue
         label="Value"
-        value={`${formatMoney(position.market_value)} (${(position.market_value
+        value={`C$ ${formatMoney(position.market_value)} (${(position.market_value
           ? (position.market_value / marketValue) * 100
           : 0
         ).toFixed(2)}%)`}
       />
       <LabelValue
         label="Proft/Loss"
-        value={`${formatMoney(position.gain_amount)} (${(position.gain_percent
+        value={`C$ ${formatMoney(position.gain_amount)} (${(position.gain_percent
           ? position.gain_percent * 100
           : position.gain_percent
         ).toFixed(2)}%)`}
