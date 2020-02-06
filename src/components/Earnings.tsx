@@ -2,7 +2,7 @@ import { Select, Table, Typography } from 'antd';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import Collapsible from 'react-collapsible';
-import { Flex, Box } from 'rebass';
+import { Flex } from 'rebass';
 import { Position } from '../types';
 import { getSymbol } from '../utils';
 
@@ -160,16 +160,15 @@ export default (props: Props) => {
       <Table
         title={() => (
           <Flex flexDirection="row" flexWrap="wrap">
-            <Typography.Title style={{ textAlign: 'center' }} level={4}>
-              Search for a stock in your protofolio:
-            </Typography.Title>
-            <Box p={2} />
+            <Typography.Text strong>Stock lookup:</Typography.Text>
+            <Flex p={2} />
             <Select
+              allowClear
               showSearch
               value={symbol}
               placeholder="Enter a stock, e.g: FB, SHOP.TO"
               showArrow
-              style={{ width: 500 }}
+              style={{ width: '100%', maxWidth: 350 }}
               onChange={setSymbol}
               filterOption={(inputValue, option) =>
                 (option!.props!.value! as string).toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
