@@ -3,6 +3,7 @@ import _ from 'lodash';
 import moment, { Moment } from 'moment';
 import React, { Component } from 'react';
 import Loader from 'react-loader-spinner';
+import { Flex } from 'rebass';
 import {
   parseCurrencyReponse,
   parseInstitutionsResponse,
@@ -14,6 +15,7 @@ import {
 import './App.css';
 import './Collapsible.css';
 import DepositVsPortfolioValueTimeline from './components/DepositsVsPortfolioValueTimeline';
+import Earnings from './components/Earnings';
 import HoldingsCharts from './components/HoldingsCharts';
 import ProfitLossPercentageTimeline from './components/ProfitLossPercentageTimeline';
 import ProfitLossTimeline from './components/ProfitLossTimeline';
@@ -31,7 +33,6 @@ import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions';
 // } from './mocks/prod';
 import { Account, Portfolio, PortfolioData, Position } from './types';
 import { getDate, getSymbol } from './utils';
-import { Flex } from 'rebass';
 
 type State = {
   addon: any;
@@ -365,6 +366,7 @@ class App extends Component<Props, State> {
                   isPrivateMode={this.state.privateMode}
                   addon={this.state.addon}
                 />
+                <Earnings positions={this.state.positions} />
                 {/* <HoldingsTable positions={this.state.positions} isPrivateMode={this.state.privateMode} /> */}
               </>
             )}
