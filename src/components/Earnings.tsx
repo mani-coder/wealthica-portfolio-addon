@@ -26,15 +26,7 @@ export default (props: Props) => {
       sortType: 'asc',
       entityIdType: 'earnings',
       sortField: 'startdatetime',
-      includeFields: [
-        'ticker',
-        'companyshortname',
-        'startdatetime',
-        'startdatetimetype',
-        'epsestimate',
-        'epsactual',
-        'epssurprisepct',
-      ],
+      includeFields: ['ticker', 'companyshortname', 'startdatetime', 'startdatetimetype', 'epsestimate'],
       query: {
         operator: 'and',
         operands: [
