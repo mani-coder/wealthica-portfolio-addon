@@ -59,7 +59,7 @@ export default class ProfitLossPercentageTimeline extends Component<Props> {
         text: 'Profit/Loss (%)',
       },
       rangeSelector: {
-        selected: 1,
+        enabled: false,
       },
 
       scrollbar: {
