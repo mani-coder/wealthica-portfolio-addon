@@ -24,7 +24,7 @@
     "test": "jest",
     "eject": "react-scripts eject",
     "predeploy": "yarn run build",
-    "deploy": "yarn predeploy && gh-pages -d build"
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": "react-app"
