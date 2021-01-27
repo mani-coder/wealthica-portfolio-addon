@@ -11,8 +11,8 @@ type Props = {
 };
 
 export default (props: Props) => {
-  const [loading, setLoading] = useState();
-  const [document, setDocument] = useState();
+  const [loading, setLoading] = useState(false);
+  const [document, setDocument] = useState<any>();
   const [symbol, setSymbol] = useState();
 
   useEffect(() => {
@@ -162,7 +162,7 @@ export default (props: Props) => {
               showArrow
               style={{ width: '100%', maxWidth: 350 }}
               onChange={setSymbol}
-              filterOption={(inputValue, option) =>
+              filterOption={(inputValue: any, option: any) =>
                 (option!.props!.value! as string).toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
               }
             >
