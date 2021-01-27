@@ -45,7 +45,7 @@ export default class DepositVsPortfolioValueTimeline extends Component<Props> {
         text: 'Deposits Vs Portfolio Value',
       },
       rangeSelector: {
-        selected: 1,
+        enabled: false,
       },
       yAxis: [
         {
