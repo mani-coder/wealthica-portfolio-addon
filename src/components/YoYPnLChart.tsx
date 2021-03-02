@@ -103,17 +103,21 @@ export default function YoYPnLChart(props: Props) {
       { label: '5Y', date: moment(lastDate).subtract(5, 'years').add(1, 'days') },
     ].map((value) => {
       const portfolio = getNearestPortfolioDate(value.date.format('YYYY-MM-DD'));
-      const yoyPct = portfolio
-        ? ((currentPortfolio.value - currentPortfolio.deposits - (portfolio.value - portfolio.deposits)) /
-            (portfolio.value - portfolio.deposits)) *
-          100
-        : undefined;
+      if (!portfolio) {
+        return {
+          label: value.label,
+        };
+      }
+
+      const currentGain = currentPortfolio.value - currentPortfolio.deposits;
+      const gain = portfolio.value - portfolio.deposits;
+      const yoyPct = ((currentGain - gain) / gain) * 100;
+
       return {
         label: value.label,
-        date: value.date.format('YYYY-MM-DD'),
-        gain: portfolio
-          ? currentPortfolio.value - currentPortfolio.deposits - (portfolio.value - portfolio.deposits)
-          : undefined,
+        date: portfolio ? portfolio.date : undefined,
+        currentGain,
+        gain,
         portfolio,
         yoyPct,
       };
@@ -132,11 +136,17 @@ export default function YoYPnLChart(props: Props) {
             return {
               name: data.label,
               y: data.yoyPct,
-              gain: data.gain ? formatCurrency(data.gain, 2) : undefined,
+              date: moment(data.date).format('MMM D, YYYY'),
+              currentGain: data.currentGain ? formatCurrency(data.currentGain, 2) : '',
+              gain: data.gain ? formatCurrency(data.gain, 2) : '',
             };
           }),
         tooltip: {
-          pointFormat: '<b>{point.y:.1f}%</b><br />Gain: {point.gain} CAD',
+          useHTML: true,
+          pointFormat: `<b>{point.y:.1f}%</b><br />
+            Date: {point.date}<br />
+            Gain On Date: {point.gain} CAD<br />
+            Current Gain: {point.currentGain}<br />`,
         },
         dataLabels: {
           enabled: true,
