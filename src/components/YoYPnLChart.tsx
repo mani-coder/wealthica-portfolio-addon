@@ -12,6 +12,7 @@ type Props = {
 
 export default function YoYPnLChart(props: Props) {
   const portfolioReverse = props.portfolios.slice().reverse();
+
   const getOptions = ({
     title,
     yAxisTitle,
@@ -48,7 +49,6 @@ export default function YoYPnLChart(props: Props) {
       xAxis: {
         type: 'category',
         labels: {
-          // rotation: -45,
           style: {
             fontSize: '13px',
             fontFamily: 'Verdana, sans-serif',
@@ -106,6 +106,7 @@ export default function YoYPnLChart(props: Props) {
       if (!portfolio) {
         return {
           label: value.label,
+          date: value.date.format('YYYY-MM-DD'),
         };
       }
 
@@ -115,7 +116,7 @@ export default function YoYPnLChart(props: Props) {
 
       return {
         label: value.label,
-        date: portfolio ? portfolio.date : undefined,
+        date: portfolio.date,
         currentGain,
         gain,
         portfolio,
@@ -140,7 +141,8 @@ export default function YoYPnLChart(props: Props) {
               currentGain: data.currentGain ? formatCurrency(data.currentGain, 2) : '',
               gain: data.gain ? formatCurrency(data.gain, 2) : '',
             };
-          }),
+          })
+          .reverse(),
         tooltip: {
           useHTML: true,
           pointFormat: `<b>{point.y:.1f}%</b><br />
