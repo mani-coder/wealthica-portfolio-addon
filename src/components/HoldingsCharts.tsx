@@ -41,12 +41,12 @@ export default class HoldingsCharts extends Component<Props, State> {
         textDecoration: 'none',
       },
 
-      series: this.props.positions.map(position => {
+      series: this.props.positions.map((position) => {
         return {
           type: 'column',
           id: getSymbol(position.security),
           name: getSymbol(position.security),
-          data: position.transactions.map(transaction => {
+          data: position.transactions.map((transaction) => {
             const isBuySell = ['buy', 'sell'].includes(transaction.type);
             const type = _.startCase(transaction.type);
             return {
@@ -94,17 +94,17 @@ export default class HoldingsCharts extends Component<Props, State> {
     }, 0);
     const data = this.props.positions
       .sort((a, b) => b.market_value - a.market_value)
-      .map(position => {
+      .map((position) => {
         const symbol = getSymbol(position.security);
 
         const accounts = (this.props.accounts || [])
-          .map(account => {
-            const position = account.positions.filter(position => position.symbol === symbol)[0];
+          .map((account) => {
+            const position = account.positions.filter((position) => position.symbol === symbol)[0];
             return position ? { name: account.name, type: account.type, quantity: position.quantity } : undefined;
           })
-          .filter(value => value)
+          .filter((value) => value)
           .sort((a, b) => b!.quantity - a!.quantity)
-          .map(value => `<tr><td>${value!.name} ${value!.type}</td><td align="right">${value!.quantity}</td></tr>`)
+          .map((value) => `<tr><td>${value!.name} ${value!.type}</td><td align="right">${value!.quantity}</td></tr>`)
           .join('');
 
         return {
@@ -129,7 +129,7 @@ export default class HoldingsCharts extends Component<Props, State> {
       });
 
     const events = {
-      click: event => {
+      click: (event) => {
         if (event.point.name && this.state.timelineSymbol !== event.point.name) {
           this.setState({ timelineSymbol: event.point.name });
         }
@@ -171,7 +171,7 @@ export default class HoldingsCharts extends Component<Props, State> {
         type: 'pie',
         name: 'Holdings',
         colorByPoint: true,
-        data: data.map(position => ({ ...position, drilldown: undefined })),
+        data: data.map((position) => ({ ...position, drilldown: undefined })),
         events,
 
         tooltip: {
@@ -200,9 +200,9 @@ export default class HoldingsCharts extends Component<Props, State> {
         type: 'column',
         colorByPoint: true,
         data: this.props.positions
-          .filter(position => (gainers ? position.gain_percent > 0 : position.gain_percent <= 0))
+          .filter((position) => (gainers ? position.gain_percent > 0 : position.gain_percent <= 0))
           .sort((a, b) => a.gain_percent - b.gain_percent)
-          .map(position => {
+          .map((position) => {
             return {
               name: getSymbol(position.security),
               y: position.gain_percent * 100,
@@ -262,7 +262,7 @@ export default class HoldingsCharts extends Component<Props, State> {
       // center: ['80%', '30%'],
       // size: 150,
       data: Object.keys(positionDataByCurrency)
-        .map(currency => {
+        .map((currency) => {
           const data = positionDataByCurrency[currency];
           return {
             name: `${currency.toUpperCase()} Stocks`,
@@ -276,12 +276,12 @@ export default class HoldingsCharts extends Component<Props, State> {
           };
         })
         .concat(
-          Object.keys(cashByCurrency).map(currency => {
+          Object.keys(cashByCurrency).map((currency) => {
             const data = cashByCurrency[currency];
             const accountsTable = this.props.accounts
-              .filter(account => account.currency === currency && account.cash)
+              .filter((account) => account.currency === currency && account.cash)
               .sort((a, b) => b.cash - a.cash)
-              .map(account => {
+              .map((account) => {
                 return `
                   <tr>
                     <td>${account.name} ${account.type}</td>
@@ -415,7 +415,7 @@ export default class HoldingsCharts extends Component<Props, State> {
       return <></>;
     }
     const position = this.props.positions.filter(
-      position => getSymbol(position.security) === this.state.timelineSymbol,
+      (position) => getSymbol(position.security) === this.state.timelineSymbol,
     )[0];
 
     if (!position) {
@@ -434,7 +434,7 @@ export default class HoldingsCharts extends Component<Props, State> {
 
   renderStockSelector() {
     const options = this.props.positions
-      .map(position => getSymbol(position.security))
+      .map((position) => getSymbol(position.security))
       .sort()
       .map((symbol, index) => (
         <Select.Option key={index} value={symbol}>
@@ -453,7 +453,7 @@ export default class HoldingsCharts extends Component<Props, State> {
           placeholder="Enter a stock, e.g: FB, SHOP.TO"
           showArrow
           style={{ width: '100%' }}
-          onChange={symbol => this.setState({ timelineSymbol: symbol })}
+          onChange={(symbol) => this.setState({ timelineSymbol: symbol })}
           filterOption={(inputValue, option) =>
             (option!.props!.value! as string).toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
           }

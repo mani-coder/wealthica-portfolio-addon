@@ -14,7 +14,7 @@ export default class ProfitLossTimeline extends Component<Props> {
     return [
       {
         name: 'P/L',
-        data: this.props.portfolios.map(portfolio => {
+        data: this.props.portfolios.map((portfolio) => {
           return {
             x: moment(portfolio.date).valueOf(),
             y: portfolio.value - portfolio.deposits,
@@ -34,8 +34,10 @@ export default class ProfitLossTimeline extends Component<Props> {
       title: {
         text: 'Profit/Loss ($)',
       },
+
       rangeSelector: {
-        enabled: false
+        selected: 1,
+        enabled: process.env.NODE_ENV === 'development',
       },
 
       scrollbar: {

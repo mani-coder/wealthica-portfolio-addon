@@ -25,12 +25,11 @@ import { INSTITUTIONS_DATA } from './mocks/institutions';
 import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio';
 import { POSITIONS_API_RESPONSE } from './mocks/positions';
 import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions';
-// import {
-//   INSTITUTIONS_DATA,
-//   PORTFOLIO_API_RESPONSE,
-//   POSITIONS_API_RESPONSE,
-//   TRANSACTIONS_API_RESPONSE,
-// } from './mocks/prod';
+// import { CURRENCIES_API_RESPONSE } from './mocks/currencies-prod';
+// import { INSTITUTIONS_DATA } from './mocks/institutions-prod';
+// import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio-prod';
+// import { POSITIONS_API_RESPONSE } from './mocks/positions-prod';
+// import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions-prod';
 import { Account, Portfolio, PortfolioData, Position } from './types';
 import { getDate, getSymbol } from './utils';
 
@@ -69,7 +68,7 @@ class App extends Component<Props, State> {
     try {
       const addon = new Addon({});
 
-      addon.on('init', options => {
+      addon.on('init', (options) => {
         console.debug('Addon initialization', options);
         this.load(options);
       });
@@ -79,7 +78,7 @@ class App extends Component<Props, State> {
         console.debug('Reload invoked!');
       });
 
-      addon.on('update', options => {
+      addon.on('update', (options) => {
         // Update according to the received options
         console.debug('Addon update - options: ', options);
         this.setState({ isLoadingOnUpdate: true });
@@ -108,12 +107,12 @@ class App extends Component<Props, State> {
           base: 'cad',
         },
       })
-      .then(response => {
+      .then((response) => {
         const currencyCache = parseCurrencyReponse(response);
         console.debug('Currency cache: ', currencyCache);
         this.setState({ currencyCache });
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('Failed to load currency data.', error);
       });
   }
@@ -131,7 +130,7 @@ class App extends Component<Props, State> {
       this.setState({ options });
     }
     const oldOptions = this.state.options;
-    Object.keys(options).forEach(key => {
+    Object.keys(options).forEach((key) => {
       oldOptions[key] = options[key];
     });
     this.setState({ options: oldOptions });
@@ -163,7 +162,7 @@ class App extends Component<Props, State> {
       return hash;
     }, {});
 
-    positions.forEach(position => {
+    positions.forEach((position) => {
       position.transactions = securityTransactionsBySymbol[getSymbol(position.security)] || [];
     });
 
@@ -193,14 +192,14 @@ class App extends Component<Props, State> {
 
     const sortedDates = Object.keys(portfolioPerDay).sort();
     let deposits = Object.keys(transactionsByDate)
-      .filter(date => date < sortedDates[0])
+      .filter((date) => date < sortedDates[0])
       .reduce((totalDeposits, date) => {
         const transaction = transactionsByDate[date];
         totalDeposits += transaction.deposit - transaction.withdrawal;
         return totalDeposits;
       }, 0);
 
-    sortedDates.forEach(date => {
+    sortedDates.forEach((date) => {
       const portfolio = portfolioPerDay[date];
       deposits += portfolio.deposit - portfolio.withdrawal;
       if (moment(date).isoWeekday() <= 5) {
@@ -231,12 +230,12 @@ class App extends Component<Props, State> {
         method: 'GET',
         endpoint: 'portfolio',
       })
-      .then(response => {
+      .then((response) => {
         const portfolio = parsePortfolioResponse(response);
         console.debug('Portfolio data: ', portfolio);
         return portfolio;
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('Failed to load portfolio data.', error);
       });
   }
@@ -255,12 +254,12 @@ class App extends Component<Props, State> {
         method: 'GET',
         endpoint: 'positions',
       })
-      .then(response => {
+      .then((response) => {
         const positions = parsePositionsResponse(response);
         console.debug('Positions data: ', positions);
         return positions;
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('Failed to load position data.', error);
       });
   }
@@ -279,7 +278,7 @@ class App extends Component<Props, State> {
         method: 'GET',
         endpoint: 'institutions',
       })
-      .then(response => {
+      .then((response) => {
         const accounts = parseInstitutionsResponse(
           response,
           options.groupsFilter ? options.groupsFilter.split(',') : [],
@@ -288,7 +287,7 @@ class App extends Component<Props, State> {
         console.debug('Accounts data: ', accounts);
         return accounts;
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('Failed to load institutions data.', error);
       });
   }
@@ -308,8 +307,8 @@ class App extends Component<Props, State> {
         method: 'GET',
         endpoint: 'transactions',
       })
-      .then(response => response)
-      .catch(error => {
+      .then((response) => response)
+      .catch((error) => {
         console.error('Failed to load transactions data.', error);
       });
   }

@@ -31,17 +31,19 @@ export default (props: Props) => {
     return sum + position.market_value;
   }, 0);
 
-  const position = props.positions.find(position => getSymbol(position.security) === props.symbol);
+  const position = props.positions.find((position) => getSymbol(position.security) === props.symbol);
   if (!position) {
     return <></>;
   }
 
+  console.log('mani is cool', position);
+
   const accounts = (props.accounts || [])
-    .map(account => {
-      const position = account.positions.filter(position => position.symbol === props.symbol)[0];
+    .map((account) => {
+      const position = account.positions.filter((position) => position.symbol === props.symbol)[0];
       return position ? { name: account.name, type: account.type, quantity: position.quantity } : undefined;
     })
-    .filter(value => value)
+    .filter((value) => value)
     .sort((a, b) => b!.quantity - a!.quantity);
 
   return (
@@ -71,8 +73,8 @@ export default (props: Props) => {
         label="Buy Price"
         value={formatMoney(
           position.investments.reduce((cost, investment) => {
-            return cost + investment.book_value / investment.quantity;
-          }, 0) / position.investments.length,
+            return cost + investment.book_value;
+          }, 0) / position.quantity,
         )}
       />
       <LabelValue label="Last Price" value={formatMoney(position.security.last_price)} />
@@ -84,7 +86,10 @@ export default (props: Props) => {
         style={{ borderBottom: `2px solid #7b7b7b` }}
       />
       {accounts.map(
-        account => account && <LabelValue label={`${account.name} ${account.type}`} value={`${account.quantity}`} />,
+        (account) =>
+          account && (
+            <LabelValue key={account.name} label={`${account.name} ${account.type}`} value={`${account.quantity}`} />
+          ),
       )}
     </Flex>
   );
