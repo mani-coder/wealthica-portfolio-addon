@@ -36,8 +36,6 @@ export default (props: Props) => {
     return <></>;
   }
 
-  console.log('mani is cool', position);
-
   const accounts = (props.accounts || [])
     .map((account) => {
       const position = account.positions.filter((position) => position.symbol === props.symbol)[0];
