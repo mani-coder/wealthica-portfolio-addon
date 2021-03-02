@@ -119,6 +119,8 @@ export default function YoYPnLChart(props: Props) {
       };
     });
 
+    console.debug('PnL change %', data);
+
     return [
       {
         name: 'PnL Change %',
