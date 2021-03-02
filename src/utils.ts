@@ -37,7 +37,7 @@ export const max = (data: any[], field: string): any => {
 export const formatCurrency = (amount: number, digits: number) => {
   var si = [
     { value: 1, symbol: '' },
-    { value: 1e3, symbol: 'k' },
+    { value: 1e3, symbol: 'K' },
     { value: 1e6, symbol: 'M' },
     { value: 1e9, symbol: 'G' },
     { value: 1e12, symbol: 'T' },
@@ -57,7 +57,7 @@ export const formatCurrency = (amount: number, digits: number) => {
 
 export const getURLParams = (values: { [id: string]: string }): string => {
   return Object.keys(values)
-    .map(function(key) {
+    .map(function (key) {
       return key + '=' + values[key];
     })
     .join('&');

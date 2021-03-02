@@ -17,6 +17,7 @@ import './Collapsible.css';
 import DepositVsPortfolioValueTimeline from './components/DepositsVsPortfolioValueTimeline';
 import Earnings from './components/Earnings';
 import HoldingsCharts from './components/HoldingsCharts';
+import YoYPnLChart from './components/YoYPnLChart';
 import ProfitLossPercentageTimeline from './components/ProfitLossPercentageTimeline';
 import ProfitLossTimeline from './components/ProfitLossTimeline';
 import { TRANSACTIONS_FROM_DATE } from './constants';
@@ -355,8 +356,11 @@ class App extends Component<Props, State> {
               portfolios={this.state.portfolios}
               isPrivateMode={this.state.privateMode}
             />
+
             <ProfitLossPercentageTimeline portfolios={this.state.portfolios} isPrivateMode={this.state.privateMode} />
             <ProfitLossTimeline portfolios={this.state.portfolios} isPrivateMode={this.state.privateMode} />
+            <YoYPnLChart portfolios={this.state.portfolios} isPrivateMode={this.state.privateMode} />
+
             {!!this.state.positions.length && (
               <>
                 <HoldingsCharts
