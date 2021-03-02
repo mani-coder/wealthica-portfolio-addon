@@ -54,7 +54,7 @@ class StockTimeline extends Component<Props, State> {
       const data: SecurityHistoryTimeline[] = [];
       let prevPrice;
       response.data
-        .filter(closePrice => closePrice)
+        .filter((closePrice) => closePrice)
         .reverse()
         .forEach((closePrice: number) => {
           if (!prevPrice) {
@@ -104,10 +104,10 @@ class StockTimeline extends Component<Props, State> {
           method: 'GET',
           endpoint: `securities/${this.props.position.security.id}/history?from=${startDate.format('YYYY-MM-DD')}`,
         })
-        .then(response => {
+        .then((response) => {
           this.parseSecuritiesResponse(response);
         })
-        .catch(error => console.log(error));
+        .catch((error) => console.log(error));
     } else {
       const url = `https://app.wealthica.com/api/securities/${
         this.props.position.security.id
@@ -120,11 +120,11 @@ class StockTimeline extends Component<Props, State> {
           'Content-Type': 'application/json',
         },
       })
-        .then(response => response.json())
-        .then(response => {
+        .then((response) => response.json())
+        .then((response) => {
           this.parseSecuritiesResponse(response);
         })
-        .catch(error => console.log(error));
+        .catch((error) => console.log(error));
     }
   }
 
@@ -154,8 +154,8 @@ class StockTimeline extends Component<Props, State> {
         'Content-Type': 'application/json',
       },
     })
-      .then(response => response.json())
-      .then(response => {
+      .then((response) => response.json())
+      .then((response) => {
         if (this._mounted) {
           // this.state.data.chart.error.
           // const timestamps = this.state.data.chart.result[0].timestamp;
@@ -163,7 +163,7 @@ class StockTimeline extends Component<Props, State> {
           this.setState({ loading: false, data: response });
         }
       })
-      .catch(error => console.log(error));
+      .catch((error) => console.log(error));
   }
 
   getSeries(): any {
@@ -260,7 +260,7 @@ class StockTimeline extends Component<Props, State> {
       },
 
       data: this.props.position.transactions
-        .filter(t => t.type === type)
+        .filter((t) => t.type === type)
         .sort((a, b) => a.date.valueOf() - b.date.valueOf())
         .reduce((array, transaction) => {
           const lastTransaction = array.pop();
@@ -285,7 +285,7 @@ class StockTimeline extends Component<Props, State> {
           }
           return array;
         }, [] as Transaction[])
-        .map(transaction => {
+        .map((transaction) => {
           return {
             transaction,
             x: transaction.date.valueOf(),
@@ -325,8 +325,10 @@ class StockTimeline extends Component<Props, State> {
           fontWeight: 'bold',
         },
       },
+
       rangeSelector: {
-        enabled: false,
+        selected: 1,
+        enabled: process.env.NODE_ENV === 'development',
       },
 
       scrollbar: {

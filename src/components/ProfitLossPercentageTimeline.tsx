@@ -12,7 +12,7 @@ type Props = {
 
 export default class ProfitLossPercentageTimeline extends Component<Props> {
   getSeries(): any {
-    const data = this.props.portfolios.map(portfolio => {
+    const data = this.props.portfolios.map((portfolio) => {
       return {
         x: moment(portfolio.date).valueOf(),
         y: ((portfolio.value - portfolio.deposits) / portfolio.deposits) * 100,
@@ -58,8 +58,10 @@ export default class ProfitLossPercentageTimeline extends Component<Props> {
       title: {
         text: 'Profit/Loss (%)',
       },
+
       rangeSelector: {
-        enabled: false,
+        selected: 1,
+        enabled: process.env.NODE_ENV === 'development',
       },
 
       scrollbar: {
