@@ -121,7 +121,7 @@ export default function YoYPnLChart(props: Props) {
 
     return [
       {
-        name: 'Year Over Year PnL',
+        name: 'PnL Change %',
         type: 'column',
         colorByPoint: true,
         data: data
@@ -146,13 +146,13 @@ export default function YoYPnLChart(props: Props) {
   };
 
   const options = getOptions({
-    title: 'Year Over Year PnL',
-    yAxisTitle: 'PnL (%)',
+    title: 'PnL Change %',
+    yAxisTitle: 'PnL Change (%)',
     series: getData(),
   });
 
   return (
-    <Collapsible trigger="Year Over Year PnL" open>
+    <Collapsible trigger="PnL Change %" open>
       <Charts options={options} />
     </Collapsible>
   );
