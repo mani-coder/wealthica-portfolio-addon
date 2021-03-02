@@ -148,7 +148,7 @@ export default function YoYPnLChart(props: Props) {
           pointFormat: `<b>{point.y:.1f}%</b><br />
             Date: {point.date}<br />
             Gain On Date: {point.gain} CAD<br />
-            Current Gain: {point.currentGain}<br />`,
+            Current Gain: {point.currentGain} CAD<br />`,
         },
         dataLabels: {
           enabled: true,
