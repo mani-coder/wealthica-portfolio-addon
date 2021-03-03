@@ -86,7 +86,11 @@ export default (props: Props) => {
       {accounts.map(
         (account) =>
           account && (
-            <LabelValue key={account.name} label={`${account.name} ${account.type}`} value={`${account.quantity}`} />
+            <LabelValue
+              key={`${account.name} ${account.type}`}
+              label={`${account.name} ${account.type}`}
+              value={`${account.quantity}`}
+            />
           ),
       )}
     </Flex>
