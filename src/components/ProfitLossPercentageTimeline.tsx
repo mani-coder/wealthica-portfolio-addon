@@ -58,6 +58,12 @@ export default class ProfitLossPercentageTimeline extends Component<Props> {
       title: {
         text: 'Profit/Loss (%)',
       },
+      subtitle: {
+        text: 'Your P/L ratio.',
+        style: {
+          color: '#1F2A33',
+        },
+      },
 
       rangeSelector: {
         selected: 1,

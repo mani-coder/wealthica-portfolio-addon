@@ -44,6 +44,14 @@ export default class DepositVsPortfolioValueTimeline extends Component<Props> {
       title: {
         text: 'Deposits Vs Portfolio Value',
       },
+      subtitle: {
+        text:
+          'This chart shows the total deposits made by you and the value of your portfolio value over the selected period of time.',
+        style: {
+          color: '#1F2A33',
+        },
+      },
+
       rangeSelector: {
         selected: 1,
         enabled: process.env.NODE_ENV === 'development',
