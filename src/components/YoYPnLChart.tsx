@@ -137,9 +137,9 @@ export default function YoYPnLChart(props: Props) {
 
               date: moment(value.date).format('MMM DD, YYYY'),
               currentDate: moment(lastDate).format('MMM DD, YYYY'),
-              currentPnL: value.currentPnL ? formatCurrency(value.currentPnL, 2) : '',
-              pnl: value.pnl ? formatCurrency(value.pnl, 2) : '',
-              value: value.change ? `$${formatCurrency(value.change, 1)}` : '$0',
+              currentPnL: !props.isPrivateMode && value.currentPnL ? formatCurrency(value.currentPnL, 2) : '-',
+              pnl: !props.isPrivateMode && value.pnl ? formatCurrency(value.pnl, 2) : '-',
+              value: !props.isPrivateMode && value.change ? `$${formatCurrency(value.change, 1)}` : '-',
             };
           })
           .reverse(),
