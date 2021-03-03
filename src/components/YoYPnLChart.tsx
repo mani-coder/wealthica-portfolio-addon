@@ -13,17 +13,7 @@ type Props = {
 export default function YoYPnLChart(props: Props) {
   const portfolioReverse = props.portfolios.slice().reverse();
 
-  const getOptions = ({
-    title,
-    yAxisTitle,
-    subtitle,
-    series,
-  }: {
-    series: any;
-    title?: string;
-    subtitle?: string;
-    yAxisTitle?: string;
-  }): Highcharts.Options => {
+  const getOptions = ({ series }: { series: any }): Highcharts.Options => {
     return {
       series,
 
@@ -38,10 +28,11 @@ export default function YoYPnLChart(props: Props) {
       },
 
       title: {
-        text: title,
+        text: 'P/L (as-of-date) Change Over Multiple Time Periods',
       },
       subtitle: {
-        text: subtitle,
+        text:
+          'This chart shows how your portfolio had performed in multiple time slices. This chart is inspired based on YoY growth. You might want to see the change in your P/L in the last few days, weeks, months, years etc.,',
         style: {
           color: '#1F2A33',
         },
@@ -49,6 +40,7 @@ export default function YoYPnLChart(props: Props) {
       xAxis: {
         type: 'category',
         labels: {
+          // rotation: -45,
           style: {
             fontSize: '13px',
             fontFamily: 'Verdana, sans-serif',
@@ -61,21 +53,21 @@ export default function YoYPnLChart(props: Props) {
           enabled: !props.isPrivateMode,
         },
         title: {
-          text: yAxisTitle,
+          text: 'P/L Change (%)',
         },
       },
 
       plotOptions: {
-        pie: {
-          allowPointSelect: true,
-          cursor: 'pointer',
-          dataLabels: {
-            enabled: true,
-            format: '<b>{point.name}</b>: {point.percentage:.1f} %',
-            style: {
-              color: 'black',
+        column: {
+          zones: [
+            {
+              value: -0.00000001,
+              color: '#FF897C',
             },
-          },
+            {
+              color: '#84C341',
+            },
+          ],
         },
       },
     };
@@ -90,37 +82,42 @@ export default function YoYPnLChart(props: Props) {
     const currentPortfolio = portfolioReverse[0];
 
     const data = [
-      { label: '1D', date: moment(lastDate).subtract(1, 'days') },
-      { label: '3D', date: moment(lastDate).subtract(3, 'days') },
-      { label: '1W', date: moment(lastDate).subtract(1, 'weeks') },
-      { label: '2W', date: moment(lastDate).subtract(2, 'weeks') },
-      { label: '1M', date: moment(lastDate).subtract(1, 'months').add(1, 'days') },
-      { label: '3M', date: moment(lastDate).subtract(3, 'months').add(1, 'days') },
-      { label: '6M', date: moment(lastDate).subtract(6, 'months').add(1, 'days') },
-      { label: '1Y', date: moment(lastDate).subtract(1, 'years').add(1, 'days') },
-      { label: '2Y', date: moment(lastDate).subtract(2, 'years').add(1, 'days') },
-      { label: '3Y', date: moment(lastDate).subtract(3, 'years').add(1, 'days') },
-      { label: '5Y', date: moment(lastDate).subtract(5, 'years').add(1, 'days') },
+      { label: '1D', longLabel: '1 Day', date: moment(lastDate).subtract(1, 'days') },
+      { label: '3D', longLabel: '3 Days', date: moment(lastDate).subtract(3, 'days') },
+      { label: '1W', longLabel: '1 Week', date: moment(lastDate).subtract(1, 'weeks') },
+      { label: '2W', longLabel: '2 Weeks', date: moment(lastDate).subtract(2, 'weeks') },
+      { label: '1M', longLabel: '1 Month', date: moment(lastDate).subtract(1, 'months').add(1, 'days') },
+      { label: '3M', longLabel: '3 Months', date: moment(lastDate).subtract(3, 'months').add(1, 'days') },
+      { label: '6M', longLabel: '6 Months', date: moment(lastDate).subtract(6, 'months').add(1, 'days') },
+      { label: '1Y', longLabel: '1 Year', date: moment(lastDate).subtract(1, 'years').add(1, 'days') },
+      { label: '2Y', longLabel: '2 Years', date: moment(lastDate).subtract(2, 'years').add(1, 'days') },
+      { label: '3Y', longLabel: '3 Years', date: moment(lastDate).subtract(3, 'years').add(1, 'days') },
+      { label: '5Y', longLabel: '5 Years', date: moment(lastDate).subtract(5, 'years').add(1, 'days') },
     ].map((value) => {
       const portfolio = getNearestPortfolioDate(value.date.format('YYYY-MM-DD'));
       if (!portfolio) {
         return {
           label: value.label,
+          longLabel: value.longLabel,
           date: value.date.format('YYYY-MM-DD'),
         };
       }
 
-      const currentGain = currentPortfolio.value - currentPortfolio.deposits;
-      const gain = portfolio.value - portfolio.deposits;
-      const yoyPct = ((currentGain - gain) / gain) * 100;
+      const currentPnL = currentPortfolio.value - currentPortfolio.deposits;
+      const pnl = portfolio.value - portfolio.deposits;
+      const change = currentPnL - pnl;
+      const changeRatio = (change / pnl) * 100;
 
       return {
         label: value.label,
+        longLabel: value.longLabel,
         date: portfolio.date,
-        currentGain,
-        gain,
+        currentPnL,
+        pnl,
         portfolio,
-        yoyPct,
+        changeRatio,
+        change,
+        color: changeRatio >= 0 ? 'green' : 'red',
       };
     });
 
@@ -130,29 +127,31 @@ export default function YoYPnLChart(props: Props) {
       {
         name: 'PnL Change %',
         type: 'column',
-        colorByPoint: true,
         data: data
-          .filter((data) => data.portfolio)
-          .map((data) => {
+          .filter((value) => value.portfolio)
+          .map((value) => {
             return {
-              name: data.label,
-              y: data.yoyPct,
-              date: moment(data.date).format('MMM D, YYYY'),
-              currentGain: data.currentGain ? formatCurrency(data.currentGain, 2) : '',
-              gain: data.gain ? formatCurrency(data.gain, 2) : '',
+              name: value.longLabel,
+              desc: value.longLabel,
+              y: value.changeRatio,
+
+              date: moment(value.date).format('MMM DD, YYYY'),
+              currentDate: moment(lastDate).format('MMM DD, YYYY'),
+              currentPnL: value.currentPnL ? formatCurrency(value.currentPnL, 2) : '',
+              pnl: value.pnl ? formatCurrency(value.pnl, 2) : '',
+              value: value.change ? `$${formatCurrency(value.change, 1)}` : '$0',
             };
           })
           .reverse(),
         tooltip: {
           useHTML: true,
-          pointFormat: `<b>{point.y:.1f}%</b><br />
-            Date: {point.date}<br />
-            Gain On Date: {point.gain} CAD<br />
-            Current Gain: {point.currentGain} CAD<br />`,
+          pointFormat: `<b style="color: {point.color};font-size: 14px;">{point.y:.1f}% ({point.value})</b><br /><hr />
+            P/L on {point.date}: <b>{point.pnl}</b><br />
+            P/L on {point.currentDate}: <b>{point.currentPnL}</b><br />`,
         },
         dataLabels: {
           enabled: true,
-          format: '{point.y:.1f}',
+          format: '{point.y:.1f}% ({point.value})',
         },
         showInLegend: false,
       },
@@ -160,13 +159,11 @@ export default function YoYPnLChart(props: Props) {
   };
 
   const options = getOptions({
-    title: 'PnL Change %',
-    yAxisTitle: 'PnL Change (%)',
     series: getData(),
   });
 
   return (
-    <Collapsible trigger="PnL Change %" open>
+    <Collapsible trigger="P/L (as-of-date) Change Over Multiple Time Periods" open>
       <Charts options={options} />
     </Collapsible>
   );

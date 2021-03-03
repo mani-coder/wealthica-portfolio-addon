@@ -481,6 +481,7 @@ export default class HoldingsCharts extends Component<Props, State> {
         <Collapsible trigger="Holdings Chart" open>
           <Charts
             options={this.getOptions({
+              title: 'Your Holdings',
               yAxisTitle: 'Market Value ($)',
               subtitle: '(click on a stock to view transactions)',
               series: [positionSeries[0]],

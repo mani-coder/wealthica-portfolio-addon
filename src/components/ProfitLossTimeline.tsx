@@ -34,6 +34,12 @@ export default class ProfitLossTimeline extends Component<Props> {
       title: {
         text: 'Profit/Loss ($)',
       },
+      subtitle: {
+        text: 'Your P/L in dollars.',
+        style: {
+          color: '#1F2A33',
+        },
+      },
 
       rangeSelector: {
         selected: 1,
