@@ -76,7 +76,7 @@ class StockTimeline extends Component<Props, State> {
 
       const sortedData = data.sort((a, b) => a.timestamp.valueOf() - b.timestamp.valueOf());
 
-      console.debug('Loaded the securities data --', sortedData);
+      // console.debug('Loaded the securities data --', sortedData);
       this.setState({ loading: false, data: sortedData });
     }
   }

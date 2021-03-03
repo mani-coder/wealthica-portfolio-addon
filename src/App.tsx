@@ -369,7 +369,9 @@ class App extends Component<Props, State> {
                   isPrivateMode={this.state.privateMode}
                   addon={this.state.addon}
                 />
-                <Earnings positions={this.state.positions} />
+
+                {process.env.NODE_ENV === 'development' && <Earnings positions={this.state.positions} />}
+
                 {/* <HoldingsTable positions={this.state.positions} isPrivateMode={this.state.privateMode} /> */}
               </>
             )}
