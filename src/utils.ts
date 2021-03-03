@@ -62,3 +62,7 @@ export const getURLParams = (values: { [id: string]: string }): string => {
     })
     .join('&');
 };
+
+export function buildCorsFreeUrl(target: string): string {
+  return `https://cors.bridged.cc/${target}`;
+}

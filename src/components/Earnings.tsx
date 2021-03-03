@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Collapsible from 'react-collapsible';
 import { Flex } from 'rebass';
 import { Position } from '../types';
-import { getSymbol } from '../utils';
+import { buildCorsFreeUrl, getSymbol } from '../utils';
 
 type Props = {
   positions: Position[];
@@ -33,16 +33,11 @@ export default (props: Props) => {
           { operator: 'gte', operands: ['startdatetime', moment().format('YYYY-MM-DD')] },
           {
             operator: 'lt',
-            operands: [
-              'startdatetime',
-              moment()
-                .add(6, 'months')
-                .format('YYYY-MM-DD'),
-            ],
+            operands: ['startdatetime', moment().add(6, 'months').format('YYYY-MM-DD')],
           },
           {
             operator: 'or',
-            operands: props.positions.map(position => ({
+            operands: props.positions.map((position) => ({
               operator: 'eq',
               operands: ['ticker', getSymbol(position.security)],
             })),
@@ -53,7 +48,7 @@ export default (props: Props) => {
       size: 200,
     };
 
-    fetch('https://cors-anywhere.herokuapp.com/https://query2.finance.yahoo.com/v1/finance/visualization', {
+    fetch(buildCorsFreeUrl('https://query2.finance.yahoo.com/v1/finance/visualization'), {
       cache: 'force-cache',
       method: 'POST',
       headers: {
@@ -61,13 +56,13 @@ export default (props: Props) => {
       },
       body: JSON.stringify(content),
     })
-      .then(response => response.json())
-      .then(response => {
+      .then((response) => response.json())
+      .then((response) => {
         console.log('earnings', response);
         const document = response.finance.result[0].documents[0];
         setDocument(document);
       })
-      .catch(error => console.log(error))
+      .catch((error) => console.log(error))
       .finally(() => setLoading(false));
   }, [props.positions]);
 
@@ -99,7 +94,7 @@ export default (props: Props) => {
           { key: idx },
         ),
       )
-      .filter(row => !symbol || row.ticker === symbol);
+      .filter((row) => !symbol || row.ticker === symbol);
   }
 
   function columns() {
@@ -139,7 +134,7 @@ export default (props: Props) => {
   }
 
   const symbols = props.positions
-    .map(position => getSymbol(position.security))
+    .map((position) => getSymbol(position.security))
     .sort()
     .map((symbol, index) => (
       <Select.Option key={index} value={symbol}>

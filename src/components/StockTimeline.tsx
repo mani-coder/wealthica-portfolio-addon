@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import Loader from 'react-loader-spinner';
 import { TYPE_TO_COLOR } from '../constants';
 import { Position, Transaction } from '../types';
-import { formatCurrency, getDate } from '../utils';
+import { buildCorsFreeUrl, formatCurrency, getDate } from '../utils';
 import Charts from './Charts';
 
 type Props = {
@@ -114,7 +114,7 @@ class StockTimeline extends Component<Props, State> {
       }/history?from=${startDate.format('YYYY-MM-DD')}`;
       console.debug('Fetching stock data..', url);
 
-      fetch(`https://cors-anywhere.herokuapp.com/${url}`, {
+      fetch(buildCorsFreeUrl(url), {
         cache: 'force-cache',
         headers: {
           'Content-Type': 'application/json',
@@ -139,7 +139,7 @@ class StockTimeline extends Component<Props, State> {
       : moment()
     )
       .clone()
-      .subtract('months', 1);
+      .subtract(1, 'months');
     const endDate = moment().unix();
 
     const url = `https://query1.finance.yahoo.com/v7/finance/chart/${
@@ -148,7 +148,7 @@ class StockTimeline extends Component<Props, State> {
 
     console.debug('Fetching stock data..', url);
 
-    fetch(`https://cors-anywhere.herokuapp.com/${url}`, {
+    fetch(buildCorsFreeUrl(url), {
       cache: 'force-cache',
       headers: {
         'Content-Type': 'application/json',
