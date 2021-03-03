@@ -78,12 +78,17 @@ export default function YoYPnLChart(props: Props) {
   };
 
   const getData = () => {
-    const lastDate = portfolioReverse[0].date;
+    let lastDate = portfolioReverse[0].date;
+    const currentDate = moment().utc();
+    if (currentDate.format('YYYY-MM-DD') === lastDate && currentDate.hour() < 21 && portfolioReverse.length > 1) {
+      lastDate = portfolioReverse[1].date;
+    }
+
     const currentPortfolio = portfolioReverse[0];
 
     const data = [
       { label: '1D', longLabel: '1 Day', date: moment(lastDate).subtract(1, 'days') },
-      { label: '3D', longLabel: '3 Days', date: moment(lastDate).subtract(3, 'days') },
+      // { label: '3D', longLabel: '3 Days', date: moment(lastDate).subtract(3, 'days') },
       { label: '1W', longLabel: '1 Week', date: moment(lastDate).subtract(1, 'weeks') },
       { label: '2W', longLabel: '2 Weeks', date: moment(lastDate).subtract(2, 'weeks') },
       { label: '1M', longLabel: '1 Month', date: moment(lastDate).subtract(1, 'months').add(1, 'days') },
