@@ -138,7 +138,7 @@ export default function YoYPnLChart(props: Props) {
         const endPnl = value.endPortfolio.value - value.endPortfolio.deposits;
 
         const changeValue = endPnl - startPnl;
-        const changeRatio = (changeValue / Math.abs(startPnl)) * 100;
+        const changeRatio = (endPnl / value.endPortfolio.deposits - startPnl / value.startPortfolio.deposits) * 100;
 
         return {
           label: value.label,
