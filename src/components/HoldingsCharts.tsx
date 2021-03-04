@@ -1,17 +1,17 @@
-import React, { Component } from 'react';
-import { Position, Account } from '../types';
-import Collapsible from 'react-collapsible';
-import { getSymbol, formatCurrency, getURLParams, formatMoney } from '../utils';
-import Charts from './Charts';
-import moment from 'moment';
-import _ from 'lodash';
-import * as Highcharts from 'highcharts';
-import StockTimeline from './StockTimeline';
-import { TYPE_TO_COLOR } from '../constants';
-import { Flex } from 'rebass';
 import Select from 'antd/es/select';
 import Typography from 'antd/es/typography';
+import * as Highcharts from 'highcharts';
+import _ from 'lodash';
+import moment from 'moment';
+import React, { Component } from 'react';
+import Collapsible from 'react-collapsible';
+import { Flex } from 'rebass';
+import { TYPE_TO_COLOR } from '../constants';
+import { Account, Position } from '../types';
+import { formatCurrency, formatMoney, getSymbol, getURLParams } from '../utils';
+import Charts from './Charts';
 import StockDetails from './StockDetails';
+import StockTimeline from './StockTimeline';
 
 type Props = {
   positions: Position[];
@@ -117,9 +117,7 @@ export default class HoldingsCharts extends Component<Props, State> {
           gain: position.gain_percent ? position.gain_percent * 100 : position.gain_percent,
           profit: formatMoney(position.gain_amount),
           buyPrice: formatMoney(
-            position.investments.reduce((cost, investment) => {
-              return cost + investment.book_value / investment.quantity;
-            }, 0) / position.investments.length,
+            position.investments.reduce((cost, investment) => cost + investment.book_value, 0) / position.quantity,
           ),
           shares: position.quantity,
           lastPrice: formatMoney(position.security.last_price),
