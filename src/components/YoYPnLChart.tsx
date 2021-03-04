@@ -114,7 +114,7 @@ export default function YoYPnLChart(props: Props) {
 
     [0, 1, 2, 3, 4].forEach((value) => {
       const year = moment(lastDate).subtract(value, 'years').year();
-      const startDate = moment().year(year).day(1).month('Jan');
+      const startDate = moment().day(1).month('Jan').year(year);
 
       const startPortfolio = getNearestPortfolioDate(startDate.format('YYYY-MM-DD'));
       const endPortfolio = value
@@ -138,10 +138,11 @@ export default function YoYPnLChart(props: Props) {
         const endPnl = value.endPortfolio.value - value.endPortfolio.deposits;
 
         const changeValue = endPnl - startPnl;
-        const changeRatio = (changeValue / startPnl) * 100;
+        const changeRatio = (changeValue / Math.abs(startPnl)) * 100;
 
         return {
           label: value.label,
+          date: value.date.format(DATE_DISPLAY_FORMAT),
           startDate: moment(value.startPortfolio.date).format(DATE_DISPLAY_FORMAT),
           endDate: moment(value.endPortfolio.date).format(DATE_DISPLAY_FORMAT),
           startPnl,
