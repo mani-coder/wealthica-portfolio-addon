@@ -19,12 +19,15 @@ export default class Charts extends Component<Props> {
     try {
       const options = this.props.options;
       return (
-        <HighchartsReact
-          highcharts={Highcharts}
-          constructorType={this.props.constructorType}
-          options={options}
-          oneToOne={true}
-        />
+        options.series &&
+        !!options.series.length && (
+          <HighchartsReact
+            highcharts={Highcharts}
+            constructorType={this.props.constructorType}
+            options={options}
+            oneToOne={true}
+          />
+        )
       );
     } catch {
       console.debug('Failed to load high charts...');
