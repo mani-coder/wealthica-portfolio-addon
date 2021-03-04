@@ -148,7 +148,7 @@ class App extends Component<Props, State> {
     const transactions = await this.loadTransactions(this.state.options);
     const accounts = await this.loadInstitutionsData(this.state.options);
 
-    console.debug('Transactions', transactions);
+    // console.debug('Transactions', transactions);
     this.computePositions(positions, transactions);
     this.computePortfolios(portfolioByDate, transactions, accounts);
   }
@@ -213,7 +213,7 @@ class App extends Component<Props, State> {
     });
 
     this.setState({ portfolios, portfolioPerDay, isLoaded: true, isLoadingOnUpdate: false, accounts });
-    console.debug('Loaded the data', portfolios);
+    // console.debug('Loaded the data', portfolios);
   };
 
   loadPortfolioData(options) {
