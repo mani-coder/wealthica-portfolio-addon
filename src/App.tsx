@@ -15,11 +15,10 @@ import {
 import './App.css';
 import './Collapsible.css';
 import DepositVsPortfolioValueTimeline from './components/DepositsVsPortfolioValueTimeline';
-import Earnings from './components/Earnings';
 import HoldingsCharts from './components/HoldingsCharts';
-import YoYPnLChart from './components/YoYPnLChart';
 import ProfitLossPercentageTimeline from './components/ProfitLossPercentageTimeline';
 import ProfitLossTimeline from './components/ProfitLossTimeline';
+import YoYPnLChart from './components/YoYPnLChart';
 import { TRANSACTIONS_FROM_DATE } from './constants';
 import { CURRENCIES_API_RESPONSE } from './mocks/currencies';
 import { INSTITUTIONS_DATA } from './mocks/institutions';
@@ -175,7 +174,7 @@ class App extends Component<Props, State> {
 
   computePortfolios = (portfolioByDate, transactions, accounts) => {
     const transactionsByDate = parseTransactionsResponse(transactions, this.state.currencyCache, accounts);
-    console.debug('Transactions by date: ', transactionsByDate);
+    // console.debug('Transactions by date: ', transactionsByDate);
 
     const portfolioPerDay = Object.keys(portfolioByDate).reduce((hash, date) => {
       const data = transactionsByDate[date] || {};
@@ -320,11 +319,11 @@ class App extends Component<Props, State> {
     const positions = parsePositionsResponse(POSITIONS_API_RESPONSE);
     const accounts = parseInstitutionsResponse(INSTITUTIONS_DATA);
 
-    console.debug(positions);
+    // console.debug('Positions:', positions);
     this.setState({ currencyCache });
     this.computePositions(positions, TRANSACTIONS_API_RESPONSE);
     this.computePortfolios(portfolioByDate, TRANSACTIONS_API_RESPONSE, accounts);
-    console.debug(this.state);
+    // console.debug('State:', this.state);
   }
 
   componentDidMount() {
@@ -341,7 +340,7 @@ class App extends Component<Props, State> {
             {!this.state.addon && (
               <>
                 <p style={{ fontWeight: 'bolder', textAlign: 'center', color: '#C00316', textDecoration: 'underline' }}>
-                  <img src="./favicon.png" width="50" height="50" style={{ backgroundColor: '#fff' }} />
+                  <img src="./favicon.png" alt="favicon" width="50" height="50" style={{ backgroundColor: '#fff' }} />
                   !! This is sample data !!
                 </p>
               </>
@@ -370,7 +369,7 @@ class App extends Component<Props, State> {
                   addon={this.state.addon}
                 />
 
-                {process.env.NODE_ENV === 'development' && <Earnings positions={this.state.positions} />}
+                {/* {process.env.NODE_ENV === 'development' && <Earnings positions={this.state.positions} />} */}
 
                 {/* <HoldingsTable positions={this.state.positions} isPrivateMode={this.state.privateMode} /> */}
               </>
