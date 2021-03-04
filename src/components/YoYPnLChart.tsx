@@ -92,7 +92,7 @@ export default function YoYPnLChart(props: Props) {
     [
       { label: '1 Day', date: moment(lastDate).subtract(1, 'days') },
       { label: '1 Week', date: moment(lastDate).subtract(1, 'weeks') },
-      { label: '2 Weeks', date: moment(lastDate).subtract(2, 'weeks') },
+      // { label: '2 Weeks', date: moment(lastDate).subtract(2, 'weeks') },
       { label: '1 Month', date: moment(lastDate).subtract(1, 'months').add(1, 'days') },
       { label: '3 Months', date: moment(lastDate).subtract(3, 'months').add(1, 'days') },
       { label: '6 Months', date: moment(lastDate).subtract(6, 'months').add(1, 'days') },
