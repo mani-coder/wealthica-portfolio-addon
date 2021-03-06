@@ -44,10 +44,6 @@ export default (props: Props) => {
     .filter((value) => value)
     .sort((a, b) => b!.quantity - a!.quantity);
 
-  const dividends = position.transactions
-    .filter((transaction) => transaction.type === 'dividend')
-    .reduce((dividend, transaction) => dividend + transaction.amount, 0);
-
   const currency = position.security.currency ? position.security.currency.toUpperCase() : position.security.currency;
   return (
     <Flex flexDirection="column" p={2}>
@@ -59,7 +55,7 @@ export default (props: Props) => {
           : 0
         ).toFixed(2)}%)`}
       />
-      {!!dividends && <LabelValue label="Dividends" value={`CAD ${formatMoney(dividends)}`} />}
+
       <LabelValue
         label="Proft/Loss"
         value={`CAD ${formatMoney(position.gain_amount)} (${(position.gain_percent

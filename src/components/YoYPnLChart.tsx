@@ -13,7 +13,6 @@ type Props = {
 const DATE_DISPLAY_FORMAT = 'MMM DD, YYYY';
 
 export default function YoYPnLChart(props: Props) {
-  console.log('mani is cool', { props });
   const portfolioReverse = props.portfolios.slice().reverse();
 
   const getOptions = ({ series }: { series: any }): Highcharts.Options => {

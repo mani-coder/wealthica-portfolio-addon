@@ -304,6 +304,10 @@ class StockTimeline extends Component<Props, State> {
   };
 
   getOptions(): Highcharts.Options {
+    const dividends = this.props.position.transactions
+      .filter((transaction) => transaction.type === 'dividend')
+      .reduce((dividend, transaction) => dividend + transaction.amount, 0);
+
     return {
       title: {
         text: `${this.props.symbol}`,
@@ -319,7 +323,9 @@ class StockTimeline extends Component<Props, State> {
           : `Shares: ${this.props.position.quantity}, Value: $${formatCurrency(
               this.props.position.book_value,
               2,
-            )}, Profit: $${formatCurrency(this.props.position.gain_amount, 2)}`,
+            )}, Profit: $${formatCurrency(this.props.position.gain_amount, 2)}${
+              dividends ? ` ,Dividends: $${formatCurrency(dividends, 2)}` : ''
+            }`,
         style: {
           color: '#1F2A33',
           fontWeight: 'bold',
