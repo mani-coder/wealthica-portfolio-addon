@@ -324,7 +324,7 @@ class StockTimeline extends Component<Props, State> {
               this.props.position.book_value,
               2,
             )}, Profit: $${formatCurrency(this.props.position.gain_amount, 2)}${
-              dividends ? ` ,Dividends: $${formatCurrency(dividends, 2)}` : ''
+              dividends ? `, Dividends: $${formatCurrency(dividends, 2)}` : ''
             }`,
         style: {
           color: '#1F2A33',
