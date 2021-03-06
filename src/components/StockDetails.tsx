@@ -44,38 +44,41 @@ export default (props: Props) => {
     .filter((value) => value)
     .sort((a, b) => b!.quantity - a!.quantity);
 
+  const dividends = position.transactions
+    .filter((transaction) => transaction.type === 'dividend')
+    .reduce((dividend, transaction) => dividend + transaction.amount, 0);
+
+  const currency = position.security.currency ? position.security.currency.toUpperCase() : position.security.currency;
   return (
     <Flex flexDirection="column" p={2}>
       <LabelValue label="Symbol" value={getSymbol(position.security)} />
       <LabelValue
         label="Value"
-        value={`C$ ${formatMoney(position.market_value)} (${(position.market_value
+        value={`CAD ${formatMoney(position.market_value)} (${(position.market_value
           ? (position.market_value / marketValue) * 100
           : 0
         ).toFixed(2)}%)`}
       />
+      {!!dividends && <LabelValue label="Dividends" value={`CAD ${formatMoney(dividends)}`} />}
       <LabelValue
         label="Proft/Loss"
-        value={`C$ ${formatMoney(position.gain_amount)} (${(position.gain_percent
+        value={`CAD ${formatMoney(position.gain_amount)} (${(position.gain_percent
           ? position.gain_percent * 100
           : position.gain_percent
         ).toFixed(2)}%)`}
         valueProps={{ type: position.gain_percent > 0 ? undefined : 'danger' }}
       />
       <LabelValue label="Shares" value={`${position.quantity}`} />
-      <LabelValue
-        label="Currency"
-        value={position.security.currency ? position.security.currency.toUpperCase() : position.security.currency}
-      />
+
       <LabelValue
         label="Buy Price"
-        value={formatMoney(
+        value={`${currency} ${formatMoney(
           position.investments.reduce((cost, investment) => {
             return cost + investment.book_value;
           }, 0) / position.quantity,
-        )}
+        )}`}
       />
-      <LabelValue label="Last Price" value={formatMoney(position.security.last_price)} />
+      <LabelValue label="Last Price" value={`${currency} ${formatMoney(position.security.last_price)}`} />
       <LabelValue
         label="Account"
         value="Shares"
