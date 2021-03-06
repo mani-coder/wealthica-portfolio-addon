@@ -13,6 +13,7 @@ type Props = {
 const DATE_DISPLAY_FORMAT = 'MMM DD, YYYY';
 
 export default function YoYPnLChart(props: Props) {
+  console.log('mani is cool', { props });
   const portfolioReverse = props.portfolios.slice().reverse();
 
   const getOptions = ({ series }: { series: any }): Highcharts.Options => {
@@ -76,7 +77,12 @@ export default function YoYPnLChart(props: Props) {
   };
 
   const getNearestPortfolioDate = (date: string): Portfolio | undefined => {
-    return portfolioReverse.find((portfolio) => portfolio.date <= date);
+    const dateObj = moment(date);
+    if (dateObj.isoWeekday() >= 5) {
+      date = dateObj.add(dateObj.isoWeekday() === 6 ? 2 : 1, 'days').format('YYYY-MM-DD');
+    }
+    const portfolio = portfolioReverse.find((portfolio) => portfolio.date <= date);
+    return portfolio;
   };
 
   const getData = () => {
@@ -87,23 +93,32 @@ export default function YoYPnLChart(props: Props) {
     }
 
     const currentPortfolio = portfolioReverse[0];
-    const portfolioValues: { label: string; date: Moment; startPortfolio: Portfolio; endPortfolio: Portfolio }[] = [];
+    const portfolioValues: {
+      id: string;
+      label: string;
+      date: Moment;
+      startPortfolio: Portfolio;
+      endPortfolio: Portfolio;
+    }[] = [];
 
     [
-      { label: '1 Day', date: moment(lastDate).subtract(1, 'days') },
-      { label: '1 Week', date: moment(lastDate).subtract(1, 'weeks') },
-      // { label: '2 Weeks', date: moment(lastDate).subtract(2, 'weeks') },
-      { label: '1 Month', date: moment(lastDate).subtract(1, 'months').add(1, 'days') },
-      { label: '3 Months', date: moment(lastDate).subtract(3, 'months').add(1, 'days') },
-      { label: '6 Months', date: moment(lastDate).subtract(6, 'months').add(1, 'days') },
-      { label: '1 Year', date: moment(lastDate).subtract(1, 'years').add(1, 'days') },
-      { label: '2 Years', date: moment(lastDate).subtract(2, 'years').add(1, 'days') },
-      { label: '3 Years', date: moment(lastDate).subtract(3, 'years').add(1, 'days') },
-      { label: '5 Years', date: moment(lastDate).subtract(5, 'years').add(1, 'days') },
+      { id: '1D', label: '1 Day', date: moment(lastDate).subtract(1, 'days') },
+      { id: '1W', label: '1 Week', date: moment(lastDate).subtract(1, 'weeks') },
+      { id: '1M', label: '1 Month', date: moment(lastDate).subtract(1, 'months').add(1, 'days') },
+      { id: '3M', label: '3 Months', date: moment(lastDate).subtract(3, 'months').add(1, 'days') },
+      { id: '6M', label: '6 Months', date: moment(lastDate).subtract(6, 'months').add(1, 'days') },
+      { id: '1Y', label: '1 Year', date: moment(lastDate).subtract(1, 'years').add(1, 'days') },
+      { id: '2Y', label: '2 Years', date: moment(lastDate).subtract(2, 'years').add(1, 'days') },
+      { id: '3Y', label: '3 Years', date: moment(lastDate).subtract(3, 'years').add(1, 'days') },
+      { id: '5Y', label: '5 Years', date: moment(lastDate).subtract(5, 'years').add(1, 'days') },
+      { id: 'MTD', label: 'Month To Date', date: moment(lastDate).startOf('month') },
+      { id: 'WTD', label: 'Week To Date', date: moment(lastDate).startOf('week') },
+      { id: 'YTD', label: 'Year To Date', date: moment(lastDate).startOf('year') },
     ].map((value) => {
       const portfolio = getNearestPortfolioDate(value.date.format('YYYY-MM-DD'));
       if (portfolio) {
         portfolioValues.push({
+          id: value.id,
           label: value.label,
           date: value.date,
           startPortfolio: portfolio,
@@ -112,18 +127,17 @@ export default function YoYPnLChart(props: Props) {
       }
     });
 
-    [0, 1, 2, 3, 4].forEach((value) => {
+    [1, 2, 3, 4].forEach((value) => {
       const year = moment(lastDate).subtract(value, 'years').year();
       const startDate = moment().day(1).month('Jan').year(year);
 
       const startPortfolio = getNearestPortfolioDate(startDate.format('YYYY-MM-DD'));
-      const endPortfolio = value
-        ? getNearestPortfolioDate(moment().year(year).month('Dec').day(31).format('YYYY-MM-DD'))
-        : currentPortfolio;
+      const endPortfolio = getNearestPortfolioDate(moment().year(year).month('Dec').day(31).format('YYYY-MM-DD'));
 
       if (startPortfolio && endPortfolio) {
         portfolioValues.push({
-          label: value ? `Jan - Dec ${year}` : 'Year To Date',
+          id: `FY ${year}`,
+          label: `Jan - Dec ${year}`,
           date: startDate,
           startPortfolio,
           endPortfolio,
@@ -141,6 +155,7 @@ export default function YoYPnLChart(props: Props) {
         const changeRatio = (endPnl / value.endPortfolio.deposits - startPnl / value.startPortfolio.deposits) * 100;
 
         return {
+          id: value.id,
           label: value.label,
           date: value.date.format(DATE_DISPLAY_FORMAT),
           startDate: moment(value.startPortfolio.date).format(DATE_DISPLAY_FORMAT),
@@ -155,27 +170,25 @@ export default function YoYPnLChart(props: Props) {
 
     console.debug('PnL change %', data);
 
-    return [
+    const series: Highcharts.SeriesColumnOptions[] = [
       {
         name: 'PnL Change %',
         type: 'column',
-        data: data.map((value) =>
-          value
-            ? {
-                name: value.label,
-                y: value.changeRatio,
+        data: data.map((value) => ({
+          key: value.id,
+          name: value.id,
+          label: value.label,
+          y: value.changeRatio,
 
-                startDate: value.startDate,
-                endDate: value.endDate,
-                startPnl: !props.isPrivateMode ? formatCurrency(value.startPnl, 2) : '-',
-                endPnl: !props.isPrivateMode ? formatCurrency(value.endPnl, 2) : '-',
-                changeValue: !props.isPrivateMode ? `$${formatCurrency(value.changeValue, 1)}` : '-',
-              }
-            : {},
-        ),
+          startDate: value.startDate,
+          endDate: value.endDate,
+          startPnl: !props.isPrivateMode ? formatCurrency(value.startPnl, 2) : '-',
+          endPnl: !props.isPrivateMode ? formatCurrency(value.endPnl, 2) : '-',
+          changeValue: !props.isPrivateMode ? `$${formatCurrency(value.changeValue, 1)}` : '-',
+        })),
         tooltip: {
-          useHTML: true,
-          pointFormat: `<b style="color: {point.color};font-size: 14px;">{point.y:.1f}% ({point.changeValue})</b><br /><hr />
+          headerFormat: '',
+          pointFormat: `<b style="font-size: 15px;">{point.label} ({point.key})</b><br /><b style="color: {point.color};font-size: 14px;">{point.y:.1f}% ({point.changeValue})</b><br /><hr />
             P/L on {point.startDate}: <b>{point.startPnl}</b><br />
             P/L on {point.endDate}: <b>{point.endPnl}</b><br />`,
         },
@@ -186,6 +199,8 @@ export default function YoYPnLChart(props: Props) {
         showInLegend: false,
       },
     ];
+
+    return series;
   };
 
   const options = getOptions({
