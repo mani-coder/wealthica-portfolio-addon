@@ -145,11 +145,11 @@ export default class HoldingsCharts extends Component<Props, State> {
         tooltip: {
           useHTML: true,
 
-          pointFormat: `<b>C$ {point.marketValue}</b><br /><br />
+          pointFormat: `<b>CAD {point.marketValue}</b><br /><br />
           <table width="100%">
             <tr><td>Weightage</td><td align="right">{point.percentage:.1f}%</td></tr>
             <tr><td>Gain</td><td align="right">{point.gain:.1f}%</td></tr>
-            <tr><td>Profit</td><td align="right">C$ {point.profit}</td></tr>
+            <tr><td>Profit</td><td align="right">CAD {point.profit}</td></tr>
             <tr><td>Shares</td><td align="right">{point.shares}</td></tr>
             <tr><td>Currency</td><td align="right">{point.currency}</td></tr>
             <tr><td>Buy Price</td><td align="right">{point.buyPrice}</td></tr>
@@ -176,9 +176,9 @@ export default class HoldingsCharts extends Component<Props, State> {
           useHTML: true,
           pointFormat: `<b>{point.percentage:.1f}%</b><br /><br />
           <table width="100%">
-            <tr><td>Value</td><td align="right">C$ {point.marketValue}</td></tr>
+            <tr><td>Value</td><td align="right">CAD {point.marketValue}</td></tr>
             <tr><td>Gain</td><td align="right">{point.gain:.1f}%</td></tr>
-            <tr><td>Profit</td><td align="right">C$ {point.profit}</td></tr>
+            <tr><td>Profit</td><td align="right">CAD {point.profit}</td></tr>
             <tr><td>Shares</td><td align="right">{point.shares}</td></tr>
             <tr><td>Currency</td><td align="right">{point.currency}</td></tr>
             <tr><td>Buy Price</td><td align="right">{point.buyPrice}</td></tr>
