@@ -1,12 +1,9 @@
 import Select from 'antd/es/select';
 import Typography from 'antd/es/typography';
 import * as Highcharts from 'highcharts';
-import _ from 'lodash';
-import moment from 'moment';
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import Collapsible from 'react-collapsible';
 import { Flex } from 'rebass';
-import { TYPE_TO_COLOR } from '../constants';
 import { Account, Position } from '../types';
 import { formatCurrency, formatMoney, getSymbol, getURLParams } from '../utils';
 import Charts from './Charts';
@@ -20,84 +17,78 @@ type Props = {
   addon?: any;
 };
 
-type State = {
-  timelineSymbol?: string;
-};
+export default function HoldingsCharts(props: Props) {
+  const [timelineSymbol, setTimelineSymbol] = useState<string>();
 
-export default class HoldingsCharts extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      timelineSymbol: undefined,
-    };
-  }
+  // const getDrillDown = (): any => {
+  //   return {
+  //     activeAxisLabelStyle: {
+  //       textDecoration: 'none',
+  //     },
+  //     activeDataLabelStyle: {
+  //       textDecoration: 'none',
+  //     },
 
-  getDrillDown(): any {
-    return {
-      activeAxisLabelStyle: {
-        textDecoration: 'none',
-      },
-      activeDataLabelStyle: {
-        textDecoration: 'none',
-      },
+  //     series: props.positions.map((position) => {
+  //       return {
+  //         type: 'column',
+  //         id: getSymbol(position.security),
+  //         name: getSymbol(position.security),
+  //         data: position.transactions.map((transaction) => {
+  //           const isBuySell = ['buy', 'sell'].includes(transaction.type);
+  //           const type = _.startCase(transaction.type);
+  //           return {
+  //             name: moment(transaction.date).format('MMM D, Y'),
+  //             y: transaction.amount,
+  //             color: TYPE_TO_COLOR[transaction.type.toLowerCase()],
+  //             displayValue: formatMoney(transaction.amount),
+  //             type,
+  //             price: isBuySell ? transaction.price : 'N/A',
+  //             shares: isBuySell ? transaction.shares : 'N/A',
+  //             label: isBuySell
+  //               ? `${transaction.shares}@${transaction.price}`
+  //               : `${type}@${formatMoney(transaction.amount)}`,
+  //             transaction,
+  //           };
+  //         }),
+  //         legend: {
+  //           enabled: true,
+  //           align: 'right',
+  //           verticalAlign: 'top',
+  //           layout: 'vertical',
+  //           x: 0,
+  //           y: 100,
+  //         },
 
-      series: this.props.positions.map((position) => {
-        return {
-          type: 'column',
-          id: getSymbol(position.security),
-          name: getSymbol(position.security),
-          data: position.transactions.map((transaction) => {
-            const isBuySell = ['buy', 'sell'].includes(transaction.type);
-            const type = _.startCase(transaction.type);
-            return {
-              name: moment(transaction.date).format('MMM D, Y'),
-              y: transaction.amount,
-              color: TYPE_TO_COLOR[transaction.type.toLowerCase()],
-              displayValue: formatMoney(transaction.amount),
-              type,
-              price: isBuySell ? transaction.price : 'N/A',
-              shares: isBuySell ? transaction.shares : 'N/A',
-              label: isBuySell
-                ? `${transaction.shares}@${transaction.price}`
-                : `${type}@${formatMoney(transaction.amount)}`,
-              transaction,
-            };
-          }),
-          legend: {
-            enabled: true,
-            align: 'right',
-            verticalAlign: 'top',
-            layout: 'vertical',
-            x: 0,
-            y: 100,
-          },
+  //         tooltip: {
+  //           useHTML: true,
+  //           pointFormat: `<b>{point.label}</b>
+  //           <br />Type: {point.type}`,
+  //           valueDecimals: 1,
+  //         },
+  //         dataLabels: {
+  //           enabled: !props.isPrivateMode,
+  //           format: '{point.label}',
+  //         },
+  //         // showInLegend: true,
+  //       };
+  //     }),
+  //   };
+  // };
 
-          tooltip: {
-            useHTML: true,
-            pointFormat: `<b>{point.label}</b>
-            <br />Type: {point.type}`,
-            valueDecimals: 1,
-          },
-          dataLabels: {
-            enabled: !this.props.isPrivateMode,
-            format: '{point.label}',
-          },
-          // showInLegend: true,
-        };
-      }),
-    };
-  }
-
-  getPositionsSeries() {
-    const marketValue = this.props.positions.reduce((sum, position) => {
+  const getPositionsSeries = (): {
+    column: Highcharts.SeriesColumnOptions;
+    pie: Highcharts.SeriesPieOptions;
+  } => {
+    const marketValue = props.positions.reduce((sum, position) => {
       return sum + position.market_value;
     }, 0);
-    const data = this.props.positions
+    const data = props.positions
       .sort((a, b) => b.market_value - a.market_value)
       .map((position) => {
         const symbol = getSymbol(position.security);
 
-        const accounts = (this.props.accounts || [])
+        const accounts = (props.accounts || [])
           .map((account) => {
             const position = account.positions.filter((position) => position.symbol === symbol)[0];
             return position ? { name: account.name, type: account.type, quantity: position.quantity } : undefined;
@@ -128,14 +119,14 @@ export default class HoldingsCharts extends Component<Props, State> {
 
     const events = {
       click: (event) => {
-        if (event.point.name && this.state.timelineSymbol !== event.point.name) {
-          this.setState({ timelineSymbol: event.point.name });
+        if (event.point.name && timelineSymbol !== event.point.name) {
+          setTimelineSymbol(event.point.name);
         }
       },
     };
 
-    return [
-      {
+    return {
+      column: {
         type: 'column',
         name: 'Holdings',
         colorByPoint: true,
@@ -143,8 +134,6 @@ export default class HoldingsCharts extends Component<Props, State> {
         events,
 
         tooltip: {
-          useHTML: true,
-
           pointFormat: `<b>CAD {point.marketValue}</b><br /><br />
           <table width="100%">
             <tr><td>Weightage</td><td align="right">{point.percentage:.1f}%</td></tr>
@@ -160,20 +149,19 @@ export default class HoldingsCharts extends Component<Props, State> {
           valueDecimals: 1,
         },
         dataLabels: {
-          enabled: !this.props.isPrivateMode,
+          enabled: !props.isPrivateMode,
           format: '{point.displayValue}',
         },
         showInLegend: false,
       },
-      {
-        type: 'pie',
+      pie: {
+        type: 'pie' as 'pie',
         name: 'Holdings',
-        colorByPoint: true,
+
         data: data.map((position) => ({ ...position, drilldown: undefined })),
         events,
 
         tooltip: {
-          useHTML: true,
           pointFormat: `<b>{point.percentage:.1f}%</b><br /><br />
           <table width="100%">
             <tr><td>Value</td><td align="right">CAD {point.marketValue}</td></tr>
@@ -188,16 +176,16 @@ export default class HoldingsCharts extends Component<Props, State> {
           `,
         },
       },
-    ];
-  }
+    };
+  };
 
-  getTopGainersLosers(gainers: boolean) {
+  const getTopGainersLosers = (gainers: boolean) => {
     return [
       {
         name: gainers ? 'Top Gainers' : 'Top Losers',
         type: 'column',
         colorByPoint: true,
-        data: this.props.positions
+        data: props.positions
           .filter((position) => (gainers ? position.gain_percent > 0 : position.gain_percent <= 0))
           .sort((a, b) => a.gain_percent - b.gain_percent)
           .map((position) => {
@@ -219,16 +207,90 @@ export default class HoldingsCharts extends Component<Props, State> {
         showInLegend: false,
       },
     ];
-  }
+  };
 
-  getUSDCADSeries() {
-    const cashByCurrency = this.props.accounts.reduce((hash, account) => {
+  const getUSDCADDrillDown = (series: Highcharts.SeriesPieOptions): Highcharts.DrilldownOptions => {
+    const getStockSeriesForCurrency = (currency: string) => {
+      return {
+        type: 'pie' as 'pie',
+        id: `${currency} Stocks`,
+        name: `${currency} Stocks`,
+
+        data: (series.data || [])
+          .filter((position: any) => position.currency === currency)
+          .map((position: any) => ({ ...position, drilldown: undefined })),
+
+        tooltip: {
+          pointFormat: `<b>{point.percentage:.1f}%</b><br /><br />
+          <table width="100%">
+            <tr><td>Value</td><td align="right">CAD {point.marketValue}</td></tr>
+            <tr><td>Gain</td><td align="right">{point.gain:.1f}%</td></tr>
+            <tr><td>Profit</td><td align="right">CAD {point.profit}</td></tr>
+            <tr><td>Shares</td><td align="right">{point.shares}</td></tr>
+            <tr><td>Currency</td><td align="right">{point.currency}</td></tr>
+            <tr><td>Buy Price</td><td align="right">{point.buyPrice}</td></tr>
+            <tr><td>Last Price</td><td align="right">{point.lastPrice}</td></tr>
+          </table>
+          <br />{point.accountsTable}
+          `,
+        },
+      };
+    };
+
+    const getCashSeriesForCurrency = (currency: string) => {
+      const accounts = props.accounts
+        .filter((account) => account.currency && account.currency.toUpperCase() === currency && account.cash)
+        .sort((a, b) => b.cash - a.cash);
+
+      return {
+        type: 'pie' as 'pie',
+        id: `${currency} Cash`,
+        name: `${currency} Cash`,
+
+        data: accounts.map((account) => ({
+          name: `${account.name} ${account.type}`,
+          y: account.cash,
+          currency,
+          displayValue: formatCurrency(account.cash, 1),
+        })),
+        tooltip: {
+          pointFormat: `<b>{point.percentage:.1f}% -- {point.currency} {point.displayValue}</b>`,
+        },
+      };
+    };
+
+    return {
+      activeAxisLabelStyle: {
+        textDecoration: 'none',
+      },
+      activeDataLabelStyle: {
+        textDecoration: 'none',
+      },
+
+      // drillUpButton: {
+      //   position: {
+      //     align: 'right',
+      //     verticalAlign: 'middle',
+      //   },
+      // },
+
+      series: [
+        getStockSeriesForCurrency('CAD'),
+        getStockSeriesForCurrency('USD'),
+        getCashSeriesForCurrency('CAD'),
+        getCashSeriesForCurrency('USD'),
+      ],
+    };
+  };
+
+  const getUSDCADSeries = (): Highcharts.SeriesPieOptions => {
+    const cashByCurrency = props.accounts.reduce((hash, account) => {
       const data = hash[account.currency] || { type: 'Cash', currency: account.currency, value: 0 };
       data.value += account.cash;
       hash[account.currency] = data;
       return hash;
     }, {});
-    const positionDataByCurrency = this.props.positions.reduce((hash, position) => {
+    const positionDataByCurrency = props.positions.reduce((hash, position) => {
       const data = hash[position.security.currency] || {
         type: 'Stocks',
         currency: position.security.currency,
@@ -254,16 +316,18 @@ export default class HoldingsCharts extends Component<Props, State> {
     ).toLocaleString();
 
     return {
-      type: 'pie',
+      type: 'pie' as 'pie',
       name: 'USD vs CAD',
-      colorByPoint: true,
+
       // center: ['80%', '30%'],
       // size: 150,
       data: Object.keys(positionDataByCurrency)
         .map((currency) => {
           const data = positionDataByCurrency[currency];
+          const name = `${currency.toUpperCase()} Stocks`;
           return {
-            name: `${currency.toUpperCase()} Stocks`,
+            name,
+            drilldown: name,
             y: data.value,
             displayValue: data.value ? Number(data.value.toFixed(2)).toLocaleString() : data.value,
             totalValue,
@@ -271,12 +335,12 @@ export default class HoldingsCharts extends Component<Props, State> {
             additionalValue: `<tr><td>Gain ($) </td><td align="right">${formatMoney(data.gain)}</td></tr>
             <tr><td>Gain (%)</td><td align="right">${((data.gain / data.value) * 100).toFixed(2)}</td></tr>
             `,
-          };
+          } as Highcharts.SeriesPieDataOptions;
         })
         .concat(
           Object.keys(cashByCurrency).map((currency) => {
             const data = cashByCurrency[currency];
-            const accountsTable = this.props.accounts
+            const accountsTable = props.accounts
               .filter((account) => account.currency === currency && account.cash)
               .sort((a, b) => b.cash - a.cash)
               .map((account) => {
@@ -290,8 +354,10 @@ export default class HoldingsCharts extends Component<Props, State> {
               })
               .join('');
 
+            const name = `${currency.toUpperCase()} Cash`;
             return {
-              name: `${currency.toUpperCase()} Cash`,
+              name,
+              drilldown: name,
               y: data.value,
               displayValue: data.value ? Number(data.value.toFixed(2)).toLocaleString() : data.value,
               totalValue,
@@ -301,7 +367,6 @@ export default class HoldingsCharts extends Component<Props, State> {
           }),
         ),
       tooltip: {
-        useHTML: true,
         pointFormat: `<b>{point.percentage:.1f}%</b><br /><br />
         <table><tr><td>Value</td><td align="right">\${point.displayValue}</td></tr>
         <tr><td>Total Value</td><td align="right">\${point.totalValue}</td></tr>
@@ -310,9 +375,9 @@ export default class HoldingsCharts extends Component<Props, State> {
         </table>`,
       },
     };
-  }
+  };
 
-  getOptions = ({
+  const getOptions = ({
     title,
     yAxisTitle,
     subtitle,
@@ -323,11 +388,11 @@ export default class HoldingsCharts extends Component<Props, State> {
     title?: string;
     subtitle?: string;
     yAxisTitle?: string;
-    drilldown?: boolean;
+    drilldown?: Highcharts.DrilldownOptions;
   }): Highcharts.Options => {
     return {
       series,
-      drilldown: drilldown ? this.getDrillDown() : {},
+      drilldown: drilldown ? drilldown : {},
 
       tooltip: {
         outside: true,
@@ -361,7 +426,7 @@ export default class HoldingsCharts extends Component<Props, State> {
 
       yAxis: {
         labels: {
-          enabled: !this.props.isPrivateMode,
+          enabled: !props.isPrivateMode,
         },
         title: {
           text: yAxisTitle,
@@ -384,20 +449,20 @@ export default class HoldingsCharts extends Component<Props, State> {
     };
   };
 
-  getPortfolioVisualizerLink() {
-    const marketValue = this.props.positions.reduce((sum, position) => {
+  const getPortfolioVisualizerLink = () => {
+    const marketValue = props.positions.reduce((sum, position) => {
       return sum + position.market_value;
     }, 0);
 
     let remainingWeightage = 100;
     const params = getURLParams(
-      this.props.positions.reduce((hash, position, index) => {
+      props.positions.reduce((hash, position, index) => {
         // symbol1=QD&allocation1_1=1&
         // symbol2=TTD&allocation2_1=15
         let weightage = Number(((position.market_value / marketValue) * 100).toFixed(1));
         remainingWeightage -= weightage;
         remainingWeightage = Number(remainingWeightage.toFixed(1));
-        if (index + 1 == this.props.positions.length) {
+        if (index + 1 == props.positions.length) {
           weightage += remainingWeightage;
         }
         hash[`symbol${index + 1}`] = getSymbol(position.security);
@@ -406,15 +471,13 @@ export default class HoldingsCharts extends Component<Props, State> {
       }, {}),
     );
     return `https://www.portfoliovisualizer.com/backtest-portfolio?s=y&timePeriod=4&initialAmount=10000&annualOperation=0&annualAdjustment=0&inflationAdjusted=true&annualPercentage=0.0&frequency=4&rebalanceType=1&showYield=false&reinvestDividends=true&${params}#analysisResults`;
-  }
+  };
 
-  renderStockTimeline() {
-    if (!this.state.timelineSymbol) {
+  const renderStockTimeline = () => {
+    if (!timelineSymbol) {
       return <></>;
     }
-    const position = this.props.positions.filter(
-      (position) => getSymbol(position.security) === this.state.timelineSymbol,
-    )[0];
+    const position = props.positions.filter((position) => getSymbol(position.security) === timelineSymbol)[0];
 
     if (!position) {
       return <></>;
@@ -422,16 +485,16 @@ export default class HoldingsCharts extends Component<Props, State> {
 
     return (
       <StockTimeline
-        isPrivateMode={this.props.isPrivateMode}
-        symbol={this.state.timelineSymbol}
+        isPrivateMode={props.isPrivateMode}
+        symbol={timelineSymbol}
         position={position}
-        addon={this.props.addon}
+        addon={props.addon}
       />
     );
-  }
+  };
 
-  renderStockSelector() {
-    const options = this.props.positions
+  const renderStockSelector = () => {
+    const options = props.positions
       .map((position) => getSymbol(position.security))
       .sort()
       .map((symbol, index) => (
@@ -447,11 +510,11 @@ export default class HoldingsCharts extends Component<Props, State> {
         </Typography.Title>
         <Select
           showSearch
-          value={this.state.timelineSymbol}
+          value={timelineSymbol}
           placeholder="Enter a stock, e.g: FB, SHOP.TO"
           showArrow
           style={{ width: '100%' }}
-          onChange={(symbol) => this.setState({ timelineSymbol: symbol })}
+          onChange={(symbol) => setTimelineSymbol(symbol)}
           filterOption={(inputValue, option) =>
             (option!.props!.value! as string).toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
           }
@@ -459,84 +522,87 @@ export default class HoldingsCharts extends Component<Props, State> {
           {options}
         </Select>
 
-        {this.state.timelineSymbol && (
+        {timelineSymbol && (
           <StockDetails
-            symbol={this.state.timelineSymbol}
-            positions={this.props.positions}
-            accounts={this.props.accounts}
-            isPrivateMode={this.props.isPrivateMode}
+            symbol={timelineSymbol}
+            positions={props.positions}
+            accounts={props.accounts}
+            isPrivateMode={props.isPrivateMode}
           />
         )}
       </Flex>
     );
-  }
+  };
 
-  render() {
-    const positionSeries = this.getPositionsSeries();
+  const { column, pie } = getPositionsSeries();
 
-    return (
-      <>
-        <Collapsible trigger="Holdings Chart" open>
-          <Charts
-            options={this.getOptions({
-              title: 'Your Holdings',
-              yAxisTitle: 'Market Value ($)',
-              subtitle: '(click on a stock to view transactions)',
-              series: [positionSeries[0]],
-              drilldown: false,
-            })}
-          />
+  return (
+    <>
+      <Collapsible trigger="Holdings Chart" open>
+        <Charts
+          options={getOptions({
+            title: 'Your Holdings',
+            yAxisTitle: 'Market Value ($)',
+            subtitle: '(click on a stock to view transactions)',
+            series: [column],
+          })}
+        />
 
-          <Flex width={1} flexWrap="wrap" alignItems="stretch">
-            <Flex width={[1, 1, 2 / 3]} height="100%" justifyContent="center">
-              <Charts
-                options={this.getOptions({
-                  subtitle: '(click on a stock to view timeline and transactions)',
-                  series: [positionSeries[1]],
-                })}
-              />
-            </Flex>
-
-            <Flex width={[1, 1, 1 / 3]} pr={4} height="100%" justifyContent="center">
-              {this.renderStockSelector()}
-            </Flex>
+        <Flex width={1} flexWrap="wrap" alignItems="stretch">
+          <Flex width={[1, 1, 2 / 3]} height="100%" justifyContent="center">
+            <Charts
+              options={getOptions({
+                subtitle: '(click on a stock to view timeline and transactions)',
+                series: [pie],
+              })}
+            />
           </Flex>
 
-          {this.renderStockTimeline()}
+          <Flex width={[1, 1, 1 / 3]} pr={4} height="100%" justifyContent="center">
+            {renderStockSelector()}
+          </Flex>
+        </Flex>
 
-          <div className="center">
-            <div
-              className="button"
-              onClick={() => {
-                window.open(this.getPortfolioVisualizerLink(), '_blank');
-              }}
-            >
-              Portfolio Visualizer
-            </div>
+        {renderStockTimeline()}
+
+        <div className="center">
+          <div
+            className="button"
+            onClick={() => {
+              window.open(getPortfolioVisualizerLink(), '_blank');
+            }}
+          >
+            Portfolio Visualizer
           </div>
-        </Collapsible>
+        </div>
+      </Collapsible>
 
-        <Collapsible trigger="USD/CAD Composition" open>
-          <Charts options={this.getOptions({ title: 'USD/CAD Composition', series: [this.getUSDCADSeries()] })} />
-        </Collapsible>
+      <Collapsible trigger="USD/CAD Composition" open>
+        <Charts
+          options={getOptions({
+            title: 'USD/CAD Composition',
+            series: [getUSDCADSeries()],
+            drilldown: getUSDCADDrillDown(pie),
+          })}
+        />
+      </Collapsible>
 
-        <Collapsible trigger="Top Losers/Gainers Chart" open>
-          <Charts
-            options={this.getOptions({
-              title: 'Top Gainers',
-              yAxisTitle: 'Gain (%)',
-              series: this.getTopGainersLosers(true),
-            })}
-          />
-          <Charts
-            options={this.getOptions({
-              title: 'Top Losers',
-              yAxisTitle: 'Loss (%)',
-              series: this.getTopGainersLosers(false),
-            })}
-          />
-        </Collapsible>
-      </>
-    );
-  }
+      <Collapsible trigger="Top Losers/Gainers Chart" open>
+        <Charts
+          options={getOptions({
+            title: 'Top Gainers',
+            yAxisTitle: 'Gain (%)',
+            series: getTopGainersLosers(true),
+          })}
+        />
+        <Charts
+          options={getOptions({
+            title: 'Top Losers',
+            yAxisTitle: 'Loss (%)',
+            series: getTopGainersLosers(false),
+          })}
+        />
+      </Collapsible>
+    </>
+  );
 }
