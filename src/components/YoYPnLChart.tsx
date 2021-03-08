@@ -192,7 +192,7 @@ export default function YoYPnLChart(props: Props) {
         })),
         tooltip: {
           headerFormat: '',
-          pointFormat: `<b style="font-size: 14px;">{point.label} ({point.key})</b><br /><b style="color: {point.color};font-size: 14px;">{point.y:.1f}% ({point.changeValue})</b><br /><hr />
+          pointFormat: `<b style="font-size: 13px;">{point.label} ({point.key})</b><br /><b style="color: {point.color};font-size: 14px;">{point.y:.1f}% ({point.changeValue})</b><br /><hr />
             P/L on {point.startDate}: <b>{point.startPnl}</b><br />
             P/L on {point.endDate}: <b>{point.endPnl}</b><br />`,
         },
