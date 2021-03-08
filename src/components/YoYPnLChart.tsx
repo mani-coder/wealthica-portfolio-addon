@@ -2,7 +2,7 @@ import moment, { Moment } from 'moment';
 import React from 'react';
 import Collapsible from 'react-collapsible';
 import { Portfolio } from '../types';
-import { formatCurrency } from '../utils';
+import { formatCurrency, getPreviousWeekday } from '../utils';
 import Charts from './Charts';
 
 type Props = {
@@ -105,7 +105,7 @@ export default function YoYPnLChart(props: Props) {
     }[] = [];
 
     [
-      { id: '1D', label: '1 Day', date: moment(lastDate).subtract(1, 'days') },
+      { id: '1D', label: '1 Day', date: getPreviousWeekday(lastDate) },
       { id: '1W', label: '1 Week', date: moment(lastDate).subtract(1, 'weeks') },
       { id: '1M', label: '1 Month', date: moment(lastDate).subtract(1, 'months').add(1, 'days') },
       { id: '3M', label: '3 Months', date: moment(lastDate).subtract(3, 'months').add(1, 'days') },
@@ -149,6 +149,7 @@ export default function YoYPnLChart(props: Props) {
     });
 
     const data = portfolioValues
+      .filter((value) => value.endPortfolio.date !== value.startPortfolio.date)
       .sort((a, b) => a.date.valueOf() - b.date.valueOf())
       .map((value) => {
         const startPnl = value.startPortfolio.value - value.startPortfolio.deposits;

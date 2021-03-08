@@ -1,6 +1,6 @@
-import { PortfolioData, Security } from './types';
 import moment, { Moment } from 'moment';
 import { DATE_FORMAT } from './constants';
+import { PortfolioData, Security } from './types';
 
 export const isValidPortfolioData = (data: PortfolioData): boolean => {
   return Boolean(data.deposit || data.income || data.interest || data.value || data.withdrawal);
@@ -65,4 +65,15 @@ export const getURLParams = (values: { [id: string]: string }): string => {
 
 export function buildCorsFreeUrl(target: string): string {
   return `https://cors.bridged.cc/${target}`;
+}
+
+export function getPreviousWeekday(date) {
+  const referenceDate = moment(date);
+  let day = referenceDate.day();
+  let diff = 1; // returns yesterday
+  if (day === 0 || day === 1) {
+    // is Sunday or Monday
+    diff = day + 2; // returns Friday
+  }
+  return referenceDate.subtract(diff, 'days');
 }
