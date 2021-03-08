@@ -85,13 +85,17 @@ export default function YoYPnLChart(props: Props) {
   };
 
   const getData = () => {
-    let lastDate = portfolioReverse[0].date;
+    let currentPortfolio = portfolioReverse[0];
     const currentDate = moment().utc();
-    if (currentDate.format('YYYY-MM-DD') === lastDate && currentDate.hour() < 21 && portfolioReverse.length > 1) {
-      lastDate = portfolioReverse[1].date;
+    if (
+      currentDate.format('YYYY-MM-DD') === currentPortfolio.date &&
+      currentDate.hour() < 21 &&
+      portfolioReverse.length > 1
+    ) {
+      currentPortfolio = portfolioReverse[1];
     }
+    const lastDate = currentPortfolio.date;
 
-    const currentPortfolio = portfolioReverse[0];
     const portfolioValues: {
       id: string;
       label: string;
@@ -167,7 +171,7 @@ export default function YoYPnLChart(props: Props) {
         };
       });
 
-    console.debug('PnL change %', data);
+    console.debug('PnL change data -- ', data);
 
     const series: Highcharts.SeriesColumnOptions[] = [
       {
