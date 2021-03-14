@@ -49,7 +49,7 @@ const App = () => {
   const [isLoaded, setLoaded] = useState<boolean>(false);
 
   const [state, setState] = useState<State>({});
-  const privateMode = state.options?.privateMode;
+  const privateMode = !!(state.options && state.options.privateMode);
 
   function getAddon(): any {
     try {
