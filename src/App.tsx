@@ -3,7 +3,7 @@ import Typography from 'antd/es/typography';
 import Text from 'antd/es/typography/Text';
 import _ from 'lodash';
 import moment, { Moment } from 'moment';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Loader from 'react-loader-spinner';
 import { Flex } from 'rebass';
 import {
@@ -36,6 +36,7 @@ import { Account, Portfolio, Position } from './types';
 import { getDate, getSymbol } from './utils';
 
 type State = {
+  loading: boolean;
   firstTransactionDate?: Moment;
   options?: any;
   isLoadingOnUpdate?: boolean;
@@ -46,12 +47,12 @@ const App = () => {
   const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
   const [positions, setPositions] = useState<Position[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
-  const [isLoaded, setLoaded] = useState<boolean>(false);
 
-  const [state, setState] = useState<State>({});
+  const [state, setState] = useState<State>({ loading: true });
   const privateMode = !!(state.options && state.options.privateMode);
 
   function getAddon(): any {
+    console.debug('Create wealthica addon.');
     try {
       const addon = new Addon({});
 
@@ -79,7 +80,7 @@ const App = () => {
 
     return null;
   }
-  const addon = getAddon();
+  const addon = useMemo(() => getAddon(), []);
 
   async function loadCurrenciesCache() {
     if (Object.keys(currencyCache).length) {
@@ -98,7 +99,7 @@ const App = () => {
       })
       .then((response) => {
         const _currencyCache = parseCurrencyReponse(response);
-        console.debug('Currency cache: ', _currencyCache);
+        // console.debug('Currency cache: ', _currencyCache);
         setCurrencyCache(_currencyCache);
       })
       .catch((error) => {
@@ -130,14 +131,14 @@ const App = () => {
     mergeOptions(options);
 
     const positions = await loadPositions(state.options);
-
     const portfolioByDate = await loadPortfolioData(state.options);
     const transactions = await loadTransactions(state.options);
     const accounts = await loadInstitutionsData(state.options);
 
-    // console.debug('Transactions', transactions);
     computePositions(positions, transactions);
     computePortfolios(portfolioByDate, transactions, accounts);
+    setState({ ...state, loading: false, isLoadingOnUpdate: false });
+    console.debug('Loaded the date');
   }
 
   function computePositions(positions, transactions) {
@@ -201,12 +202,7 @@ const App = () => {
     });
 
     setPortfolios(portfolios);
-    // setPortfolioPerDay(portfolioPerDay);
-    setLoaded(true);
     setAccounts(accounts);
-
-    setState({ ...state, isLoadingOnUpdate: false });
-    // console.debug('Loaded the data', portfolios);
   }
 
   function loadPortfolioData(options) {
@@ -313,10 +309,10 @@ const App = () => {
     const positions = parsePositionsResponse(POSITIONS_API_RESPONSE);
     const accounts = parseInstitutionsResponse(INSTITUTIONS_DATA);
 
-    // console.debug('Positions:', positions);
     setCurrencyCache(currencyCache);
     computePositions(positions, TRANSACTIONS_API_RESPONSE);
     computePortfolios(portfolioByDate, TRANSACTIONS_API_RESPONSE, accounts);
+    setState({ ...state, loading: false, isLoadingOnUpdate: false });
   }
 
   useEffect(() => {
@@ -325,11 +321,9 @@ const App = () => {
     }
   }, []);
 
-  // console.debug('State:', state);
-
   return (
     <div style={{ paddingTop: 4, paddingBottom: 4 }}>
-      {isLoaded ? (
+      {!state.loading ? (
         <>
           {!addon && (
             <>
@@ -345,6 +339,7 @@ const App = () => {
               <Loader type="ThreeDots" color="#7f3eab" height="30" width="75" />
             </Flex>
           )}
+
           <DepositVsPortfolioValueTimeline portfolios={portfolios} isPrivateMode={privateMode} />
           <ProfitLossPercentageTimeline portfolios={portfolios} isPrivateMode={privateMode} />
           <ProfitLossTimeline portfolios={portfolios} isPrivateMode={privateMode} />
