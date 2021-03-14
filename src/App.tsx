@@ -49,7 +49,7 @@ const App = () => {
   const [isLoaded, setLoaded] = useState<boolean>(false);
 
   const [state, setState] = useState<State>({});
-  const privateMode = state.options?.privateMode;
+  const privateMode = !!(state.options && state.options.privateMode);
 
   function getAddon(): any {
     try {
@@ -376,7 +376,8 @@ const App = () => {
         is at your own risk and is provided without any warranty.
         <br />
         <br />
-        Please trade responsibly. Contact the developer at k.elayamani@gmail.com
+        Please trade responsibly. Contact the developer at{' '}
+        <a href="mailto:k.elayamani@gmail.com">k.elayamani@gmail.com</a>
       </Text>
       <br />
       <hr />
