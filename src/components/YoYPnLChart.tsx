@@ -30,7 +30,7 @@ export default function YoYPnLChart(props: Props) {
       },
 
       title: {
-        text: 'P/L (as-of-date) Change Over Multiple Time Periods',
+        text: 'P/L Change Over Multiple Time Periods',
       },
       subtitle: {
         text:
@@ -212,7 +212,7 @@ export default function YoYPnLChart(props: Props) {
   });
 
   return (
-    <Collapsible trigger="P/L (as-of-date) Change Over Multiple Time Periods" open>
+    <Collapsible trigger="P/L Change Over Multiple Time Periods" open>
       <Charts options={options} />
     </Collapsible>
   );
