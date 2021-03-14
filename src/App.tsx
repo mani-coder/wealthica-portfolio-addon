@@ -123,7 +123,7 @@ class App extends Component<Props, State> {
     (options: any) => {
       this.loadData(options);
     },
-    250,
+    100,
     { leading: true },
   );
 
