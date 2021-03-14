@@ -3,7 +3,7 @@ import Typography from 'antd/es/typography';
 import Text from 'antd/es/typography/Text';
 import _ from 'lodash';
 import moment, { Moment } from 'moment';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { Component } from 'react';
 import Loader from 'react-loader-spinner';
 import { Flex } from 'rebass';
 import {
@@ -22,43 +22,57 @@ import ProfitLossPercentageTimeline from './components/ProfitLossPercentageTimel
 import ProfitLossTimeline from './components/ProfitLossTimeline';
 import YoYPnLChart from './components/YoYPnLChart';
 import { TRANSACTIONS_FROM_DATE } from './constants';
-// import { CURRENCIES_API_RESPONSE } from './mocks/currencies';
-// import { INSTITUTIONS_DATA } from './mocks/institutions';
-// import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio';
-// import { POSITIONS_API_RESPONSE } from './mocks/positions';
-// import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions';
-import { CURRENCIES_API_RESPONSE } from './mocks/currencies-prod';
-import { INSTITUTIONS_DATA } from './mocks/institutions-prod';
-import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio-prod';
-import { POSITIONS_API_RESPONSE } from './mocks/positions-prod';
-import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions-prod';
-import { Account, Portfolio, Position } from './types';
+import { CURRENCIES_API_RESPONSE } from './mocks/currencies';
+import { INSTITUTIONS_DATA } from './mocks/institutions';
+import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio';
+import { POSITIONS_API_RESPONSE } from './mocks/positions';
+import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions';
+// import { CURRENCIES_API_RESPONSE } from './mocks/currencies-prod';
+// import { INSTITUTIONS_DATA } from './mocks/institutions-prod';
+// import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio-prod';
+// import { POSITIONS_API_RESPONSE } from './mocks/positions-prod';
+// import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions-prod';
+import { Account, Portfolio, PortfolioData, Position } from './types';
 import { getDate, getSymbol } from './utils';
 
 type State = {
-  loading: boolean;
+  addon: any;
+  currencyCache: { [key: string]: number };
+  portfolioPerDay: { [key: string]: PortfolioData };
+  portfolios: Portfolio[];
+  positions: Position[];
+  accounts: Account[];
+  isLoaded: boolean;
+  privateMode: boolean;
   firstTransactionDate?: Moment;
   options?: any;
   isLoadingOnUpdate?: boolean;
 };
+type Props = {};
 
-const App = () => {
-  const [currencyCache, setCurrencyCache] = useState<{ [key: string]: number }>({});
-  const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
-  const [positions, setPositions] = useState<Position[]>([]);
-  const [accounts, setAccounts] = useState<Account[]>([]);
+class App extends Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
 
-  const [state, setState] = useState<State>({ loading: true });
-  const privateMode = !!(state.options && state.options.privateMode);
+    this.state = {
+      addon: this.getAddon(),
+      currencyCache: {},
+      portfolioPerDay: {},
+      portfolios: [],
+      positions: [],
+      accounts: [],
+      isLoaded: false,
+      privateMode: false,
+    };
+  }
 
-  function getAddon(): any {
-    console.debug('Create wealthica addon.');
+  getAddon = (): any => {
     try {
       const addon = new Addon({});
 
       addon.on('init', (options) => {
         console.debug('Addon initialization', options);
-        load(options);
+        this.load(options);
       });
 
       addon.on('reload', () => {
@@ -69,8 +83,8 @@ const App = () => {
       addon.on('update', (options) => {
         // Update according to the received options
         console.debug('Addon update - options: ', options);
-        setState({ ...state, isLoadingOnUpdate: true });
-        load(options);
+        this.setState({ isLoadingOnUpdate: true });
+        this.load(options);
       });
 
       return addon;
@@ -79,17 +93,15 @@ const App = () => {
     }
 
     return null;
-  }
-  const addon = useMemo(() => getAddon(), []);
+  };
 
-  async function loadCurrenciesCache() {
-    if (Object.keys(currencyCache).length) {
+  async loadCurrenciesCache() {
+    if (Object.keys(this.state.currencyCache).length) {
       console.debug('Skip re-loading currency cache.');
       return;
     }
-
     console.debug('Loading currencies data.');
-    await addon
+    await this.state.addon
       .request({
         method: 'GET',
         endpoint: 'currencies/usd/history',
@@ -98,51 +110,52 @@ const App = () => {
         },
       })
       .then((response) => {
-        const _currencyCache = parseCurrencyReponse(response);
-        // console.debug('Currency cache: ', _currencyCache);
-        setCurrencyCache(_currencyCache);
+        const currencyCache = parseCurrencyReponse(response);
+        console.debug('Currency cache: ', currencyCache);
+        this.setState({ currencyCache });
       })
       .catch((error) => {
         console.error('Failed to load currency data.', error);
       });
   }
 
-  const load = _.debounce(
+  load = _.debounce(
     (options: any) => {
-      loadData(options);
+      this.loadData(options);
     },
     250,
     { leading: true },
   );
 
-  function mergeOptions(options) {
-    if (!state.options) {
-      setState({ ...state, options });
+  mergeOptions(options) {
+    if (!this.state.options) {
+      this.setState({ options });
     }
-    const oldOptions = state.options;
+    const oldOptions = this.state.options;
     Object.keys(options).forEach((key) => {
       oldOptions[key] = options[key];
     });
-    setState({ ...state, options: oldOptions });
+    this.setState({ options: oldOptions });
   }
 
-  async function loadData(options) {
-    await loadCurrenciesCache();
-    mergeOptions(options);
+  async loadData(options) {
+    await this.loadCurrenciesCache();
+    this.mergeOptions(options);
 
-    const positions = await loadPositions(state.options);
-    const portfolioByDate = await loadPortfolioData(state.options);
-    const transactions = await loadTransactions(state.options);
-    const accounts = await loadInstitutionsData(state.options);
+    const positions = await this.loadPositions(this.state.options);
+    this.setState({ privateMode: this.state.options.privateMode });
 
-    computePositions(positions, transactions);
-    computePortfolios(portfolioByDate, transactions, accounts);
-    setState({ ...state, loading: false, isLoadingOnUpdate: false });
-    console.debug('Loaded the date');
+    const portfolioByDate = await this.loadPortfolioData(this.state.options);
+    const transactions = await this.loadTransactions(this.state.options);
+    const accounts = await this.loadInstitutionsData(this.state.options);
+
+    // console.debug('Transactions', transactions);
+    this.computePositions(positions, transactions);
+    this.computePortfolios(portfolioByDate, transactions, accounts);
   }
 
-  function computePositions(positions, transactions) {
-    const securityTransactions = parseSecurityTransactionsResponse(transactions, currencyCache);
+  computePositions(positions, transactions) {
+    const securityTransactions = parseSecurityTransactionsResponse(transactions, this.state.currencyCache);
     const securityTransactionsBySymbol = securityTransactions.reduce((hash, transaction) => {
       if (!hash[transaction.symbol]) {
         hash[transaction.symbol] = [];
@@ -155,15 +168,14 @@ const App = () => {
       position.transactions = securityTransactionsBySymbol[getSymbol(position.security)] || [];
     });
 
-    setPositions(positions);
-    setState({
-      ...state,
+    this.setState({
+      positions,
       firstTransactionDate: getDate(!!transactions && transactions.length ? transactions[0].date : undefined),
     });
   }
 
-  function computePortfolios(portfolioByDate, transactions, accounts) {
-    const transactionsByDate = parseTransactionsResponse(transactions, currencyCache, accounts);
+  computePortfolios = (portfolioByDate, transactions, accounts) => {
+    const transactionsByDate = parseTransactionsResponse(transactions, this.state.currencyCache, accounts);
     // console.debug('Transactions by date: ', transactionsByDate);
 
     const portfolioPerDay = Object.keys(portfolioByDate).reduce((hash, date) => {
@@ -201,11 +213,11 @@ const App = () => {
       }
     });
 
-    setPortfolios(portfolios);
-    setAccounts(accounts);
-  }
+    this.setState({ portfolios, portfolioPerDay, isLoaded: true, isLoadingOnUpdate: false, accounts });
+    // console.debug('Loaded the data', portfolios);
+  };
 
-  function loadPortfolioData(options) {
+  loadPortfolioData(options) {
     console.debug('Loading portfolio data.');
     const query = {
       from: options.dateRangeFilter && options.dateRangeFilter[0],
@@ -214,7 +226,7 @@ const App = () => {
       institutions: options.institutionsFilter,
       investments: options.investmentsFilter === 'all' ? null : options.investmentsFilter,
     };
-    return addon
+    return this.state.addon
       .request({
         query,
         method: 'GET',
@@ -230,7 +242,7 @@ const App = () => {
       });
   }
 
-  function loadPositions(options) {
+  loadPositions(options) {
     console.debug('Loading positions data.');
     const query = {
       assets: true,
@@ -238,7 +250,7 @@ const App = () => {
       institutions: options.institutionsFilter,
       investments: options.investmentsFilter === 'all' ? null : options.investmentsFilter,
     };
-    return addon
+    return this.state.addon
       .request({
         query,
         method: 'GET',
@@ -254,7 +266,7 @@ const App = () => {
       });
   }
 
-  function loadInstitutionsData(options) {
+  loadInstitutionsData(options) {
     console.debug('Loading institutions data..');
     const query = {
       assets: true,
@@ -262,7 +274,7 @@ const App = () => {
       institutions: options.institutionsFilter,
       investments: options.investmentsFilter === 'all' ? null : options.investmentsFilter,
     };
-    return addon
+    return this.state.addon
       .request({
         query,
         method: 'GET',
@@ -282,7 +294,7 @@ const App = () => {
       });
   }
 
-  function loadTransactions(options) {
+  loadTransactions(options) {
     console.debug('Loading transactions data.');
     const fromDate = options.dateRangeFilter && options.dateRangeFilter[0];
     const query = {
@@ -291,7 +303,7 @@ const App = () => {
       institutions: options.institutionsFilter,
       investments: options.investmentsFilter === 'all' ? null : options.investmentsFilter,
     };
-    return addon
+    return this.state.addon
       .request({
         query,
         method: 'GET',
@@ -303,81 +315,92 @@ const App = () => {
       });
   }
 
-  function loadStaticPortfolioData() {
+  loadStaticPortfolioData() {
     const currencyCache = parseCurrencyReponse(CURRENCIES_API_RESPONSE);
     const portfolioByDate = parsePortfolioResponse(PORTFOLIO_API_RESPONSE);
     const positions = parsePositionsResponse(POSITIONS_API_RESPONSE);
     const accounts = parseInstitutionsResponse(INSTITUTIONS_DATA);
 
-    setCurrencyCache(currencyCache);
-    computePositions(positions, TRANSACTIONS_API_RESPONSE);
-    computePortfolios(portfolioByDate, TRANSACTIONS_API_RESPONSE, accounts);
-    setState({ ...state, loading: false, isLoadingOnUpdate: false });
+    // console.debug('Positions:', positions);
+    this.setState({ currencyCache });
+    this.computePositions(positions, TRANSACTIONS_API_RESPONSE);
+    this.computePortfolios(portfolioByDate, TRANSACTIONS_API_RESPONSE, accounts);
+    // console.debug('State:', this.state);
   }
 
-  useEffect(() => {
-    if (!addon) {
-      setTimeout(() => loadStaticPortfolioData(), 0);
+  componentDidMount() {
+    if (!this.state.addon) {
+      setTimeout(() => this.loadStaticPortfolioData(), 0);
     }
-  }, []);
+  }
 
-  return (
-    <div style={{ paddingTop: 4, paddingBottom: 4 }}>
-      {!state.loading ? (
-        <>
-          {!addon && (
-            <>
-              <p style={{ fontWeight: 'bolder', textAlign: 'center', color: '#C00316', textDecoration: 'underline' }}>
-                <img src="./favicon.png" alt="favicon" width="50" height="50" style={{ backgroundColor: '#fff' }} />
-                !! This is sample data !!
-              </p>
-            </>
-          )}
+  render() {
+    return (
+      <div style={{ paddingTop: 4, paddingBottom: 4 }}>
+        {this.state.isLoaded ? (
+          <>
+            {!this.state.addon && (
+              <>
+                <p style={{ fontWeight: 'bolder', textAlign: 'center', color: '#C00316', textDecoration: 'underline' }}>
+                  <img src="./favicon.png" alt="favicon" width="50" height="50" style={{ backgroundColor: '#fff' }} />
+                  !! This is sample data !!
+                </p>
+              </>
+            )}
 
-          {state.isLoadingOnUpdate && (
-            <Flex width={1} justifyContent="center" alignItems="center">
-              <Loader type="ThreeDots" color="#7f3eab" height="30" width="75" />
-            </Flex>
-          )}
+            {this.state.isLoadingOnUpdate && (
+              <Flex width={1} justifyContent="center" alignItems="center">
+                <Loader type="ThreeDots" color="#7f3eab" height="30" width="75" />
+              </Flex>
+            )}
+            <DepositVsPortfolioValueTimeline
+              portfolios={this.state.portfolios}
+              isPrivateMode={this.state.privateMode}
+            />
 
-          <DepositVsPortfolioValueTimeline portfolios={portfolios} isPrivateMode={privateMode} />
-          <ProfitLossPercentageTimeline portfolios={portfolios} isPrivateMode={privateMode} />
-          <ProfitLossTimeline portfolios={portfolios} isPrivateMode={privateMode} />
-          <YoYPnLChart portfolios={portfolios} isPrivateMode={privateMode} />
+            <ProfitLossPercentageTimeline portfolios={this.state.portfolios} isPrivateMode={this.state.privateMode} />
+            <ProfitLossTimeline portfolios={this.state.portfolios} isPrivateMode={this.state.privateMode} />
+            <YoYPnLChart portfolios={this.state.portfolios} isPrivateMode={this.state.privateMode} />
 
-          {!!positions.length && (
-            <>
-              <HoldingsCharts positions={positions} accounts={accounts} isPrivateMode={privateMode} addon={addon} />
+            {!!this.state.positions.length && (
+              <>
+                <HoldingsCharts
+                  positions={this.state.positions}
+                  accounts={this.state.accounts}
+                  isPrivateMode={this.state.privateMode}
+                  addon={this.state.addon}
+                />
 
-              {/* {process.env.NODE_ENV === 'development' && <Earnings positions={state.positions} />} */}
+                {/* {process.env.NODE_ENV === 'development' && <Earnings positions={this.state.positions} />} */}
 
-              {/* <HoldingsTable positions={state.positions} isPrivateMode={state.privateMode} /> */}
-            </>
-          )}
-        </>
-      ) : (
-        <div className="App-header">
-          <Loader type="Circles" color="#7f3eab" height="75" width="75" />
-        </div>
-      )}
-      <Typography.Title level={4} type="secondary">
-        Disclaimer
-      </Typography.Title>
-      <Text type="secondary">
-        This tool is simply a calculator of profit and loss using the deposits/withdrawals and daily portfolio values.
-        Results provided by this tool do not constitute investment advice. The makers of this tool are not responsible
-        for the consequences of any decisions or actions taken in reliance upon or as a result of the information
-        provided by this tool. The information on the add-on may contain errors or inaccuracies. The use of the add-on
-        is at your own risk and is provided without any warranty.
+                {/* <HoldingsTable positions={this.state.positions} isPrivateMode={this.state.privateMode} /> */}
+              </>
+            )}
+          </>
+        ) : (
+          <div className="App-header">
+            <Loader type="Circles" color="#7f3eab" height="75" width="75" />
+          </div>
+        )}
+
+        <Typography.Title level={4} type="secondary">
+          Disclaimer
+        </Typography.Title>
+        <Text type="secondary">
+          This tool is simply a calculator of profit and loss using the deposits/withdrawals and daily portfolio values.
+          Results provided by this tool do not constitute investment advice. The makers of this tool are not responsible
+          for the consequences of any decisions or actions taken in reliance upon or as a result of the information
+          provided by this tool. The information on the add-on may contain errors or inaccuracies. The use of the add-on
+          is at your own risk and is provided without any warranty.
+          <br />
+          <br />
+          Please trade responsibly. Contact the developer at k.elayamani@gmail.com
+        </Text>
         <br />
-        <br />
-        Please trade responsibly. Contact the developer at{' '}
-        <a href="mailto:k.elayamani@gmail.com">k.elayamani@gmail.com</a>
-      </Text>
-      <br />
-      <hr />
-    </div>
-  );
-};
+        <hr />
+      </div>
+    );
+  }
+}
 
 export default App;
