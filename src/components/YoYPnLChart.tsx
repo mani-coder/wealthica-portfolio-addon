@@ -89,7 +89,7 @@ export default function YoYPnLChart(props: Props) {
     const currentDate = moment().utc();
     if (
       currentDate.format('YYYY-MM-DD') === currentPortfolio.date &&
-      currentDate.hour() < 21 &&
+      currentDate.hour() < 20 &&
       portfolioReverse.length > 1
     ) {
       currentPortfolio = portfolioReverse[1];
