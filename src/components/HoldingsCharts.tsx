@@ -91,7 +91,9 @@ export default function HoldingsCharts(props: Props) {
         const accounts = (props.accounts || [])
           .map((account) => {
             const position = account.positions.filter((position) => position.symbol === symbol)[0];
-            return position ? { name: account.name, type: account.type, quantity: position.quantity } : undefined;
+            return position
+              ? { name: account.name, type: account.group || account.type, quantity: position.quantity }
+              : undefined;
           })
           .filter((value) => value)
           .sort((a, b) => b!.quantity - a!.quantity)
@@ -352,7 +354,7 @@ export default function HoldingsCharts(props: Props) {
               .map((account) => {
                 return `
                   <tr>
-                    <td>${account.name} ${account.type}</td>
+                    <td>${account.name} ${account.group || account.type}</td>
                     <td align="right">$${
                       props.isPrivateMode
                         ? '-'
@@ -385,6 +387,74 @@ export default function HoldingsCharts(props: Props) {
         <table><tr><td>Value</td><td align="right">\${point.displayValue}</td></tr>
         <tr><td>Total Value</td><td align="right">\${point.totalValue}</td></tr>
         <tr><td colspan="2">======================</td></tr>
+        {point.additionalValue}
+        </table>`,
+      },
+    };
+  };
+
+  const getGroupSeries = (): Highcharts.SeriesPieOptions => {
+    const positionDataByGroup = props.accounts.reduce((hash, account) => {
+      const group = account.group || 'N/A';
+      const data = hash[group] || {
+        group,
+        value: 0,
+        gain: 0,
+      };
+      data.value += account.value;
+      data.gain += account.positions.reduce((sum, position) => sum + position.gain_amount || 0, 0);
+      hash[group] = data;
+      return hash;
+    }, {} as { [K: string]: { group: string; value: number; gain: number } });
+
+    const groups = Object.keys(positionDataByGroup)
+      .map((group) => positionDataByGroup[group])
+      .filter((group) => group.value)
+      .sort((a, b) => b.value - a.value);
+    const totalValue = Number(groups.reduce((sum, group) => sum + group.value, 0).toFixed(2)).toLocaleString();
+
+    return {
+      type: 'pie' as 'pie',
+      name: 'Group Wise Positions',
+
+      // center: ['80%', '30%'],
+      // size: 150,
+      data: groups.map((group) => {
+        const accountsTable = props.accounts
+          .filter((account) => (account.group || 'N/A') === group.group && account.value)
+          .sort((a, b) => b.value - a.value)
+          .map((account) => {
+            return `
+                  <tr>
+                    <td>${account.name} ${account.group || account.type}</td>
+                    <td align="right">$${props.isPrivateMode ? '-' : formatCurrency(account.value, 2)}</td>
+                  </tr>`;
+          })
+          .join('');
+
+        return {
+          name: group.group,
+          y: group.value,
+          displayValue: props.isPrivateMode
+            ? '-'
+            : group.value
+            ? Number(group.value.toFixed(2)).toLocaleString()
+            : group.value,
+          totalValue: props.isPrivateMode ? '-' : totalValue,
+
+          additionalValue: `<tr><td>Gain ($) </td><td align="right">${
+            props.isPrivateMode ? '-' : `$${formatMoney(group.gain)}`
+          }</td></tr>
+            <tr><td>Gain (%)</td><td align="right">${((group.gain / group.value) * 100).toFixed(2)}%</td></tr>
+            <tr><td colspan="2" style="text-align: center;">======================</td></tr>
+            ${accountsTable}`,
+        } as Highcharts.SeriesPieDataOptions;
+      }),
+      tooltip: {
+        pointFormat: `<b>{point.percentage:.1f}%</b><br /><br />
+        <table><tr><td>Value</td><td align="right">\${point.displayValue}</td></tr>
+        <tr><td>Total Value</td><td align="right">\${point.totalValue}</td></tr>
+
         {point.additionalValue}
         </table>`,
       },
@@ -601,20 +671,16 @@ export default function HoldingsCharts(props: Props) {
         />
       </Collapsible>
 
+      <Collapsible trigger="Group Composition" open>
+        <Charts options={getOptions({ title: 'Group Composition', series: [getGroupSeries()] })} />
+      </Collapsible>
+
       <Collapsible trigger="Top Losers/Gainers Chart" open>
         <Charts
-          options={getOptions({
-            title: 'Top Gainers',
-            yAxisTitle: 'Gain (%)',
-            series: getTopGainersLosers(true),
-          })}
+          options={getOptions({ title: 'Top Gainers', yAxisTitle: 'Gain (%)', series: getTopGainersLosers(true) })}
         />
         <Charts
-          options={getOptions({
-            title: 'Top Losers',
-            yAxisTitle: 'Loss (%)',
-            series: getTopGainersLosers(false),
-          })}
+          options={getOptions({ title: 'Top Losers', yAxisTitle: 'Loss (%)', series: getTopGainersLosers(false) })}
         />
       </Collapsible>
     </>
