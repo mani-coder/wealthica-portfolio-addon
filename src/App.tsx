@@ -38,7 +38,7 @@ import { getDate, getSymbol } from './utils';
 
 type State = {
   addon: any;
-  currencyCache: { [key: string]: number };
+  currencyCache?: { [key: string]: number };
   groupsCache?: { [key: string]: string };
   portfolioPerDay: { [key: string]: PortfolioData };
   portfolios: Portfolio[];
@@ -58,7 +58,6 @@ class App extends Component<Props, State> {
 
     this.state = {
       addon: this.getAddon(),
-      currencyCache: {},
       portfolioPerDay: {},
       portfolios: [],
       positions: [],
@@ -98,10 +97,10 @@ class App extends Component<Props, State> {
   };
 
   async loadCurrenciesCache() {
-    if (Object.keys(this.state.currencyCache).length) {
-      console.debug('Skip re-loading currency cache.');
-      return;
+    if (this.state.currencyCache) {
+      return this.state.currencyCache;
     }
+
     console.debug('Loading currencies data.');
     await this.state.addon
       .request({
@@ -119,8 +118,7 @@ class App extends Component<Props, State> {
 
   async loadGroupsCache() {
     if (this.state.groupsCache) {
-      console.debug('Skip re-loading groups cache.');
-      return;
+      return this.state.groupsCache;
     }
 
     console.debug('Loading groups data.');
