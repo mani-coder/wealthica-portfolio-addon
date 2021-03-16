@@ -50,7 +50,7 @@ export default (props: Props) => {
       <LabelValue label="Symbol" value={getSymbol(position.security)} />
       <LabelValue
         label="Value"
-        value={`CAD ${formatMoney(position.market_value)} (${(position.market_value
+        value={`CAD ${props.isPrivateMode ? '-' : formatMoney(position.market_value)} (${(position.market_value
           ? (position.market_value / marketValue) * 100
           : 0
         ).toFixed(2)}%)`}
@@ -58,7 +58,7 @@ export default (props: Props) => {
 
       <LabelValue
         label="Proft/Loss"
-        value={`CAD ${formatMoney(position.gain_amount)} (${(position.gain_percent
+        value={`CAD ${props.isPrivateMode ? '-' : formatMoney(position.gain_amount)} (${(position.gain_percent
           ? position.gain_percent * 100
           : position.gain_percent
         ).toFixed(2)}%)`}
@@ -66,15 +66,16 @@ export default (props: Props) => {
       />
       <LabelValue label="Shares" value={`${position.quantity}`} />
 
+      <LabelValue label="Currency" value={currency} />
       <LabelValue
         label="Buy Price"
-        value={`${currency} ${formatMoney(
+        value={formatMoney(
           position.investments.reduce((cost, investment) => {
             return cost + investment.book_value;
           }, 0) / position.quantity,
-        )}`}
+        )}
       />
-      <LabelValue label="Last Price" value={`${currency} ${formatMoney(position.security.last_price)}`} />
+      <LabelValue label="Last Price" value={formatMoney(position.security.last_price)} />
       <LabelValue
         label="Account"
         value="Shares"

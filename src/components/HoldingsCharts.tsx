@@ -102,11 +102,11 @@ export default function HoldingsCharts(props: Props) {
           name: getSymbol(position.security),
           // drilldown: getSymbol(position.security),
           y: position.market_value,
-          displayValue: formatCurrency(position.market_value, 1),
-          marketValue: formatMoney(position.market_value),
+          displayValue: props.isPrivateMode ? '-' : formatCurrency(position.market_value, 1),
+          marketValue: props.isPrivateMode ? '-' : formatMoney(position.market_value),
           percentage: position.market_value ? (position.market_value / marketValue) * 100 : 0,
           gain: position.gain_percent ? position.gain_percent * 100 : position.gain_percent,
-          profit: formatMoney(position.gain_amount),
+          profit: props.isPrivateMode ? '-' : formatMoney(position.gain_amount),
           buyPrice: formatMoney(
             position.investments.reduce((cost, investment) => cost + investment.book_value, 0) / position.quantity,
           ),
@@ -192,7 +192,7 @@ export default function HoldingsCharts(props: Props) {
             return {
               name: getSymbol(position.security),
               y: position.gain_percent * 100,
-              gain: formatMoney(position.gain_amount),
+              gain: props.isPrivateMode ? '-' : formatMoney(position.gain_amount),
             };
           }),
         tooltip: {
@@ -202,7 +202,7 @@ export default function HoldingsCharts(props: Props) {
         },
         dataLabels: {
           enabled: true,
-          format: '{point.y:.1f}',
+          format: '{point.y:.1f}%',
         },
         showInLegend: false,
       },
@@ -329,10 +329,16 @@ export default function HoldingsCharts(props: Props) {
             name,
             drilldown: name,
             y: data.value,
-            displayValue: data.value ? Number(data.value.toFixed(2)).toLocaleString() : data.value,
-            totalValue,
+            displayValue: props.isPrivateMode
+              ? '-'
+              : data.value
+              ? Number(data.value.toFixed(2)).toLocaleString()
+              : data.value,
+            totalValue: props.isPrivateMode ? '-' : totalValue,
 
-            additionalValue: `<tr><td>Gain ($) </td><td align="right">${formatMoney(data.gain)}</td></tr>
+            additionalValue: `<tr><td>Gain ($) </td><td align="right">${
+              props.isPrivateMode ? '-' : formatMoney(data.gain)
+            }</td></tr>
             <tr><td>Gain (%)</td><td align="right">${((data.gain / data.value) * 100).toFixed(2)}</td></tr>
             `,
           } as Highcharts.SeriesPieDataOptions;
@@ -348,7 +354,11 @@ export default function HoldingsCharts(props: Props) {
                   <tr>
                     <td>${account.name} ${account.type}</td>
                     <td align="right">$${
-                      account.cash ? Number(account.cash.toFixed(2)).toLocaleString() : account.cash
+                      props.isPrivateMode
+                        ? '-'
+                        : account.cash
+                        ? Number(account.cash.toFixed(2)).toLocaleString()
+                        : account.cash
                     }</td>
                   </tr>`;
               })
@@ -359,8 +369,12 @@ export default function HoldingsCharts(props: Props) {
               name,
               drilldown: name,
               y: data.value,
-              displayValue: data.value ? Number(data.value.toFixed(2)).toLocaleString() : data.value,
-              totalValue,
+              displayValue: props.isPrivateMode
+                ? '-'
+                : data.value
+                ? Number(data.value.toFixed(2)).toLocaleString()
+                : data.value,
+              totalValue: props.isPrivateMode ? '-' : totalValue,
 
               additionalValue: accountsTable,
             };
