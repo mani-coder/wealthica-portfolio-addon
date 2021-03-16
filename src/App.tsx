@@ -98,13 +98,13 @@ class App extends Component<Props, State> {
     return null;
   };
 
-  async loadCurrenciesCache() {
+  loadCurrenciesCache() {
     if (this.state.currencyCache) {
-      return Promise.resolve(this.state.currencyCache);
+      return null;
     }
 
     console.debug('Loading currencies data.');
-    await this.state.addon
+    return this.state.addon
       .request({
         method: 'GET',
         endpoint: 'currencies/usd/history',
@@ -118,13 +118,13 @@ class App extends Component<Props, State> {
       });
   }
 
-  async loadGroupsCache() {
+  loadGroupsCache() {
     if (this.state.groupsCache) {
-      return Promise.resolve(this.state.groupsCache);
+      return;
     }
 
     console.debug('Loading groups data.');
-    await this.state.addon
+    return this.state.addon
       .request({ method: 'GET', endpoint: 'groups' })
       .then((response) => parseGroupNameByIdReponse(response))
       .catch((error) => {
@@ -164,10 +164,19 @@ class App extends Component<Props, State> {
       this.loadGroupsCache(),
     ]);
 
-    console.debug('Loaded data', { positions, portfolioByDate, transactions, accounts, currencyCache, groupsCache });
+    const _currencyCache = currencyCache || this.state.currencyCache;
+    const _groupsCache = groupsCache || this.state.groupsCache;
+    console.debug('Loaded data', {
+      positions,
+      portfolioByDate,
+      transactions,
+      accounts,
+      currencyCache: _currencyCache,
+      groupsCache: _groupsCache,
+    });
 
-    this.computePositions(positions, transactions, currencyCache);
-    this.computePortfolios(portfolioByDate, transactions, accounts, currencyCache, groupsCache);
+    this.computePositions(positions, transactions, _currencyCache);
+    this.computePortfolios(portfolioByDate, transactions, accounts, _currencyCache, _groupsCache);
   }
 
   computePositions(positions, transactions, currencyCache) {
