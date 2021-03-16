@@ -1,11 +1,11 @@
 self.__precacheManifest = [
   {
-    "revision": "7bd093717a2fd4b6adbd",
+    "revision": "426a74d1c693c052ccdc",
     "url": "/wealthica-portfolio-addon/static/css/main.8a2ec456.chunk.css"
   },
   {
-    "revision": "7bd093717a2fd4b6adbd",
-    "url": "/wealthica-portfolio-addon/static/js/main.7bd09371.chunk.js"
+    "revision": "426a74d1c693c052ccdc",
+    "url": "/wealthica-portfolio-addon/static/js/main.426a74d1.chunk.js"
   },
   {
     "revision": "bae5cf18035738988b3a",
@@ -20,7 +20,7 @@ self.__precacheManifest = [
     "url": "/wealthica-portfolio-addon/static/js/2.20a665b6.chunk.js"
   },
   {
-    "revision": "c766ccb95385b87796a11d62f2a5d245",
+    "revision": "672d68d0f6f22ba6dc2baea3c0278a68",
     "url": "/wealthica-portfolio-addon/index.html"
   }
 ];
