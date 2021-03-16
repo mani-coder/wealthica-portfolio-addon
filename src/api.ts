@@ -14,27 +14,34 @@ export const parseCurrencyReponse = (response: any) => {
   }, {});
 };
 
+export const parseGroupNameByIdReponse = (response: any): { [K: string]: string } =>
+  (response || []).reduce((hash, group) => {
+    hash[group._id] = group.name;
+    return hash;
+  }, {});
+
 export const parseInstitutionsResponse = (response: any, groups?: string[], institutions?: string[]): Account[] => {
   const accounts: Account[] = [];
   return response
-    .filter(institution => !institutions || !institutions.length || institutions.includes(institution.id))
+    .filter((institution) => !institutions || !institutions.length || institutions.includes(institution.id))
     .reduce((accounts, instutition) => {
       return accounts.concat(
         instutition.investments
-          .filter(account => (!groups || !groups.length || groups.includes(account.group)) && !account.ignored)
-          .map(account => {
+          .filter((account) => (!groups || !groups.length || groups.includes(account.group)) && !account.ignored)
+          .map((account) => {
             return {
               id: account._id,
               institution: instutition.id,
               name: instutition.name,
               created_at: getDate(instutition.creation_date),
               type: account.name && account.name.includes('-') ? account.name.split('-')[1].trim() : account.name,
+              group: account.group,
               cash: account.cash,
               value: account.value,
               currency: account.currency,
-              positions: (account.positions || []).map(position => ({
+              positions: (account.positions || []).map((position) => ({
+                ...position,
                 symbol: getSymbol(position.security),
-                quantity: position.quantity,
               })),
             };
           }),
@@ -58,7 +65,7 @@ export const parsePortfolioResponse = (response: any) => {
 
 export const parseTransactionsResponse = (response: any, currencyCache: any, accounts: Account[]) => {
   return response
-    .filter(t => !t.deleted)
+    .filter((t) => !t.deleted)
     .reduce((hash, transaction) => {
       const type = transaction.type;
       if (['sell', 'buy', 'unknown'].includes(type)) {
@@ -67,7 +74,7 @@ export const parseTransactionsResponse = (response: any, currencyCache: any, acc
       let date = getDate(transaction.date);
       if (['deposit', 'transfer', 'withdrawal'].includes(type)) {
         // adjust the date of transaction, so that portfolio isn't screw'd up.
-        const account = accounts.find(account => account.institution === transaction.institution);
+        const account = accounts.find((account) => account.institution === transaction.institution);
         if (account && account.created_at > date) {
           // console.debug('Aligning transaction date with the account creation date', account, transaction);
           date = account.created_at;
@@ -113,11 +120,11 @@ export const parseTransactionsResponse = (response: any, currencyCache: any, acc
 export const parseSecurityTransactionsResponse = (response: any, currencyCache: any): Transaction[] => {
   return response
     .filter(
-      transaction =>
+      (transaction) =>
         ['sell', 'buy', 'income', 'dividend', 'distribution', 'tax', 'fee'].includes(transaction.type.toLowerCase()) &&
         (transaction.security || transaction.symbol),
     )
-    .map(transaction => {
+    .map((transaction) => {
       const date = getDate(transaction.date);
 
       let amount = Number(transaction.currency_amount);
@@ -140,7 +147,7 @@ export const parseSecurityTransactionsResponse = (response: any, currencyCache: 
 };
 
 export const parsePositionsResponse = (response: any): Position[] => {
-  return response.map(position => {
+  return response.map((position) => {
     return position as Position;
   });
 };

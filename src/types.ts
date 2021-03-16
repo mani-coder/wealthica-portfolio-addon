@@ -65,13 +65,11 @@ export type Account = {
   id: string;
   name: string;
   type: string;
+  group: string;
   currency: string;
   cash: number;
   value: number;
   created_at: Moment;
   institution: string;
-  positions: {
-    symbol: string;
-    quantity: number;
-  }[];
+  positions: (Position & { symbol: string })[];
 };
