@@ -8,7 +8,6 @@ import Loader from 'react-loader-spinner';
 import { Flex } from 'rebass';
 import {
   parseCurrencyReponse,
-  parseGroupNameByIdReponse,
   parseInstitutionsResponse,
   parsePortfolioResponse,
   parsePositionsResponse,
@@ -24,7 +23,6 @@ import ProfitLossTimeline from './components/ProfitLossTimeline';
 import YoYPnLChart from './components/YoYPnLChart';
 import { TRANSACTIONS_FROM_DATE } from './constants';
 import { CURRENCIES_API_RESPONSE } from './mocks/currencies';
-import { GROUPS_API_RESPONSE } from './mocks/groups';
 import { INSTITUTIONS_DATA } from './mocks/institutions';
 import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio';
 import { POSITIONS_API_RESPONSE } from './mocks/positions';
@@ -39,7 +37,7 @@ import { getDate, getSymbol } from './utils';
 type State = {
   addon: any;
   currencyCache?: { [key: string]: number };
-  groupsCache?: { [key: string]: string };
+  // groupsCache?: { [key: string]: string };
   portfolioPerDay: { [key: string]: PortfolioData };
   portfolios: Portfolio[];
   positions: Position[];
@@ -59,7 +57,6 @@ class App extends Component<Props, State> {
     this.state = {
       addon: this.getAddon(),
       currencyCache: undefined,
-      groupsCache: undefined,
       portfolioPerDay: {},
       portfolios: [],
       positions: [],
@@ -118,19 +115,19 @@ class App extends Component<Props, State> {
       });
   }
 
-  loadGroupsCache() {
-    if (this.state.groupsCache) {
-      return;
-    }
+  // loadGroupsCache() {
+  //   if (this.state.groupsCache) {
+  //     return;
+  //   }
 
-    console.debug('Loading groups data.');
-    return this.state.addon
-      .request({ method: 'GET', endpoint: 'groups' })
-      .then((response) => parseGroupNameByIdReponse(response))
-      .catch((error) => {
-        console.error('Failed to load groups data.', error);
-      });
-  }
+  //   console.debug('Loading groups data.');
+  //   return this.state.addon
+  //     .request({ method: 'GET', endpoint: 'groups' })
+  //     .then((response) => parseGroupNameByIdReponse(response))
+  //     .catch((error) => {
+  //       console.error('Failed to load groups data.', error);
+  //     });
+  // }
 
   load = _.debounce(
     (options: any) => {
@@ -155,28 +152,35 @@ class App extends Component<Props, State> {
     this.mergeOptions(options);
     this.setState({ privateMode: this.state.options.privateMode });
 
-    const [positions, portfolioByDate, transactions, accounts, currencyCache, groupsCache] = await Promise.all([
+    const [
+      positions,
+      portfolioByDate,
+      transactions,
+      accounts,
+      currencyCache,
+      // groupsCache
+    ] = await Promise.all([
       this.loadPositions(this.state.options),
       this.loadPortfolioData(this.state.options),
       this.loadTransactions(this.state.options),
       this.loadInstitutionsData(this.state.options),
       this.loadCurrenciesCache(),
-      this.loadGroupsCache(),
+      // this.loadGroupsCache(),
     ]);
 
     const _currencyCache = currencyCache || this.state.currencyCache;
-    const _groupsCache = groupsCache || this.state.groupsCache;
+    // const _groupsCache = groupsCache || this.state.groupsCache;
     console.debug('Loaded data', {
       positions,
       portfolioByDate,
       transactions,
       accounts,
       currencyCache: _currencyCache,
-      groupsCache: _groupsCache,
+      // groupsCache: _groupsCache,
     });
 
     this.computePositions(positions, transactions, _currencyCache);
-    this.computePortfolios(portfolioByDate, transactions, accounts, _currencyCache, _groupsCache);
+    this.computePortfolios(portfolioByDate, transactions, accounts, _currencyCache);
   }
 
   computePositions(positions, transactions, currencyCache) {
@@ -199,7 +203,7 @@ class App extends Component<Props, State> {
     });
   }
 
-  computePortfolios = (portfolioByDate, transactions, accounts, currencyCache, groupsCache) => {
+  computePortfolios = (portfolioByDate, transactions, accounts, currencyCache) => {
     const transactionsByDate = parseTransactionsResponse(transactions, currencyCache, accounts);
     // console.debug('Transactions by date: ', transactionsByDate);
 
@@ -243,12 +247,13 @@ class App extends Component<Props, State> {
       portfolioPerDay,
       isLoaded: true,
       isLoadingOnUpdate: false,
-      accounts: (accounts || []).map((account) => ({
-        ...account,
-        group: groupsCache ? groupsCache[account.group] || account.group : account.group,
-      })),
+      accounts,
+      // accounts: (accounts || []).map((account) => ({
+      //   ...account,
+      //   group: groupsCache ? groupsCache[account.group] || account.group : account.group,
+      // })),
       currencyCache,
-      groupsCache,
+      // groupsCache,
     });
     // console.debug('Loaded the data', portfolios);
   };
@@ -342,7 +347,7 @@ class App extends Component<Props, State> {
   }
 
   loadStaticPortfolioData() {
-    const groupsCache = parseGroupNameByIdReponse(GROUPS_API_RESPONSE);
+    // const groupsCache = parseGroupNameByIdReponse(GROUPS_API_RESPONSE);
     const currencyCache = parseCurrencyReponse(CURRENCIES_API_RESPONSE);
     const portfolioByDate = parsePortfolioResponse(PORTFOLIO_API_RESPONSE);
     const positions = parsePositionsResponse(POSITIONS_API_RESPONSE);
@@ -350,7 +355,7 @@ class App extends Component<Props, State> {
 
     // console.debug('Positions:', positions);
     this.computePositions(positions, TRANSACTIONS_API_RESPONSE, currencyCache);
-    this.computePortfolios(portfolioByDate, TRANSACTIONS_API_RESPONSE, accounts, currencyCache, groupsCache);
+    this.computePortfolios(portfolioByDate, TRANSACTIONS_API_RESPONSE, accounts, currencyCache);
     console.debug('State:', this.state);
   }
 
