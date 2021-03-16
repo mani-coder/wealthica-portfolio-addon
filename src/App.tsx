@@ -162,7 +162,8 @@ class App extends Component<Props, State> {
       this.loadGroupsCache(),
     ]);
 
-    // console.debug('Transactions', transactions);
+    console.debug('Loaded data', { positions, portfolioByDate, transactions, accounts, currencyCache, groupsCache });
+
     this.computePositions(positions, transactions, currencyCache);
     this.computePortfolios(portfolioByDate, transactions, accounts, currencyCache, groupsCache);
   }
@@ -256,11 +257,7 @@ class App extends Component<Props, State> {
         method: 'GET',
         endpoint: 'portfolio',
       })
-      .then((response) => {
-        const portfolio = parsePortfolioResponse(response);
-        console.debug('Portfolio data: ', portfolio);
-        return portfolio;
-      })
+      .then((response) => parsePortfolioResponse(response))
       .catch((error) => {
         console.error('Failed to load portfolio data.', error);
       });
@@ -280,11 +277,7 @@ class App extends Component<Props, State> {
         method: 'GET',
         endpoint: 'positions',
       })
-      .then((response) => {
-        const positions = parsePositionsResponse(response);
-        console.debug('Positions data: ', positions);
-        return positions;
-      })
+      .then((response) => parsePositionsResponse(response))
       .catch((error) => {
         console.error('Failed to load position data.', error);
       });
@@ -304,15 +297,13 @@ class App extends Component<Props, State> {
         method: 'GET',
         endpoint: 'institutions',
       })
-      .then((response) => {
-        const accounts = parseInstitutionsResponse(
+      .then((response) =>
+        parseInstitutionsResponse(
           response,
           options.groupsFilter ? options.groupsFilter.split(',') : [],
           options.institutionsFilter ? options.institutionsFilter.split(',') : [],
-        );
-        console.debug('Accounts data: ', accounts);
-        return accounts;
-      })
+        ),
+      )
       .catch((error) => {
         console.error('Failed to load institutions data.', error);
       });
