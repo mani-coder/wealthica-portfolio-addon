@@ -58,6 +58,8 @@ class App extends Component<Props, State> {
 
     this.state = {
       addon: this.getAddon(),
+      currencyCache: undefined,
+      groupsCache: undefined,
       portfolioPerDay: {},
       portfolios: [],
       positions: [],
@@ -98,7 +100,7 @@ class App extends Component<Props, State> {
 
   async loadCurrenciesCache() {
     if (this.state.currencyCache) {
-      return this.state.currencyCache;
+      return Promise.resolve(this.state.currencyCache);
     }
 
     console.debug('Loading currencies data.');
@@ -118,7 +120,7 @@ class App extends Component<Props, State> {
 
   async loadGroupsCache() {
     if (this.state.groupsCache) {
-      return this.state.groupsCache;
+      return Promise.resolve(this.state.groupsCache);
     }
 
     console.debug('Loading groups data.');
