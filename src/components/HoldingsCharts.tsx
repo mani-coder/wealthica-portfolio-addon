@@ -91,9 +91,7 @@ export default function HoldingsCharts(props: Props) {
         const accounts = (props.accounts || [])
           .map((account) => {
             const position = account.positions.filter((position) => position.symbol === symbol)[0];
-            return position
-              ? { name: account.name, type: account.group || account.type, quantity: position.quantity }
-              : undefined;
+            return position ? { name: account.name, type: account.type, quantity: position.quantity } : undefined;
           })
           .filter((value) => value)
           .sort((a, b) => b!.quantity - a!.quantity)
@@ -354,7 +352,7 @@ export default function HoldingsCharts(props: Props) {
               .map((account) => {
                 return `
                   <tr>
-                    <td>${account.name} ${account.group || account.type}</td>
+                    <td>${account.name} ${account.type}</td>
                     <td align="right">$${
                       props.isPrivateMode
                         ? '-'
