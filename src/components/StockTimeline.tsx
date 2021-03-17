@@ -2,6 +2,7 @@ import _ from 'lodash';
 import moment, { Moment } from 'moment';
 import React, { Component } from 'react';
 import Loader from 'react-loader-spinner';
+import { trackEvent } from '../analytics';
 import { TYPE_TO_COLOR } from '../constants';
 import { Position, Transaction } from '../types';
 import { buildCorsFreeUrl, formatCurrency, getDate } from '../utils';
@@ -86,6 +87,7 @@ class StockTimeline extends Component<Props, State> {
       return;
     }
     this.setState({ loading: true });
+    trackEvent('stock-timeline');
 
     const startDate = moment.min(
       (this.props.position.transactions && this.props.position.transactions.length
