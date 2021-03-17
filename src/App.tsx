@@ -76,8 +76,8 @@ class App extends Component<Props, State> {
         this.load(options);
         if (window.analytics) {
           window.analytics.identify(options.authUserId);
-          trackEvent('init');
         }
+        trackEvent('init');
       });
 
       addon.on('reload', () => {
