@@ -98,6 +98,9 @@ export default class ProfitLossPercentageTimeline extends Component<Props> {
 
       yAxis: [
         {
+          crosshair: {
+            dashStyle: 'Dash',
+          },
           labels: {
             format: '{value}%',
           },

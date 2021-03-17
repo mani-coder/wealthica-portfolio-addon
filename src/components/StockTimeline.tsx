@@ -352,6 +352,9 @@ class StockTimeline extends Component<Props, State> {
 
       yAxis: [
         {
+          crosshair: {
+            dashStyle: 'Dash',
+          },
           title: {
             text: 'Price ($)',
           },
