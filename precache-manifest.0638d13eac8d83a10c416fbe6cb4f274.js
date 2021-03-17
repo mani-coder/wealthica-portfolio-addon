@@ -20,7 +20,7 @@ self.__precacheManifest = [
     "url": "/wealthica-portfolio-addon/static/js/2.a3d199d7.chunk.js"
   },
   {
-    "revision": "67df6860d4b4a27ea837ebe733f8e0b6",
+    "revision": "4edc50e244fcca0fb9c1647b929668f5",
     "url": "/wealthica-portfolio-addon/index.html"
   }
 ];
