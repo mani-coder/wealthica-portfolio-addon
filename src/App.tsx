@@ -6,6 +6,7 @@ import moment, { Moment } from 'moment';
 import React, { Component } from 'react';
 import Loader from 'react-loader-spinner';
 import { Flex } from 'rebass';
+import { trackEvent } from './analytics';
 import {
   parseCurrencyReponse,
   parseInstitutionsResponse,
@@ -73,6 +74,10 @@ class App extends Component<Props, State> {
       addon.on('init', (options) => {
         console.debug('Addon initialization', options);
         this.load(options);
+        if (window.analytics) {
+          window.analytics.identify(options.authUserId);
+          trackEvent('init');
+        }
       });
 
       addon.on('reload', () => {
@@ -85,6 +90,7 @@ class App extends Component<Props, State> {
         console.debug('Addon update - options: ', options);
         this.setState({ isLoadingOnUpdate: true });
         this.load(options);
+        trackEvent('update');
       });
 
       return addon;
