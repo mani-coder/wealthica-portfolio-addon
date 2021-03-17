@@ -58,6 +58,9 @@ export default class DepositVsPortfolioValueTimeline extends Component<Props> {
       },
       yAxis: [
         {
+          crosshair: {
+            dashStyle: 'Dash',
+          },
           labels: {
             enabled: !this.props.isPrivateMode,
           },
