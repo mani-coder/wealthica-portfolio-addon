@@ -1,6 +1,7 @@
 import moment, { Moment } from 'moment';
 import React from 'react';
 import Collapsible from 'react-collapsible';
+import { trackEvent } from '../analytics';
 import { Portfolio } from '../types';
 import { formatCurrency, getPreviousWeekday } from '../utils';
 import Charts from './Charts';
@@ -190,6 +191,16 @@ export default function YoYPnLChart(props: Props) {
           endPnl: !props.isPrivateMode ? formatCurrency(value.endPnl, 2) : '-',
           changeValue: !props.isPrivateMode ? `$${formatCurrency(value.changeValue, 1)}` : '-',
         })),
+        point: {
+          events: {
+            mouseOver: (e: any) => {
+              trackEvent('mouse-over-point', {
+                chart: 'pnl-change-over-periods',
+                name: e && e.target ? e.target.key : null,
+              });
+            },
+          },
+        },
         tooltip: {
           headerFormat: '',
           pointFormat: `<b style="font-size: 13px;">{point.label} ({point.key})</b><br /><b style="color: {point.color};font-size: 14px;">{point.y:.1f}% ({point.changeValue})</b><br /><hr />
