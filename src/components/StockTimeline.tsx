@@ -95,8 +95,8 @@ class StockTimeline extends Component<Props, State> {
         : moment()
       )
         .clone()
-        .subtract('months', 1),
-      moment().subtract('months', 6),
+        .subtract(1, 'months'),
+      moment().subtract(6, 'months'),
     );
 
     if (this.props.addon) {
