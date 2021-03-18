@@ -368,6 +368,8 @@ class App extends Component<Props, State> {
   componentDidMount() {
     if (!this.state.addon) {
       setTimeout(() => this.loadStaticPortfolioData(), 0);
+    } else if (window.analytics) {
+      window.analytics.page();
     }
   }
 
@@ -395,9 +397,9 @@ class App extends Component<Props, State> {
               isPrivateMode={this.state.privateMode}
             />
 
+            <YoYPnLChart portfolios={this.state.portfolios} isPrivateMode={this.state.privateMode} />
             <ProfitLossPercentageTimeline portfolios={this.state.portfolios} isPrivateMode={this.state.privateMode} />
             <ProfitLossTimeline portfolios={this.state.portfolios} isPrivateMode={this.state.privateMode} />
-            <YoYPnLChart portfolios={this.state.portfolios} isPrivateMode={this.state.privateMode} />
 
             {!!this.state.positions.length && (
               <>
