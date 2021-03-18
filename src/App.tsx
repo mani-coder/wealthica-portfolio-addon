@@ -2,7 +2,7 @@ import { Addon } from '@wealthica/wealthica.js/index';
 import Typography from 'antd/es/typography';
 import Text from 'antd/es/typography/Text';
 import _ from 'lodash';
-import moment, { Moment } from 'moment';
+import moment from 'moment';
 import React, { Component } from 'react';
 import Loader from 'react-loader-spinner';
 import { Flex } from 'rebass';
@@ -32,20 +32,19 @@ import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions';
 // import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio-prod';
 // import { POSITIONS_API_RESPONSE } from './mocks/positions-prod';
 // import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions-prod';
-import { Account, Portfolio, PortfolioData, Position } from './types';
-import { getDate, getSymbol } from './utils';
+import { Account, Portfolio, Position } from './types';
+import { getSymbol } from './utils';
 
 type State = {
   addon: any;
   currencyCache?: { [key: string]: number };
   // groupsCache?: { [key: string]: string };
-  portfolioPerDay: { [key: string]: PortfolioData };
   portfolios: Portfolio[];
   positions: Position[];
   accounts: Account[];
   isLoaded: boolean;
   privateMode: boolean;
-  firstTransactionDate?: Moment;
+
   options?: any;
   isLoadingOnUpdate?: boolean;
 };
@@ -58,7 +57,6 @@ class App extends Component<Props, State> {
     this.state = {
       addon: this.getAddon(),
       currencyCache: undefined,
-      portfolioPerDay: {},
       portfolios: [],
       positions: [],
       accounts: [],
@@ -203,10 +201,7 @@ class App extends Component<Props, State> {
       position.transactions = securityTransactionsBySymbol[getSymbol(position.security)] || [];
     });
 
-    this.setState({
-      positions,
-      firstTransactionDate: getDate(!!transactions && transactions.length ? transactions[0].date : undefined),
-    });
+    this.setState({ positions });
   }
 
   computePortfolios = (portfolioByDate, transactions, accounts, currencyCache) => {
@@ -250,7 +245,6 @@ class App extends Component<Props, State> {
 
     this.setState({
       portfolios,
-      portfolioPerDay,
       isLoaded: true,
       isLoadingOnUpdate: false,
       accounts,
