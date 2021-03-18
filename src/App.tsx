@@ -368,6 +368,8 @@ class App extends Component<Props, State> {
   componentDidMount() {
     if (!this.state.addon) {
       setTimeout(() => this.loadStaticPortfolioData(), 0);
+    } else if (window.analytics) {
+      window.analytics.page();
     }
   }
 
