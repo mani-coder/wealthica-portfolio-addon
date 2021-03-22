@@ -13,7 +13,7 @@ export default class ProfitLossTimeline extends Component<Props> {
   getSeries(): any {
     return [
       {
-        name: 'P/L',
+        name: 'P&L',
         data: this.props.portfolios.map((portfolio) => {
           return {
             x: moment(portfolio.date).valueOf(),
@@ -35,7 +35,7 @@ export default class ProfitLossTimeline extends Component<Props> {
         text: 'Profit/Loss ($)',
       },
       subtitle: {
-        text: 'Your P/L in dollars.',
+        text: 'Your P&L in dollars.',
         style: {
           color: '#1F2A33',
         },
@@ -121,7 +121,7 @@ export default class ProfitLossTimeline extends Component<Props> {
 
   render() {
     return (
-      <Collapsible trigger="P/L Value Timeline" open>
+      <Collapsible trigger="P&L Value Timeline" open>
         <Charts constructorType={'stockChart'} options={this.getOptions()} />
       </Collapsible>
     );

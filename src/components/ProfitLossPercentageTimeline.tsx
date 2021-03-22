@@ -24,7 +24,7 @@ export default class ProfitLossPercentageTimeline extends Component<Props> {
     return [
       {
         id: 'dataseries',
-        name: 'P/L %',
+        name: 'P&L %',
         data: data,
         tooltip: {
           valueDecimals: 2,
@@ -59,7 +59,7 @@ export default class ProfitLossPercentageTimeline extends Component<Props> {
         text: 'Profit/Loss (%)',
       },
       subtitle: {
-        text: 'Your P/L ratio.',
+        text: 'Your P&L ratio.',
         style: {
           color: '#1F2A33',
         },
@@ -145,7 +145,7 @@ export default class ProfitLossPercentageTimeline extends Component<Props> {
 
   render() {
     return (
-      <Collapsible trigger="P/L Ratio Timeline" open>
+      <Collapsible trigger="P&L Ratio Timeline" open>
         <Charts constructorType={'stockChart'} options={this.getOptions()} />
       </Collapsible>
     );
