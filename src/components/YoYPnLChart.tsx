@@ -31,11 +31,11 @@ export default function YoYPnLChart(props: Props) {
       },
 
       title: {
-        text: 'P/L Change Over Multiple Time Periods',
+        text: 'P&L % Change Over Multiple Time Periods',
       },
       subtitle: {
         text:
-          'This chart shows how your portfolio had performed in multiple time slices. This chart is inspired based on YoY growth. You might want to see the change in your P/L in the last few days, weeks, months, years etc.,',
+          'This chart shows how your portfolio had performed in multiple time slices. This chart is inspired based on YoY growth. You might want to see the change in your P&L in the last few days, weeks, months, years etc.,',
         style: {
           color: '#1F2A33',
         },
@@ -56,7 +56,7 @@ export default function YoYPnLChart(props: Props) {
           enabled: !props.isPrivateMode,
         },
         title: {
-          text: 'P/L Change (%)',
+          text: 'P&L Change (%)',
         },
       },
 
@@ -204,8 +204,8 @@ export default function YoYPnLChart(props: Props) {
         tooltip: {
           headerFormat: '',
           pointFormat: `<b style="font-size: 13px;">{point.label} ({point.key})</b><br /><b style="color: {point.color};font-size: 14px;">{point.y:.1f}% ({point.changeValue})</b><br /><hr />
-            P/L on {point.startDate}: <b>{point.startPnl}</b><br />
-            P/L on {point.endDate}: <b>{point.endPnl}</b><br />`,
+            P&L on {point.startDate}: <b>{point.startPnl}</b><br />
+            P&L on {point.endDate}: <b>{point.endPnl}</b><br />`,
         },
         dataLabels: {
           enabled: true,
@@ -223,7 +223,7 @@ export default function YoYPnLChart(props: Props) {
   });
 
   return (
-    <Collapsible trigger="P/L Change Over Multiple Time Periods" open>
+    <Collapsible trigger="P&L % Change Over Multiple Time Periods" open>
       <Charts options={options} />
     </Collapsible>
   );
