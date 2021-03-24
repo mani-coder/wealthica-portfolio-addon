@@ -14,7 +14,10 @@ type Props = {
 const DATE_DISPLAY_FORMAT = 'MMM DD, YYYY';
 
 export default function YoYPnLChart(props: Props) {
-  const portfolioReverse = props.portfolios.slice().reverse();
+  const portfoliosByDate = props.portfolios.reduce((hash, portfolio) => {
+    hash[portfolio.date] = portfolio;
+    return portfolio;
+  }, {});
 
   const getOptions = ({ series }: { series: any }): Highcharts.Options => {
     return {
@@ -77,23 +80,18 @@ export default function YoYPnLChart(props: Props) {
   };
 
   const getNearestPortfolioDate = (date: string): Portfolio | undefined => {
-    const dateObj = moment(date);
-    if (dateObj.isoWeekday() >= 5) {
-      date = dateObj.add(dateObj.isoWeekday() === 6 ? 2 : 1, 'days').format('YYYY-MM-DD');
-    }
-    const portfolio = portfolioReverse.find((portfolio) => portfolio.date <= date);
-    return portfolio;
+    return portfoliosByDate[date];
   };
 
   const getData = () => {
-    let currentPortfolio = portfolioReverse[0];
+    let currentPortfolio = props.portfolios[props.portfolios.length - 1];
     const currentDate = moment().utc();
     if (
       currentDate.format('YYYY-MM-DD') === currentPortfolio.date &&
       currentDate.hour() < 20 &&
-      portfolioReverse.length > 1
+      props.portfolios.length > 1
     ) {
-      currentPortfolio = portfolioReverse[1];
+      currentPortfolio = props.portfolios[props.portfolios.length - 2];
     }
     const lastDate = currentPortfolio.date;
 

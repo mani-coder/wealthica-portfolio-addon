@@ -40,6 +40,7 @@ type State = {
   currencyCache?: { [key: string]: number };
   // groupsCache?: { [key: string]: string };
   portfolios: Portfolio[];
+  allPortfolios: Portfolio[];
   positions: Position[];
   accounts: Account[];
   isLoaded: boolean;
@@ -58,6 +59,7 @@ class App extends Component<Props, State> {
       addon: this.getAddon(),
       currencyCache: undefined,
       portfolios: [],
+      allPortfolios: [],
       positions: [],
       accounts: [],
       isLoaded: false,
@@ -234,25 +236,24 @@ class App extends Component<Props, State> {
     sortedDates.forEach((date) => {
       const portfolio = portfolioPerDay[date];
       deposits += portfolio.deposit - portfolio.withdrawal;
-      if (moment(date).isoWeekday() <= 5) {
-        portfolios.push({
-          date: date,
-          value: portfolio.value,
-          deposits: deposits,
-        });
-      }
+      portfolios.push({
+        date: date,
+        value: portfolio.value,
+        deposits: deposits,
+      });
     });
 
     this.setState({
-      portfolios,
+      allPortfolios: portfolios,
+      portfolios: portfolios.filter((portfolio) => moment(portfolio.date).isoWeekday() <= 5),
       isLoaded: true,
       isLoadingOnUpdate: false,
       accounts,
+      currencyCache,
       // accounts: (accounts || []).map((account) => ({
       //   ...account,
       //   group: groupsCache ? groupsCache[account.group] || account.group : account.group,
       // })),
-      currencyCache,
       // groupsCache,
     });
     // console.debug('Loaded the data', portfolios);
@@ -403,10 +404,6 @@ class App extends Component<Props, State> {
                   isPrivateMode={this.state.privateMode}
                   addon={this.state.addon}
                 />
-
-                {/* {process.env.NODE_ENV === 'development' && <Earnings positions={this.state.positions} />} */}
-
-                {/* <HoldingsTable positions={this.state.positions} isPrivateMode={this.state.privateMode} /> */}
               </>
             )}
           </>
