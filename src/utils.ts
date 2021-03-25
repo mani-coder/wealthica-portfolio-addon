@@ -77,3 +77,15 @@ export function getPreviousWeekday(date) {
   }
   return referenceDate.subtract(diff, 'days');
 }
+
+export function setLocalCache(name, value) {
+  try {
+    window.localStorage.setItem(name, value);
+  } catch {}
+}
+
+export function getLocalCache(name) {
+  try {
+    return window.localStorage.getItem(name);
+  } catch {}
+}
