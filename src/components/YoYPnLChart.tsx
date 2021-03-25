@@ -2,6 +2,7 @@ import Alert from 'antd/lib/alert';
 import moment, { Moment } from 'moment';
 import React, { useEffect, useState } from 'react';
 import Collapsible from 'react-collapsible';
+import { Flex } from 'rebass';
 import { trackEvent } from '../analytics';
 import { Portfolio } from '../types';
 import { formatCurrency, getLocalCache, getPreviousWeekday, setLocalCache } from '../utils';
@@ -232,30 +233,32 @@ export default function YoYPnLChart(props: Props) {
       <Charts options={options} />
 
       {showPnLWidgetInfo && (
-        <Alert
-          message={
-            <>
-              This chart is available as a developer widget which can be added to the dashboard. If you want to give it
-              a try, please follow the instructions outlined{' '}
-              <a
-                href="https://github.com/mani-coder/wealthica-pnl-widget"
-                target="_blank"
-                onClick={() => trackEvent('click-pnl-widget-info')}
-              >
-                here
-              </a>
-              .
-            </>
-          }
-          type="info"
-          showIcon
-          closable
-          onClose={() => {
-            setLocalCache(PNL_WIDGET_OOKIE_NAME, 1);
-            setShowPnLWidgetInfo(false);
-            trackEvent('close-pnl-widget-info');
-          }}
-        />
+        <Flex my={2}>
+          <Alert
+            message={
+              <>
+                This chart is available as a developer widget which can be added to the dashboard. If you want to give
+                it a try, please follow the instructions outlined{' '}
+                <a
+                  href="https://github.com/mani-coder/wealthica-pnl-widget"
+                  target="_blank"
+                  onClick={() => trackEvent('click-pnl-widget-info')}
+                >
+                  here
+                </a>
+                .
+              </>
+            }
+            type="info"
+            showIcon
+            closable
+            onClose={() => {
+              setLocalCache(PNL_WIDGET_OOKIE_NAME, 1);
+              setShowPnLWidgetInfo(false);
+              trackEvent('close-pnl-widget-info');
+            }}
+          />
+        </Flex>
       )}
     </Collapsible>
   );
