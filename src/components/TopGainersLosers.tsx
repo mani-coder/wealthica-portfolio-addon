@@ -139,7 +139,7 @@ export function TopGainersLosers(props: { isPrivateMode: boolean; positions: Pos
         </Typography.Text>
       </Flex>
 
-      {!!gainers.length && (
+      {!!gainers[0].data.length && (
         <Charts
           options={getOptions({
             title: 'Top Gainers',
@@ -149,7 +149,7 @@ export function TopGainersLosers(props: { isPrivateMode: boolean; positions: Pos
         />
       )}
 
-      {!!losers.length && (
+      {!!losers[0].data.length && (
         <Charts
           options={getOptions({
             title: 'Top Losers',

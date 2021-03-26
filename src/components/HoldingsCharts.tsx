@@ -284,7 +284,6 @@ export default function HoldingsCharts(props: Props) {
         )
         .toFixed(2),
     ).toLocaleString();
-    console.log('mani is cool', { cashByCurrency });
 
     return {
       type: 'pie' as 'pie',
