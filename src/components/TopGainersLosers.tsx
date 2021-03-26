@@ -119,6 +119,8 @@ export function TopGainersLosers(props: { isPrivateMode: boolean; positions: Pos
     };
   }
 
+  const gainers = getTopGainersLosers(true);
+  const losers = getTopGainersLosers(false);
   return (
     <Collapsible trigger="Top Losers/Gainers Chart" open>
       <Flex
@@ -137,20 +139,25 @@ export function TopGainersLosers(props: { isPrivateMode: boolean; positions: Pos
         </Typography.Text>
       </Flex>
 
-      <Charts
-        options={getOptions({
-          title: 'Top Gainers',
-          yAxisTitle: `Gain (${sortByValue ? '%' : '$'})`,
-          series: getTopGainersLosers(true),
-        })}
-      />
-      <Charts
-        options={getOptions({
-          title: 'Top Losers',
-          yAxisTitle: `Loss (${sortByValue ? '%' : '$'})`,
-          series: getTopGainersLosers(false),
-        })}
-      />
+      {!!gainers.length && (
+        <Charts
+          options={getOptions({
+            title: 'Top Gainers',
+            yAxisTitle: `Gain (${sortByValue ? '%' : '$'})`,
+            series: gainers,
+          })}
+        />
+      )}
+
+      {!!losers.length && (
+        <Charts
+          options={getOptions({
+            title: 'Top Losers',
+            yAxisTitle: `Loss (${sortByValue ? '%' : '$'})`,
+            series: losers,
+          })}
+        />
+      )}
     </Collapsible>
   );
 }
