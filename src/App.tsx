@@ -392,7 +392,7 @@ class App extends Component<Props, State> {
               isPrivateMode={this.state.privateMode}
             />
 
-            <YoYPnLChart portfolios={this.state.portfolios} isPrivateMode={this.state.privateMode} />
+            <YoYPnLChart portfolios={this.state.allPortfolios} isPrivateMode={this.state.privateMode} />
             <ProfitLossPercentageTimeline portfolios={this.state.portfolios} isPrivateMode={this.state.privateMode} />
             <ProfitLossTimeline portfolios={this.state.portfolios} isPrivateMode={this.state.privateMode} />
 
