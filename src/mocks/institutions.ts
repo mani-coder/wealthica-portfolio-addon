@@ -40,7 +40,7 @@ export const INSTITUTIONS_DATA = [
         group: '5fsgsfgsfdgsfgs436fdgsgsfd',
         ignored: false,
         inactive: false,
-        cash: 14.287475,
+        cash: -1014.287475,
         id: '63456346',
         type: 'margin',
         currency: 'usd',
