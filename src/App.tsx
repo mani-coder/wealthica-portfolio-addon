@@ -21,6 +21,7 @@ import DepositVsPortfolioValueTimeline from './components/DepositsVsPortfolioVal
 import HoldingsCharts from './components/HoldingsCharts';
 import ProfitLossPercentageTimeline from './components/ProfitLossPercentageTimeline';
 import ProfitLossTimeline from './components/ProfitLossTimeline';
+import { TopGainersLosers } from './components/TopGainersLosers';
 import YoYPnLChart from './components/YoYPnLChart';
 import { TRANSACTIONS_FROM_DATE } from './constants';
 import { CURRENCIES_API_RESPONSE } from './mocks/currencies';
@@ -396,16 +397,14 @@ class App extends Component<Props, State> {
             <ProfitLossPercentageTimeline portfolios={this.state.portfolios} isPrivateMode={this.state.privateMode} />
             <ProfitLossTimeline portfolios={this.state.portfolios} isPrivateMode={this.state.privateMode} />
 
-            {!!this.state.positions.length && (
-              <>
-                <HoldingsCharts
-                  positions={this.state.positions}
-                  accounts={this.state.accounts}
-                  isPrivateMode={this.state.privateMode}
-                  addon={this.state.addon}
-                />
-              </>
-            )}
+            <HoldingsCharts
+              positions={this.state.positions}
+              accounts={this.state.accounts}
+              isPrivateMode={this.state.privateMode}
+              addon={this.state.addon}
+            />
+
+            <TopGainersLosers positions={this.state.positions} isPrivateMode={this.state.privateMode} />
           </>
         ) : (
           <div className="App-header">

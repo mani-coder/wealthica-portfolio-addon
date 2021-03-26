@@ -179,36 +179,6 @@ export default function HoldingsCharts(props: Props) {
     };
   };
 
-  const getTopGainersLosers = (gainers: boolean) => {
-    return [
-      {
-        name: gainers ? 'Top Gainers' : 'Top Losers',
-        type: 'column',
-        colorByPoint: true,
-        data: props.positions
-          .filter((position) => (gainers ? position.gain_percent > 0 : position.gain_percent <= 0))
-          .sort((a, b) => a.gain_percent - b.gain_percent)
-          .map((position) => {
-            return {
-              name: getSymbol(position.security),
-              y: position.gain_percent * 100,
-              gain: props.isPrivateMode ? '-' : formatMoney(position.gain_amount),
-            };
-          }),
-        tooltip: {
-          pointFormat: gainers
-            ? '<b>{point.y:.1f}%</b><br />Gain: {point.gain} CAD'
-            : '<b>{point.y:.1f}%</b><br />Loss: {point.gain} CAD',
-        },
-        dataLabels: {
-          enabled: true,
-          format: '{point.y:.1f}%',
-        },
-        showInLegend: false,
-      },
-    ];
-  };
-
   const getUSDCADDrillDown = (series: Highcharts.SeriesPieOptions): Highcharts.DrilldownOptions => {
     const getStockSeriesForCurrency = (currency: string) => {
       return {
@@ -672,15 +642,6 @@ export default function HoldingsCharts(props: Props) {
       {/* <Collapsible trigger="Group Composition" open>
         <Charts options={getOptions({ title: 'Group Composition', series: [getGroupSeries()] })} />
       </Collapsible> */}
-
-      <Collapsible trigger="Top Losers/Gainers Chart" open>
-        <Charts
-          options={getOptions({ title: 'Top Gainers', yAxisTitle: 'Gain (%)', series: getTopGainersLosers(true) })}
-        />
-        <Charts
-          options={getOptions({ title: 'Top Losers', yAxisTitle: 'Loss (%)', series: getTopGainersLosers(false) })}
-        />
-      </Collapsible>
     </>
   );
 }
