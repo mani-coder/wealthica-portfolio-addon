@@ -139,10 +139,11 @@ export default function YoYPnLChart(props: Props) {
 
     [1, 2, 3, 4].forEach((value) => {
       const year = moment(lastDate).subtract(value, 'years').year();
-      const startDate = moment().day(1).month('Jan').year(year);
-
+      const startDate = moment().year(year).month('Jan').startOf('month');
       const startPortfolio = getNearestPortfolioDate(startDate.format('YYYY-MM-DD'));
-      const endPortfolio = getNearestPortfolioDate(moment().year(year).month('Dec').day(31).format('YYYY-MM-DD'));
+      const endPortfolio = getNearestPortfolioDate(
+        moment().year(year).month('Dec').endOf('month').format('YYYY-MM-DD'),
+      );
 
       if (startPortfolio && endPortfolio) {
         portfolioValues.push({
