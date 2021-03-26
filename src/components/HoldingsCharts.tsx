@@ -289,8 +289,6 @@ export default function HoldingsCharts(props: Props) {
       type: 'pie' as 'pie',
       name: 'USD vs CAD',
 
-      // center: ['80%', '30%'],
-      // size: 150,
       data: Object.keys(positionDataByCurrency)
         .map((currency) => {
           const data = positionDataByCurrency[currency];
@@ -299,6 +297,7 @@ export default function HoldingsCharts(props: Props) {
             name,
             drilldown: name,
             y: data.value,
+            negative: false,
             displayValue: props.isPrivateMode
               ? '-'
               : data.value
@@ -338,7 +337,8 @@ export default function HoldingsCharts(props: Props) {
             return {
               name,
               drilldown: name,
-              y: data.value,
+              y: Math.abs(data.value),
+              negative: data.value < 0,
               displayValue: props.isPrivateMode
                 ? '-'
                 : data.value
@@ -350,6 +350,11 @@ export default function HoldingsCharts(props: Props) {
             };
           }),
         ),
+      dataLabels: {
+        formatter() {
+          return (this.point as any).negative && this.y ? -1 * this.y : this.y;
+        },
+      },
       tooltip: {
         pointFormat: `<b>{point.percentage:.1f}%</b><br /><br />
         <table><tr><td>Value</td><td align="right">\${point.displayValue}</td></tr>
