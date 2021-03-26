@@ -162,8 +162,11 @@ export default function YoYPnLChart(props: Props) {
         const startPnl = value.startPortfolio.value - value.startPortfolio.deposits;
         const endPnl = value.endPortfolio.value - value.endPortfolio.deposits;
 
+        const startRatio = (startPnl / value.startPortfolio.deposits) * 100;
+        const endRatio = (endPnl / value.endPortfolio.deposits) * 100;
+
         const changeValue = endPnl - startPnl;
-        const changeRatio = (endPnl / value.endPortfolio.deposits - startPnl / value.startPortfolio.deposits) * 100;
+        const changeRatio = endRatio - startRatio;
 
         return {
           id: value.id,
@@ -172,7 +175,9 @@ export default function YoYPnLChart(props: Props) {
           startDate: moment(value.startPortfolio.date).format(DATE_DISPLAY_FORMAT),
           endDate: moment(value.endPortfolio.date).format(DATE_DISPLAY_FORMAT),
           startPnl,
+          startRatio,
           endPnl,
+          endRatio,
           changeRatio,
           changeValue,
           color: changeRatio >= 0 ? 'green' : 'red',
@@ -192,9 +197,13 @@ export default function YoYPnLChart(props: Props) {
           y: value.changeRatio,
 
           startDate: value.startDate,
-          endDate: value.endDate,
           startPnl: !props.isPrivateMode ? formatCurrency(value.startPnl, 2) : '-',
+          startRatio: value.startRatio,
+
+          endDate: value.endDate,
           endPnl: !props.isPrivateMode ? formatCurrency(value.endPnl, 2) : '-',
+          endRatio: value.endRatio,
+
           changeValue: !props.isPrivateMode ? `$${formatCurrency(value.changeValue, 1)}` : '-',
         })),
         point: {
@@ -210,8 +219,8 @@ export default function YoYPnLChart(props: Props) {
         tooltip: {
           headerFormat: '',
           pointFormat: `<b style="font-size: 13px;">{point.label} ({point.key})</b><br /><b style="color: {point.color};font-size: 14px;">{point.y:.1f}% ({point.changeValue})</b><br /><hr />
-            P&L on {point.startDate}: <b>{point.startPnl}</b><br />
-            P&L on {point.endDate}: <b>{point.endPnl}</b><br />`,
+            P&L on {point.startDate}: <b>{point.startRatio:.2f}%</b> (\${point.startPnl})<br />
+            P&L on {point.endDate}: <b>{point.endRatio:.2f}%</b> (\${point.endPnl})<br />`,
         },
         dataLabels: {
           enabled: true,
