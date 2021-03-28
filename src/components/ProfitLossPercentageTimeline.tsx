@@ -1,9 +1,10 @@
+/* eslint-disable no-template-curly-in-string */
+import moment from 'moment';
 import React, { Component } from 'react';
 import { Portfolio } from '../types';
-import moment from 'moment';
-import Collapsible from 'react-collapsible';
-import { min, max, formatCurrency } from '../utils';
+import { formatCurrency, max, min } from '../utils';
 import Charts from './Charts';
+import Collapsible from './Collapsible';
 
 type Props = {
   portfolios: Portfolio[];
@@ -145,7 +146,7 @@ export default class ProfitLossPercentageTimeline extends Component<Props> {
 
   render() {
     return (
-      <Collapsible trigger="P&L Ratio Timeline" open>
+      <Collapsible title="P&L Ratio Timeline">
         <Charts constructorType={'stockChart'} options={this.getOptions()} />
       </Collapsible>
     );

@@ -26,7 +26,7 @@ function LabelValue({
   );
 }
 
-export default (props: Props) => {
+export default function StockDetails(props: Props) {
   const marketValue = props.positions.reduce((sum, position) => {
     return sum + position.market_value;
   }, 0);
@@ -95,4 +95,4 @@ export default (props: Props) => {
       )}
     </Flex>
   );
-};
+}

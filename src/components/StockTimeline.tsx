@@ -1,7 +1,8 @@
+/* eslint-disable no-template-curly-in-string */
 import _ from 'lodash';
 import moment, { Moment } from 'moment';
 import React, { Component } from 'react';
-import Loader from 'react-loader-spinner';
+import Spin from 'antd/lib/spin';
 import { trackEvent } from '../analytics';
 import { TYPE_TO_COLOR } from '../constants';
 import { Position, Transaction } from '../types';
@@ -41,7 +42,7 @@ class StockTimeline extends Component<Props, State> {
   }
 
   componentDidUpdate(nextProps: Props) {
-    if (this.props.symbol != nextProps.symbol) {
+    if (this.props.symbol !== nextProps.symbol) {
       this.fetchData();
     }
   }
@@ -401,7 +402,7 @@ class StockTimeline extends Component<Props, State> {
   render() {
     return this.state.loading ? (
       <div style={{ textAlign: 'center', margin: '12px' }}>
-        <Loader type="Circles" color="#7f3eab" height="75" width="75" />
+        <Spin size="large" />
       </div>
     ) : (
       <Charts constructorType={'stockChart'} options={this.getOptions()} />

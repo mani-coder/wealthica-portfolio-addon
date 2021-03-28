@@ -2,7 +2,7 @@ import Select from 'antd/es/select';
 import Typography from 'antd/es/typography';
 import * as Highcharts from 'highcharts';
 import React, { useState } from 'react';
-import Collapsible from 'react-collapsible';
+import Collapsible from './Collapsible';
 import { Flex } from 'rebass';
 import { Account, Position } from '../types';
 import { formatCurrency, formatMoney, getSymbol, getURLParams } from '../utils';
@@ -519,7 +519,7 @@ export default function HoldingsCharts(props: Props) {
         let weightage = Number(((position.market_value / marketValue) * 100).toFixed(1));
         remainingWeightage -= weightage;
         remainingWeightage = Number(remainingWeightage.toFixed(1));
-        if (index + 1 == props.positions.length) {
+        if (index + 1 === props.positions.length) {
           weightage += remainingWeightage;
         }
         hash[`symbol${index + 1}`] = getSymbol(position.security);
@@ -595,46 +595,44 @@ export default function HoldingsCharts(props: Props) {
 
   return (
     <>
-      <Collapsible trigger="Holdings Chart" open>
-        <Charts
-          options={getOptions({
-            title: 'Your Holdings',
-            yAxisTitle: 'Market Value ($)',
-            subtitle: '(click on a stock to view transactions)',
-            series: [column],
-          })}
-        />
+      <Charts
+        options={getOptions({
+          title: 'Your Holdings',
+          yAxisTitle: 'Market Value ($)',
+          subtitle: '(click on a stock to view transactions)',
+          series: [column],
+        })}
+      />
 
-        <Flex width={1} flexWrap="wrap" alignItems="stretch">
-          <Flex width={[1, 1, 2 / 3]} height="100%" justifyContent="center">
-            <Charts
-              options={getOptions({
-                subtitle: '(click on a stock to view timeline and transactions)',
-                series: [pie],
-              })}
-            />
-          </Flex>
-
-          <Flex width={[1, 1, 1 / 3]} pr={4} height="100%" justifyContent="center">
-            {renderStockSelector()}
-          </Flex>
+      <Flex width={1} flexWrap="wrap" alignItems="stretch">
+        <Flex width={[1, 1, 2 / 3]} height="100%" justifyContent="center">
+          <Charts
+            options={getOptions({
+              subtitle: '(click on a stock to view timeline and transactions)',
+              series: [pie],
+            })}
+          />
         </Flex>
 
-        {renderStockTimeline()}
+        <Flex width={[1, 1, 1 / 3]} pr={4} height="100%" justifyContent="center">
+          {renderStockSelector()}
+        </Flex>
+      </Flex>
 
-        <div className="center">
-          <div
-            className="button"
-            onClick={() => {
-              window.open(getPortfolioVisualizerLink(), '_blank');
-            }}
-          >
-            Portfolio Visualizer
-          </div>
+      {renderStockTimeline()}
+
+      <div className="center">
+        <div
+          className="button"
+          onClick={() => {
+            window.open(getPortfolioVisualizerLink(), '_blank');
+          }}
+        >
+          Portfolio Visualizer
         </div>
-      </Collapsible>
+      </div>
 
-      <Collapsible trigger="USD/CAD Composition" open>
+      <Collapsible title="USD/CAD Composition">
         <Charts
           options={getOptions({
             title: 'USD/CAD Composition',
@@ -644,7 +642,7 @@ export default function HoldingsCharts(props: Props) {
         />
       </Collapsible>
 
-      {/* <Collapsible trigger="Group Composition" open>
+      {/* <Collapsible title="Group Composition">
         <Charts options={getOptions({ title: 'Group Composition', series: [getGroupSeries()] })} />
       </Collapsible> */}
     </>

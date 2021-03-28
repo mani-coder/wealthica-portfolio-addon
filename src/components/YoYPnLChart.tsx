@@ -1,7 +1,8 @@
+/* eslint-disable react/jsx-no-target-blank */
 import Alert from 'antd/lib/alert';
 import moment, { Moment } from 'moment';
 import React, { useEffect, useState } from 'react';
-import Collapsible from 'react-collapsible';
+import Collapsible from './Collapsible';
 import { Flex } from 'rebass';
 import { trackEvent } from '../analytics';
 import { Portfolio } from '../types';
@@ -140,6 +141,7 @@ export default function YoYPnLChart(props: Props) {
           endPortfolio: currentPortfolio,
         });
       }
+      return null;
     });
 
     [1, 2, 3, 4].forEach((value) => {
@@ -244,7 +246,7 @@ export default function YoYPnLChart(props: Props) {
   });
 
   return (
-    <Collapsible trigger="P&L % Change Over Multiple Time Periods" open>
+    <Collapsible title="P&L % Change Over Multiple Time Periods">
       <Charts options={options} />
 
       {showPnLWidgetInfo && (
