@@ -1,7 +1,7 @@
 import { Select, Table, Typography } from 'antd';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
-import Collapsible from 'react-collapsible';
+import Collapsible from './Collapsible';
 import { Flex } from 'rebass';
 import { Position } from '../types';
 import { buildCorsFreeUrl, getSymbol } from '../utils';
@@ -143,7 +143,7 @@ export default (props: Props) => {
     ));
 
   return (
-    <Collapsible trigger="Upcoming Earnings" open>
+    <Collapsible title="Upcoming Earnings">
       <Table
         title={() => (
           <Flex flexDirection="row" flexWrap="wrap">

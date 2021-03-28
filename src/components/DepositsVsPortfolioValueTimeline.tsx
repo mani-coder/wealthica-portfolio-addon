@@ -1,8 +1,8 @@
+import moment from 'moment';
 import React, { Component } from 'react';
 import { Portfolio } from '../types';
-import moment from 'moment';
-import Collapsible from 'react-collapsible';
 import Charts from './Charts';
+import Collapsible from './Collapsible';
 
 type Props = {
   portfolios: Portfolio[];
@@ -106,7 +106,7 @@ export default class DepositVsPortfolioValueTimeline extends Component<Props> {
 
   render() {
     return (
-      <Collapsible trigger="Deposits Vs Portfolio Value Timeline" open>
+      <Collapsible title="Deposits Vs Portfolio Value Timeline">
         <Charts constructorType={'stockChart'} options={this.getOptions()} />
       </Collapsible>
     );

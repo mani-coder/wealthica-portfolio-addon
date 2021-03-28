@@ -1,10 +1,11 @@
 import { Addon } from '@wealthica/wealthica.js/index';
+import { Tabs } from 'antd';
 import Typography from 'antd/es/typography';
 import Text from 'antd/es/typography/Text';
+import Spin from 'antd/lib/spin';
 import _ from 'lodash';
 import moment from 'moment';
 import React, { Component } from 'react';
-import Loader from 'react-loader-spinner';
 import { Flex } from 'rebass';
 import { trackEvent } from './analytics';
 import {
@@ -15,8 +16,7 @@ import {
   parseSecurityTransactionsResponse,
   parseTransactionsResponse,
 } from './api';
-import './App.css';
-import './Collapsible.css';
+import './App.less';
 import DepositVsPortfolioValueTimeline from './components/DepositsVsPortfolioValueTimeline';
 import HoldingsCharts from './components/HoldingsCharts';
 import ProfitLossPercentageTimeline from './components/ProfitLossPercentageTimeline';
@@ -377,39 +377,55 @@ class App extends Component<Props, State> {
             {!this.state.addon && (
               <>
                 <p style={{ fontWeight: 'bolder', textAlign: 'center', color: '#C00316', textDecoration: 'underline' }}>
-                  <img src="./favicon.png" alt="favicon" width="50" height="50" style={{ backgroundColor: '#fff' }} />
+                  <img
+                    src="/wealthica-portfolio-addon/favicon.png"
+                    alt="favicon"
+                    width="50"
+                    height="50"
+                    style={{ backgroundColor: '#fff' }}
+                  />
                   !! This is sample data !!
                 </p>
               </>
             )}
-
             {this.state.isLoadingOnUpdate && (
               <Flex width={1} justifyContent="center" alignItems="center">
-                <Loader type="ThreeDots" color="#7f3eab" height="30" width="75" />
+                <Spin size="small" />
               </Flex>
             )}
-            <DepositVsPortfolioValueTimeline
-              portfolios={this.state.portfolios}
-              isPrivateMode={this.state.privateMode}
-            />
+            <Tabs type="card" onChange={(tab) => trackEvent('tab-change', { tab })} size="large">
+              <Tabs.TabPane tab="P&L Charts" key="pnl">
+                <DepositVsPortfolioValueTimeline
+                  portfolios={this.state.portfolios}
+                  isPrivateMode={this.state.privateMode}
+                />
 
-            <YoYPnLChart portfolios={this.state.allPortfolios} isPrivateMode={this.state.privateMode} />
-            <ProfitLossPercentageTimeline portfolios={this.state.portfolios} isPrivateMode={this.state.privateMode} />
-            <ProfitLossTimeline portfolios={this.state.portfolios} isPrivateMode={this.state.privateMode} />
+                <YoYPnLChart portfolios={this.state.allPortfolios} isPrivateMode={this.state.privateMode} />
+                <ProfitLossPercentageTimeline
+                  portfolios={this.state.portfolios}
+                  isPrivateMode={this.state.privateMode}
+                />
+                <ProfitLossTimeline portfolios={this.state.portfolios} isPrivateMode={this.state.privateMode} />
+              </Tabs.TabPane>
 
-            <HoldingsCharts
-              positions={this.state.positions}
-              accounts={this.state.accounts}
-              isPrivateMode={this.state.privateMode}
-              addon={this.state.addon}
-            />
+              <Tabs.TabPane tab="Holding Analysis" key="holdings">
+                <HoldingsCharts
+                  positions={this.state.positions}
+                  accounts={this.state.accounts}
+                  isPrivateMode={this.state.privateMode}
+                  addon={this.state.addon}
+                />
+              </Tabs.TabPane>
 
-            <TopGainersLosers positions={this.state.positions} isPrivateMode={this.state.privateMode} />
+              <Tabs.TabPane tab="Gainers/Losers" key="gainers-losers">
+                <TopGainersLosers positions={this.state.positions} isPrivateMode={this.state.privateMode} />
+              </Tabs.TabPane>
+            </Tabs>
           </>
         ) : (
-          <div className="App-header">
-            <Loader type="Circles" color="#7f3eab" height="75" width="75" />
-          </div>
+          <Flex justifyContent="center" width={1}>
+            <Spin size="large" />
+          </Flex>
         )}
 
         <Typography.Title level={4} type="secondary">

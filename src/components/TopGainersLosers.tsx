@@ -1,7 +1,6 @@
 import { Switch } from 'antd';
 import Typography from 'antd/es/typography';
 import React, { useState } from 'react';
-import Collapsible from 'react-collapsible';
 import { Box, Flex } from 'rebass';
 import { Position } from '../types';
 import { formatMoney, getSymbol } from '../utils';
@@ -122,7 +121,7 @@ export function TopGainersLosers(props: { isPrivateMode: boolean; positions: Pos
   const gainers = getTopGainersLosers(true);
   const losers = getTopGainersLosers(false);
   return (
-    <Collapsible trigger="Top Losers/Gainers Chart" open>
+    <>
       <Flex
         mb={3}
         mt={2}
@@ -158,6 +157,6 @@ export function TopGainersLosers(props: { isPrivateMode: boolean; positions: Pos
           })}
         />
       )}
-    </Collapsible>
+    </>
   );
 }
