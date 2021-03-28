@@ -371,7 +371,7 @@ class App extends Component<Props, State> {
 
   render() {
     return (
-      <div style={{ paddingTop: 4, paddingBottom: 4 }}>
+      <div style={{ padding: this.state.addon ? 0 : 12, paddingTop: 4, paddingBottom: 4 }}>
         {this.state.isLoaded ? (
           <>
             {!this.state.addon && (
@@ -393,7 +393,7 @@ class App extends Component<Props, State> {
                 <Spin size="small" />
               </Flex>
             )}
-            <Tabs type="card" onChange={(tab) => trackEvent('tab-change', { tab })} size="large">
+            <Tabs onChange={(tab) => trackEvent('tab-change', { tab })} size="large">
               <Tabs.TabPane tab="P&L Charts" key="pnl">
                 <DepositVsPortfolioValueTimeline
                   portfolios={this.state.portfolios}
