@@ -36,13 +36,6 @@ import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions';
 // import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions-prod';
 import { Account, Portfolio, Position } from './types';
 import { getSymbol } from './utils';
-import { StickyContainer, Sticky } from 'react-sticky';
-
-const renderTabBar = (props, DefaultTabBar) => (
-  <Sticky bottomOffset={80}>
-    {({ style }) => <DefaultTabBar {...props} className="custom-tab-bar" style={{ ...style }} />}
-  </Sticky>
-);
 
 type State = {
   addon: any;
@@ -401,49 +394,37 @@ class App extends Component<Props, State> {
                 <Spin size="small" />
               </Flex>
             )}
-            <StickyContainer>
-              <Tabs
-                onChange={(tab) => {
-                  window.scrollTo({
-                    top: 0,
-                    left: 0,
-                    behavior: 'smooth',
-                  });
-                  trackEvent('tab-change', { tab });
-                }}
-                size="large"
-                renderTabBar={renderTabBar}
-              >
-                <Tabs.TabPane tab="P&L Charts" key="pnl">
-                  <PnLStatistics portfolios={this.state.portfolios} privateMode={this.state.privateMode} />
 
-                  <DepositVsPortfolioValueTimeline
-                    portfolios={this.state.portfolios}
-                    isPrivateMode={this.state.privateMode}
-                  />
+            <Tabs onChange={(tab) => trackEvent('tab-change', { tab })} size="large">
+              <Tabs.TabPane tab="P&L Charts" key="pnl">
+                <PnLStatistics portfolios={this.state.portfolios} privateMode={this.state.privateMode} />
 
-                  <YoYPnLChart portfolios={this.state.allPortfolios} isPrivateMode={this.state.privateMode} />
-                  <ProfitLossPercentageTimeline
-                    portfolios={this.state.portfolios}
-                    isPrivateMode={this.state.privateMode}
-                  />
-                  <ProfitLossTimeline portfolios={this.state.portfolios} isPrivateMode={this.state.privateMode} />
-                </Tabs.TabPane>
+                <DepositVsPortfolioValueTimeline
+                  portfolios={this.state.portfolios}
+                  isPrivateMode={this.state.privateMode}
+                />
 
-                <Tabs.TabPane tab="Holdings Analyzer" key="holdings">
-                  <HoldingsCharts
-                    positions={this.state.positions}
-                    accounts={this.state.accounts}
-                    isPrivateMode={this.state.privateMode}
-                    addon={this.state.addon}
-                  />
-                </Tabs.TabPane>
+                <YoYPnLChart portfolios={this.state.allPortfolios} isPrivateMode={this.state.privateMode} />
+                <ProfitLossPercentageTimeline
+                  portfolios={this.state.portfolios}
+                  isPrivateMode={this.state.privateMode}
+                />
+                <ProfitLossTimeline portfolios={this.state.portfolios} isPrivateMode={this.state.privateMode} />
+              </Tabs.TabPane>
 
-                <Tabs.TabPane tab="Gainers/Losers" key="gainers-losers">
-                  <TopGainersLosers positions={this.state.positions} isPrivateMode={this.state.privateMode} />
-                </Tabs.TabPane>
-              </Tabs>
-            </StickyContainer>
+              <Tabs.TabPane tab="Holdings Analyzer" key="holdings">
+                <HoldingsCharts
+                  positions={this.state.positions}
+                  accounts={this.state.accounts}
+                  isPrivateMode={this.state.privateMode}
+                  addon={this.state.addon}
+                />
+              </Tabs.TabPane>
+
+              <Tabs.TabPane tab="Gainers/Losers" key="gainers-losers">
+                <TopGainersLosers positions={this.state.positions} isPrivateMode={this.state.privateMode} />
+              </Tabs.TabPane>
+            </Tabs>
           </>
         ) : (
           <Flex justifyContent="center" width={1}>
