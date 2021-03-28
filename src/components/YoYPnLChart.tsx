@@ -101,6 +101,11 @@ export default function YoYPnLChart(props: Props) {
     ) {
       currentPortfolio = props.portfolios[props.portfolios.length - 2];
     }
+    if (moment(currentPortfolio.date).isoWeekday() > 5) {
+      const weekday = getPreviousWeekday(currentPortfolio.date).format('YYYY-MM-DD');
+      currentPortfolio = portfoliosByDate[weekday];
+    }
+
     const lastDate = currentPortfolio.date;
 
     const portfolioValues: {
