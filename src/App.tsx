@@ -411,7 +411,7 @@ class App extends Component<Props, State> {
                 <ProfitLossTimeline portfolios={this.state.portfolios} isPrivateMode={this.state.privateMode} />
               </Tabs.TabPane>
 
-              <Tabs.TabPane tab="Holding Analysis" key="holdings">
+              <Tabs.TabPane tab="Holdings Analyzer" key="holdings">
                 <HoldingsCharts
                   positions={this.state.positions}
                   accounts={this.state.accounts}
