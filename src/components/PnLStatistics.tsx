@@ -7,7 +7,7 @@ import { Portfolio } from '../types';
 export default function ({ portfolios, privateMode }: { portfolios: Portfolio[]; privateMode: boolean }) {
   const portfolio = portfolios[portfolios.length - 1];
   return (
-    <Card>
+    <Card bodyStyle={{ backgroundColor: '#f9f0ff' }} style={{ borderColor: '#efdbff' }}>
       <Flex width={1} justifyContent="space-between" flexWrap="wrap">
         <Statistic title="Portfolio Value" value={privateMode ? '--' : portfolio.value} precision={2} prefix="$" />
         <Statistic title="Deposits" value={privateMode ? '--' : portfolio.deposits} precision={2} prefix="$" />
