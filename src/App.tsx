@@ -19,6 +19,7 @@ import {
 import './App.less';
 import DepositVsPortfolioValueTimeline from './components/DepositsVsPortfolioValueTimeline';
 import HoldingsCharts from './components/HoldingsCharts';
+import PnLStatistics from './components/PnLStatistics';
 import ProfitLossPercentageTimeline from './components/ProfitLossPercentageTimeline';
 import ProfitLossTimeline from './components/ProfitLossTimeline';
 import { TopGainersLosers } from './components/TopGainersLosers';
@@ -395,6 +396,8 @@ class App extends Component<Props, State> {
             )}
             <Tabs onChange={(tab) => trackEvent('tab-change', { tab })} size="large">
               <Tabs.TabPane tab="P&L Charts" key="pnl">
+                <PnLStatistics portfolios={this.state.portfolios} privateMode={this.state.privateMode} />
+
                 <DepositVsPortfolioValueTimeline
                   portfolios={this.state.portfolios}
                   isPrivateMode={this.state.privateMode}
