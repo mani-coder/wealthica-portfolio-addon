@@ -2,6 +2,7 @@ import { Switch } from 'antd';
 import Typography from 'antd/es/typography';
 import React, { useState } from 'react';
 import { Box, Flex } from 'rebass';
+import { trackEvent } from '../analytics';
 import { Position } from '../types';
 import { formatMoney, getSymbol } from '../utils';
 import Charts from './Charts';
@@ -131,7 +132,13 @@ export function TopGainersLosers(props: { isPrivateMode: boolean; positions: Pos
         justifyItems="center"
         alignItems="center"
       >
-        <Switch checked={sortByValue} onChange={(checked) => setSortByValue(checked)} />
+        <Switch
+          checked={sortByValue}
+          onChange={(checked) => {
+            setSortByValue(checked);
+            trackEvent('gainers-show-by-pnl-value', { checked });
+          }}
+        />
         <Box px={1} />
         <Typography.Text strong mark={sortByValue} style={{ fontSize: 17 }}>
           Show By P&amp;L Value ($)
