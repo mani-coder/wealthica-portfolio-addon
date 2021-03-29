@@ -10,3 +10,9 @@ export const TYPE_TO_COLOR = {
   tax: 'brown',
   fee: 'brown',
 };
+
+export enum RegisteredAccountType {
+  RRSP = 'RRSP',
+  TFSA = 'TFSA',
+  SRRSP = 'SRRSP',
+}

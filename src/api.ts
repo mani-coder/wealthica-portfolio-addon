@@ -1,6 +1,6 @@
-import { getDate, getCurrencyInCAD, getSymbol } from './utils';
 import { DATE_FORMAT } from './constants';
-import { Position, Account, Transaction } from './types';
+import { Account, CashTransaction, Position, Transaction } from './types';
+import { getCurrencyInCAD, getDate, getSymbol } from './utils';
 
 export const parseCurrencyReponse = (response: any) => {
   const date = getDate(response.from);
@@ -119,6 +119,7 @@ export const parseTransactionsResponse = (response: any, currencyCache: any, acc
 
 export const parseSecurityTransactionsResponse = (response: any, currencyCache: any): Transaction[] => {
   return response
+    .filter((t) => !t.deleted)
     .filter(
       (transaction) =>
         ['sell', 'buy', 'income', 'dividend', 'distribution', 'tax', 'fee'].includes(transaction.type.toLowerCase()) &&
@@ -142,6 +143,29 @@ export const parseSecurityTransactionsResponse = (response: any, currencyCache: 
         currency: transaction.security ? transaction.security.currency : 'USD',
         shares: transaction.quantity,
         fees: transaction.fee,
+      };
+    });
+};
+
+export const parseCashTransactionsResponse = (response: any, currencyCache: any): CashTransaction[] => {
+  return response
+    .filter((transaction) => !transaction.deleted && transaction.investment && transaction.type)
+    .filter(
+      (transaction) =>
+        ['deposit', 'withdrawal'].includes(transaction.type.toLowerCase()) ||
+        (transaction.type.toLowerCase() === 'transfer' && transaction.origin_type !== 'FXT'),
+    )
+    .map((transaction) => {
+      let amount = Number(transaction.currency_amount);
+      const date = getDate(transaction.date);
+      amount = transaction.investment.includes(':usd') ? getCurrencyInCAD(date, amount, currencyCache) : amount;
+
+      return {
+        date: date.format(DATE_FORMAT),
+        account: transaction.investment,
+        amount: amount,
+        type: transaction.type,
+        origin_type: transaction.origin_type,
       };
     });
 };

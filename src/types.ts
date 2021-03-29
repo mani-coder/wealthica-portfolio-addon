@@ -47,6 +47,14 @@ export type Transaction = {
   fees?: number;
 };
 
+export type CashTransaction = {
+  date: Moment;
+  account: string;
+  amount: number;
+  type: string;
+  origin_type: string;
+};
+
 export type Position = {
   security: Security;
   value: number;
@@ -71,5 +79,6 @@ export type Account = {
   value: number;
   created_at: Moment;
   institution: string;
+  cashTransactions?: CashTransaction[];
   positions: (Position & { symbol: string })[];
 };

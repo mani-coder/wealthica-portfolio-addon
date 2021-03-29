@@ -9,6 +9,7 @@ import React, { Component } from 'react';
 import { Flex } from 'rebass';
 import { trackEvent } from './analytics';
 import {
+  parseCashTransactionsResponse,
   parseCurrencyReponse,
   parseInstitutionsResponse,
   parsePortfolioResponse,
@@ -17,6 +18,7 @@ import {
   parseTransactionsResponse,
 } from './api';
 import './App.less';
+import Contributions from './components/Contributions';
 import DepositVsPortfolioValueTimeline from './components/DepositsVsPortfolioValueTimeline';
 import HoldingsCharts from './components/HoldingsCharts';
 import PnLStatistics from './components/PnLStatistics';
@@ -26,21 +28,20 @@ import { TopGainersLosers } from './components/TopGainersLosers';
 import YoYPnLChart from './components/YoYPnLChart';
 import { TRANSACTIONS_FROM_DATE } from './constants';
 import { CURRENCIES_API_RESPONSE } from './mocks/currencies';
-import { INSTITUTIONS_DATA } from './mocks/institutions';
-import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio';
-import { POSITIONS_API_RESPONSE } from './mocks/positions';
-import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions';
-// import { INSTITUTIONS_DATA } from './mocks/institutions-prod';
-// import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio-prod';
-// import { POSITIONS_API_RESPONSE } from './mocks/positions-prod';
-// import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions-prod';
+// import { INSTITUTIONS_DATA } from './mocks/institutions';
+// import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio';
+// import { POSITIONS_API_RESPONSE } from './mocks/positions';
+// import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions';
+import { INSTITUTIONS_DATA } from './mocks/institutions-prod';
+import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio-prod';
+import { POSITIONS_API_RESPONSE } from './mocks/positions-prod';
+import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions-prod';
 import { Account, Portfolio, Position } from './types';
 import { getSymbol } from './utils';
 
 type State = {
   addon: any;
   currencyCache?: { [key: string]: number };
-  // groupsCache?: { [key: string]: string };
   portfolios: Portfolio[];
   allPortfolios: Portfolio[];
   positions: Position[];
@@ -160,38 +161,34 @@ class App extends Component<Props, State> {
     this.mergeOptions(options);
     this.setState({ privateMode: this.state.options.privateMode });
 
-    const [
-      positions,
-      portfolioByDate,
-      transactions,
-      accounts,
-      currencyCache,
-      // groupsCache
-    ] = await Promise.all([
+    const [positions, portfolioByDate, transactions, accounts, currencyCache] = await Promise.all([
       this.loadPositions(this.state.options),
       this.loadPortfolioData(this.state.options),
       this.loadTransactions(this.state.options),
       this.loadInstitutionsData(this.state.options),
       this.loadCurrenciesCache(),
-      // this.loadGroupsCache(),
     ]);
 
     const _currencyCache = currencyCache || this.state.currencyCache;
-    // const _groupsCache = groupsCache || this.state.groupsCache;
     console.debug('Loaded data', {
       positions,
       portfolioByDate,
       transactions,
       accounts,
       currencyCache: _currencyCache,
-      // groupsCache: _groupsCache,
     });
 
-    this.computePositions(positions, transactions, _currencyCache);
-    this.computePortfolios(portfolioByDate, transactions, accounts, _currencyCache);
+    this.computePortfolios(positions, portfolioByDate, transactions, accounts, _currencyCache);
   }
 
-  computePositions(positions, transactions, currencyCache) {
+  computePortfolios = (
+    positions: Position[],
+    portfolioByDate: any,
+    transactions: any[],
+    accounts: Account[],
+    currencyCache: any,
+  ) => {
+    // Attach security transactions to security.
     const securityTransactions = parseSecurityTransactionsResponse(transactions, currencyCache);
     const securityTransactionsBySymbol = securityTransactions.reduce((hash, transaction) => {
       if (!hash[transaction.symbol]) {
@@ -200,18 +197,13 @@ class App extends Component<Props, State> {
       hash[transaction.symbol].push(transaction);
       return hash;
     }, {});
-
     positions.forEach((position) => {
       position.transactions = securityTransactionsBySymbol[getSymbol(position.security)] || [];
     });
 
-    this.setState({ positions });
-  }
-
-  computePortfolios = (portfolioByDate, transactions, accounts, currencyCache) => {
     const transactionsByDate = parseTransactionsResponse(transactions, currencyCache, accounts);
-    // console.debug('Transactions by date: ', transactionsByDate);
 
+    // Portfolio by date computations.
     const portfolioPerDay = Object.keys(portfolioByDate).reduce((hash, date) => {
       const data = transactionsByDate[date] || {};
       hash[date] = {
@@ -225,7 +217,6 @@ class App extends Component<Props, State> {
     }, {});
 
     const portfolios: Portfolio[] = [];
-
     const sortedDates = Object.keys(portfolioPerDay).sort();
     let deposits = Object.keys(transactionsByDate)
       .filter((date) => date < sortedDates[0])
@@ -245,20 +236,21 @@ class App extends Component<Props, State> {
       });
     });
 
+    // Attach cash transactions to accounts.
+    const cashTransactions = parseCashTransactionsResponse(transactions, currencyCache);
+    accounts.forEach((account) => {
+      account.cashTransactions = cashTransactions.filter((transaction) => transaction.account === account.id);
+    });
+
     this.setState({
+      positions,
       allPortfolios: portfolios,
       portfolios: portfolios.filter((portfolio) => moment(portfolio.date).isoWeekday() <= 5),
       isLoaded: true,
       isLoadingOnUpdate: false,
       accounts,
       currencyCache,
-      // accounts: (accounts || []).map((account) => ({
-      //   ...account,
-      //   group: groupsCache ? groupsCache[account.group] || account.group : account.group,
-      // })),
-      // groupsCache,
     });
-    // console.debug('Loaded the data', portfolios);
   };
 
   loadPortfolioData(options) {
@@ -282,7 +274,7 @@ class App extends Component<Props, State> {
       });
   }
 
-  loadPositions(options) {
+  loadPositions(options): Position[] {
     console.debug('Loading positions data.');
     const query = {
       assets: true,
@@ -302,7 +294,7 @@ class App extends Component<Props, State> {
       });
   }
 
-  loadInstitutionsData(options) {
+  loadInstitutionsData(options): Account[] {
     console.debug('Loading institutions data..');
     const query = {
       assets: true,
@@ -350,15 +342,12 @@ class App extends Component<Props, State> {
   }
 
   loadStaticPortfolioData() {
-    // const groupsCache = parseGroupNameByIdReponse(GROUPS_API_RESPONSE);
     const currencyCache = parseCurrencyReponse(CURRENCIES_API_RESPONSE);
     const portfolioByDate = parsePortfolioResponse(PORTFOLIO_API_RESPONSE);
     const positions = parsePositionsResponse(POSITIONS_API_RESPONSE);
     const accounts = parseInstitutionsResponse(INSTITUTIONS_DATA);
 
-    // console.debug('Positions:', positions);
-    this.computePositions(positions, TRANSACTIONS_API_RESPONSE, currencyCache);
-    this.computePortfolios(portfolioByDate, TRANSACTIONS_API_RESPONSE, accounts, currencyCache);
+    this.computePortfolios(positions, portfolioByDate, TRANSACTIONS_API_RESPONSE, accounts, currencyCache);
     console.debug('State:', this.state);
   }
 
@@ -423,6 +412,10 @@ class App extends Component<Props, State> {
 
               <Tabs.TabPane tab="Gainers/Losers" key="gainers-losers">
                 <TopGainersLosers positions={this.state.positions} isPrivateMode={this.state.privateMode} />
+              </Tabs.TabPane>
+
+              <Tabs.TabPane tab="RSP/TFSA Contributions" key="contributions">
+                <Contributions privateMode={this.state.privateMode} accounts={this.state.accounts} />
               </Tabs.TabPane>
             </Tabs>
           </>
