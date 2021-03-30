@@ -374,14 +374,7 @@ class App extends Component<Props, State> {
   render() {
     return (
       <Flex width={1} justifyContent="center">
-        <div
-          style={{
-            padding: this.state.addon ? 0 : 12,
-            paddingTop: 4,
-            paddingBottom: 4,
-            width: this.state.addon ? 'inherit' : 1100,
-          }}
-        >
+        <div style={{ paddingTop: 4, paddingBottom: 4, width: this.state.addon ? 'inherit' : 1100 }}>
           {this.state.isLoaded ? (
             <>
               {!this.state.addon && (

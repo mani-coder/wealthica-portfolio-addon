@@ -1,9 +1,10 @@
 import { Card, Typography } from 'antd';
-import Table, { ColumnProps } from 'antd/lib/table';
+import { ColumnProps } from 'antd/lib/table';
 import React from 'react';
 import { Box } from 'rebass';
 import { Position } from '../types';
 import { formatMoney, getSymbol } from '../utils';
+import VirtualTable from './VirtualTable';
 
 type Props = {
   positions: Position[];
@@ -19,6 +20,7 @@ export default function HoldingsTable(props: Props) {
       {
         key: 'symbol',
         title: 'Symbol',
+        dataIndex: 'security.name',
         render: (text, position) => (
           <Typography.Link
             rel="noreferrer noopener"
@@ -34,14 +36,16 @@ export default function HoldingsTable(props: Props) {
       {
         key: 'country',
         title: 'Country',
+        dataIndex: 'security.currency',
         render: (text, position) => (position.security.currency === 'usd' ? 'US' : 'CA'),
         sorter: (a, b) => a.security.currency.localeCompare(b.security.currency),
-        width: 100,
+        width: 120,
       },
       {
         key: 'lastPrice',
         title: 'Last Price',
         align: 'right',
+        dataIndex: 'security.last_price',
         render: (text, position) => (
           <>
             {formatMoney(position.security.last_price)}
@@ -61,6 +65,7 @@ export default function HoldingsTable(props: Props) {
       {
         key: 'buyPrice',
         title: 'Avg Cost / Share',
+        dataIndex: 'quantity',
         render: (text, position) => (
           <>
             <Typography.Text strong>
@@ -82,6 +87,7 @@ export default function HoldingsTable(props: Props) {
             Profit / Loss %<div style={{ fontSize: 12 }}>CAD</div>
           </>
         ),
+        dataIndex: 'gain_percent',
         render: (text, position) => (
           <Box style={{ color: position.gain_percent < 0 ? 'red' : 'green' }}>
             <Typography.Text strong style={{ color: 'inherit', fontSize: 16 }}>
@@ -123,13 +129,7 @@ export default function HoldingsTable(props: Props) {
       style={{ marginTop: 16, marginBottom: 16 }}
       bodyStyle={{ padding: 0 }}
     >
-      <Table<Position>
-        pagination={false}
-        scroll={{ y: 600 }}
-        size="large"
-        dataSource={props.positions}
-        columns={getColumns()}
-      />
+      <VirtualTable scroll={{ y: 600 }} dataSource={props.positions} columns={getColumns() as any} />
     </Card>
   );
 }
