@@ -19,6 +19,7 @@ import {
 import './App.less';
 import DepositVsPortfolioValueTimeline from './components/DepositsVsPortfolioValueTimeline';
 import HoldingsCharts from './components/HoldingsCharts';
+import HoldingsTable from './components/HoldingsTable';
 import PnLStatistics from './components/PnLStatistics';
 import ProfitLossPercentageTimeline from './components/ProfitLossPercentageTimeline';
 import ProfitLossTimeline from './components/ProfitLossTimeline';
@@ -395,7 +396,7 @@ class App extends Component<Props, State> {
               </Flex>
             )}
 
-            <Tabs onChange={(tab) => trackEvent('tab-change', { tab })} size="large">
+            <Tabs defaultActiveKey="pnl" onChange={(tab) => trackEvent('tab-change', { tab })} size="large">
               <Tabs.TabPane tab="P&L Charts" key="pnl">
                 <PnLStatistics portfolios={this.state.portfolios} privateMode={this.state.privateMode} />
 
@@ -419,6 +420,7 @@ class App extends Component<Props, State> {
                   isPrivateMode={this.state.privateMode}
                   addon={this.state.addon}
                 />
+                <HoldingsTable positions={this.state.positions} isPrivateMode={this.state.privateMode} />
               </Tabs.TabPane>
 
               <Tabs.TabPane tab="Gainers/Losers" key="gainers-losers">

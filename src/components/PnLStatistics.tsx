@@ -4,7 +4,7 @@ import React from 'react';
 import { Flex } from 'rebass';
 import { Portfolio } from '../types';
 
-export default function ({ portfolios, privateMode }: { portfolios: Portfolio[]; privateMode: boolean }) {
+export default function PnLStatistics({ portfolios, privateMode }: { portfolios: Portfolio[]; privateMode: boolean }) {
   const portfolio = portfolios[portfolios.length - 1];
   return (
     <Card bodyStyle={{ backgroundColor: '#f9f0ff' }} style={{ borderRadius: 6, borderColor: '#efdbff' }}>

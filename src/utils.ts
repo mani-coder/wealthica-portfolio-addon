@@ -15,11 +15,15 @@ export const getCurrencyInCAD = (date: Moment, value: number, currencyCache: any
   return multiplier ? value / multiplier : value;
 };
 
-export const formatMoney = (amount?: number): string => {
+export const formatMoney = (amount?: number, precision?: number): string => {
+  precision = precision === undefined || precision === null ? 2 : precision;
   if (!amount) {
-    return 'N/A';
+    return '-';
   }
-  return amount.toLocaleString();
+  return amount.toLocaleString('en-US', {
+    minimumFractionDigits: precision,
+    maximumFractionDigits: precision,
+  });
 };
 
 export const getSymbol = (security: Security): string => {
