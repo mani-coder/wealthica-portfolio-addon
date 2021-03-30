@@ -13,7 +13,8 @@ type Props = {
 export default (props: Props) => {
   const [loading, setLoading] = useState(false);
   const [document, setDocument] = useState<any>();
-  const [symbol, setSymbol] = useState();
+  const symbol = 'test';
+  // const [symbol, setSymbol] = useState();
 
   useEffect(() => {
     if (!props.positions) {
@@ -156,7 +157,7 @@ export default (props: Props) => {
               placeholder="Enter a stock, e.g: FB, SHOP.TO"
               showArrow
               style={{ width: '100%', maxWidth: 350 }}
-              onChange={setSymbol}
+              // onChange={setSymbol}
               filterOption={(inputValue: any, option: any) =>
                 (option!.props!.value! as string).toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
               }
