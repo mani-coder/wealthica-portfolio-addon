@@ -423,7 +423,7 @@ class App extends Component<Props, State> {
                   <ProfitLossTimeline portfolios={this.state.portfolios} isPrivateMode={this.state.privateMode} />
                 </Tabs.TabPane>
 
-                <Tabs.TabPane forceRender tab="Holdings Analyzer" key="holdings">
+                <Tabs.TabPane tab="Holdings Analyzer" key="holdings">
                   <HoldingsCharts
                     positions={this.state.positions}
                     accounts={this.state.accounts}
@@ -433,7 +433,7 @@ class App extends Component<Props, State> {
                   <HoldingsTable positions={this.state.positions} isPrivateMode={this.state.privateMode} />
                 </Tabs.TabPane>
 
-                <Tabs.TabPane forceRender tab="Gainers/Losers" key="gainers-losers">
+                <Tabs.TabPane tab="Gainers/Losers" key="gainers-losers">
                   <TopGainersLosers positions={this.state.positions} isPrivateMode={this.state.privateMode} />
                 </Tabs.TabPane>
               </Tabs>
