@@ -373,83 +373,94 @@ class App extends Component<Props, State> {
 
   render() {
     return (
-      <div style={{ padding: this.state.addon ? 0 : 12, paddingTop: 4, paddingBottom: 4 }}>
-        {this.state.isLoaded ? (
-          <>
-            {!this.state.addon && (
-              <>
-                <p style={{ fontWeight: 'bolder', textAlign: 'center', color: '#C00316', textDecoration: 'underline' }}>
-                  <img
-                    src="/wealthica-portfolio-addon/favicon.png"
-                    alt="favicon"
-                    width="50"
-                    height="50"
-                    style={{ backgroundColor: '#fff' }}
+      <Flex width={1} justifyContent="center">
+        <div
+          style={{
+            padding: this.state.addon ? 0 : 12,
+            paddingTop: 4,
+            paddingBottom: 4,
+            width: this.state.addon ? 'inherit' : 1100,
+          }}
+        >
+          {this.state.isLoaded ? (
+            <>
+              {!this.state.addon && (
+                <>
+                  <p
+                    style={{ fontWeight: 'bolder', textAlign: 'center', color: '#C00316', textDecoration: 'underline' }}
+                  >
+                    <img
+                      src="/wealthica-portfolio-addon/favicon.png"
+                      alt="favicon"
+                      width="50"
+                      height="50"
+                      style={{ backgroundColor: '#fff' }}
+                    />
+                    !! This is sample data !!
+                  </p>
+                </>
+              )}
+              {this.state.isLoadingOnUpdate && (
+                <Flex width={1} justifyContent="center" alignItems="center">
+                  <Spin size="small" />
+                </Flex>
+              )}
+
+              <Tabs defaultActiveKey="pnl" onChange={(tab) => trackEvent('tab-change', { tab })} size="large">
+                <Tabs.TabPane tab="P&L Charts" key="pnl">
+                  <PnLStatistics portfolios={this.state.portfolios} privateMode={this.state.privateMode} />
+
+                  <DepositVsPortfolioValueTimeline
+                    portfolios={this.state.portfolios}
+                    isPrivateMode={this.state.privateMode}
                   />
-                  !! This is sample data !!
-                </p>
-              </>
-            )}
-            {this.state.isLoadingOnUpdate && (
-              <Flex width={1} justifyContent="center" alignItems="center">
-                <Spin size="small" />
-              </Flex>
-            )}
 
-            <Tabs defaultActiveKey="pnl" onChange={(tab) => trackEvent('tab-change', { tab })} size="large">
-              <Tabs.TabPane tab="P&L Charts" key="pnl">
-                <PnLStatistics portfolios={this.state.portfolios} privateMode={this.state.privateMode} />
+                  <YoYPnLChart portfolios={this.state.allPortfolios} isPrivateMode={this.state.privateMode} />
+                  <ProfitLossPercentageTimeline
+                    portfolios={this.state.portfolios}
+                    isPrivateMode={this.state.privateMode}
+                  />
+                  <ProfitLossTimeline portfolios={this.state.portfolios} isPrivateMode={this.state.privateMode} />
+                </Tabs.TabPane>
 
-                <DepositVsPortfolioValueTimeline
-                  portfolios={this.state.portfolios}
-                  isPrivateMode={this.state.privateMode}
-                />
+                <Tabs.TabPane tab="Holdings Analyzer" key="holdings">
+                  <HoldingsCharts
+                    positions={this.state.positions}
+                    accounts={this.state.accounts}
+                    isPrivateMode={this.state.privateMode}
+                    addon={this.state.addon}
+                  />
+                  <HoldingsTable positions={this.state.positions} isPrivateMode={this.state.privateMode} />
+                </Tabs.TabPane>
 
-                <YoYPnLChart portfolios={this.state.allPortfolios} isPrivateMode={this.state.privateMode} />
-                <ProfitLossPercentageTimeline
-                  portfolios={this.state.portfolios}
-                  isPrivateMode={this.state.privateMode}
-                />
-                <ProfitLossTimeline portfolios={this.state.portfolios} isPrivateMode={this.state.privateMode} />
-              </Tabs.TabPane>
+                <Tabs.TabPane tab="Gainers/Losers" key="gainers-losers">
+                  <TopGainersLosers positions={this.state.positions} isPrivateMode={this.state.privateMode} />
+                </Tabs.TabPane>
+              </Tabs>
+            </>
+          ) : (
+            <Flex justifyContent="center" width={1}>
+              <Spin size="large" />
+            </Flex>
+          )}
 
-              <Tabs.TabPane tab="Holdings Analyzer" key="holdings">
-                <HoldingsCharts
-                  positions={this.state.positions}
-                  accounts={this.state.accounts}
-                  isPrivateMode={this.state.privateMode}
-                  addon={this.state.addon}
-                />
-                <HoldingsTable positions={this.state.positions} isPrivateMode={this.state.privateMode} />
-              </Tabs.TabPane>
-
-              <Tabs.TabPane tab="Gainers/Losers" key="gainers-losers">
-                <TopGainersLosers positions={this.state.positions} isPrivateMode={this.state.privateMode} />
-              </Tabs.TabPane>
-            </Tabs>
-          </>
-        ) : (
-          <Flex justifyContent="center" width={1}>
-            <Spin size="large" />
-          </Flex>
-        )}
-
-        <Typography.Title level={4} type="secondary">
-          Disclaimer
-        </Typography.Title>
-        <Text type="secondary">
-          This tool is simply a calculator of profit and loss using the deposits/withdrawals and daily portfolio values.
-          Results provided by this tool do not constitute investment advice. The makers of this tool are not responsible
-          for the consequences of any decisions or actions taken in reliance upon or as a result of the information
-          provided by this tool. The information on the add-on may contain errors or inaccuracies. The use of the add-on
-          is at your own risk and is provided without any warranty.
+          <Typography.Title level={4} type="secondary">
+            Disclaimer
+          </Typography.Title>
+          <Text type="secondary">
+            This tool is simply a calculator of profit and loss using the deposits/withdrawals and daily portfolio
+            values. Results provided by this tool do not constitute investment advice. The makers of this tool are not
+            responsible for the consequences of any decisions or actions taken in reliance upon or as a result of the
+            information provided by this tool. The information on the add-on may contain errors or inaccuracies. The use
+            of the add-on is at your own risk and is provided without any warranty.
+            <br />
+            <br />
+            Please trade responsibly. Contact the developer at k.elayamani@gmail.com
+          </Text>
           <br />
-          <br />
-          Please trade responsibly. Contact the developer at k.elayamani@gmail.com
-        </Text>
-        <br />
-        <hr />
-      </div>
+          <hr />
+        </div>
+      </Flex>
     );
   }
 }

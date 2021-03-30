@@ -104,15 +104,11 @@ export default function HoldingsTable(props: Props) {
           </>
         ),
         dataIndex: 'market_value',
-        render: (text) => <Typography.Text strong>{props.isPrivateMode ? '-' : formatMoney(text)}</Typography.Text>,
-        align: 'right',
-        sorter: (a, b) => a.market_value - b.market_value,
-      },
-      {
-        key: 'weightage',
-        title: 'Weightage',
-        render: (text, position) => (
-          <>{position.market_value ? formatMoney((position.market_value / marketValue) * 100, 1) : 0}%</>
+        render: (text) => (
+          <>
+            <Typography.Text strong>{props.isPrivateMode ? '-' : formatMoney(text)}</Typography.Text>
+            <div style={{ fontSize: 13 }}>{text ? formatMoney((text / marketValue) * 100, 1) : 0}%</div>
+          </>
         ),
         align: 'right',
         sorter: (a, b) => a.market_value - b.market_value,
