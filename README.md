@@ -12,6 +12,8 @@ You can take a quick look at the charts using the demo data.
 
 Hope this add-on is useful to you!
 
+##### Note: PnL % change chart of this add-on is available as a developer widget [here](https://github.com/mani-coder/wealthica-pnl-widget).</b>
+
 ## Samples
 
 ![Deposits Vs Portfolio](https://raw.githubusercontent.com/mani-coder/wealthica-portfolio-addon/master/public/samples/Deposits%20Vs%20Portfolio%20Value.png)
