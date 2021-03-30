@@ -407,7 +407,7 @@ class App extends Component<Props, State> {
               )}
 
               <Tabs defaultActiveKey="pnl" onChange={(tab) => trackEvent('tab-change', { tab })} size="large">
-                <Tabs.TabPane tab="P&L Charts" key="pnl">
+                <Tabs.TabPane forceRender tab="P&L Charts" key="pnl">
                   <PnLStatistics portfolios={this.state.portfolios} privateMode={this.state.privateMode} />
 
                   <DepositVsPortfolioValueTimeline
@@ -423,7 +423,7 @@ class App extends Component<Props, State> {
                   <ProfitLossTimeline portfolios={this.state.portfolios} isPrivateMode={this.state.privateMode} />
                 </Tabs.TabPane>
 
-                <Tabs.TabPane tab="Holdings Analyzer" key="holdings">
+                <Tabs.TabPane forceRender tab="Holdings Analyzer" key="holdings">
                   <HoldingsCharts
                     positions={this.state.positions}
                     accounts={this.state.accounts}
@@ -433,7 +433,7 @@ class App extends Component<Props, State> {
                   <HoldingsTable positions={this.state.positions} isPrivateMode={this.state.privateMode} />
                 </Tabs.TabPane>
 
-                <Tabs.TabPane tab="Gainers/Losers" key="gainers-losers">
+                <Tabs.TabPane forceRender tab="Gainers/Losers" key="gainers-losers">
                   <TopGainersLosers positions={this.state.positions} isPrivateMode={this.state.privateMode} />
                 </Tabs.TabPane>
               </Tabs>
