@@ -17,7 +17,7 @@ export const getCurrencyInCAD = (date: Moment, value: number, currencyCache: any
 
 export const formatMoney = (amount?: number, precision?: number): string => {
   precision = precision === undefined || precision === null ? 2 : precision;
-  if (!amount) {
+  if (amount === undefined || amount === null) {
     return '-';
   }
   return amount.toLocaleString('en-US', {

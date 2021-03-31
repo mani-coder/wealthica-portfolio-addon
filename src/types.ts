@@ -45,6 +45,7 @@ export type Transaction = {
   price?: number;
   shares?: number;
   fees?: number;
+  account: string;
 };
 
 export type Position = {

@@ -44,7 +44,6 @@ export default function HoldingsCharts(props: Props) {
 
         return {
           name: getSymbol(position.security),
-          // drilldown: getSymbol(position.security),
           y: position.market_value,
           displayValue: props.isPrivateMode ? '-' : formatCurrency(position.market_value, 1),
           marketValue: props.isPrivateMode ? '-' : formatMoney(position.market_value),
