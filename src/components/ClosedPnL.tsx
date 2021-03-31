@@ -219,11 +219,11 @@ export default function ClosedPnL({ transactions, accounts, isPrivateMode, fromD
         render: (text, position) => (
           <Box style={{ color: position.pnl < 0 ? 'red' : 'green' }}>
             <Typography.Text strong style={{ color: 'inherit', fontSize: 14 }}>
-              {formatMoney(position.pnlRatio)}%
+              {isPrivateMode ? '-' : formatMoney(position.pnl)}
             </Typography.Text>
             <Box />
             <Typography.Text style={{ color: 'inherit', fontSize: 13 }}>
-              {isPrivateMode ? '-' : formatMoney(position.pnl)}
+              {formatMoney(position.pnlRatio)}%
             </Typography.Text>
           </Box>
         ),
