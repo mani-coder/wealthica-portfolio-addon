@@ -150,7 +150,20 @@ class App extends Component<Props, State> {
     { leading: true },
   );
 
+  mergeOptions(options) {
+    if (!this.state.options) {
+      this.setState({ options });
+    }
+    const oldOptions = this.state.options;
+    Object.keys(options).forEach((key) => {
+      oldOptions[key] = options[key];
+    });
+    this.setState({ options: oldOptions });
+    return oldOptions;
+  }
+
   async loadData(options) {
+    options = this.mergeOptions(options);
     this.setState({ privateMode: options.privateMode, fromDate: options.fromDate });
 
     const [
