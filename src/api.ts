@@ -119,6 +119,7 @@ export const parseTransactionsResponse = (response: any, currencyCache: any, acc
 
 export const parseSecurityTransactionsResponse = (response: any, currencyCache: any): Transaction[] => {
   return response
+    .filter((t) => !t.deleted)
     .filter(
       (transaction) =>
         ['sell', 'buy', 'income', 'dividend', 'distribution', 'tax', 'fee'].includes(transaction.type.toLowerCase()) &&
