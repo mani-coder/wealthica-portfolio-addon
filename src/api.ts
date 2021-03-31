@@ -1,6 +1,6 @@
-import { getDate, getCurrencyInCAD, getSymbol } from './utils';
 import { DATE_FORMAT } from './constants';
-import { Position, Account, Transaction } from './types';
+import { Account, Position, Transaction } from './types';
+import { getCurrencyInCAD, getDate, getSymbol } from './utils';
 
 export const parseCurrencyReponse = (response: any) => {
   const date = getDate(response.from);
@@ -99,10 +99,14 @@ export const parseTransactionsResponse = (response: any, currencyCache: any, acc
 
       if (['deposit'].includes(type)) {
         portfolioData.deposit += amount;
-      } else if (type === 'transfer') {
-        if (!['FXT'].includes(transaction.origin_type)) {
-          portfolioData.deposit += amount;
-        }
+      } else if (
+        type === 'transfer' &&
+        // FX and journal over shouldn't be treated as deposits.
+        !['FXT', 'BRW'].includes(transaction.origin_type) &&
+        // Security transfer over..
+        !transaction.symbol
+      ) {
+        portfolioData.deposit += amount;
       } else if (['fee', 'interest', 'tax'].includes(type)) {
         portfolioData.interest += Math.abs(amount);
       } else if (['income', 'dividend', 'distribution'].includes(type)) {
@@ -122,7 +126,9 @@ export const parseSecurityTransactionsResponse = (response: any, currencyCache: 
     .filter((t) => !t.deleted)
     .filter(
       (transaction) =>
-        ['sell', 'buy', 'income', 'dividend', 'distribution', 'tax', 'fee'].includes(transaction.type.toLowerCase()) &&
+        ['sell', 'buy', 'income', 'dividend', 'distribution', 'tax', 'fee', 'transfer'].includes(
+          transaction.type.toLowerCase(),
+        ) &&
         (transaction.security || transaction.symbol),
     )
     .map((transaction) => {

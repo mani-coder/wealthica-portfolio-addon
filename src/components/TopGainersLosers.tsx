@@ -1,5 +1,6 @@
-import { Switch } from 'antd';
 import Typography from 'antd/es/typography';
+import Empty from 'antd/lib/empty';
+import Switch from 'antd/lib/switch';
 import React, { useState } from 'react';
 import { Box, Flex } from 'rebass';
 import { trackEvent } from '../analytics';
@@ -121,7 +122,7 @@ export function TopGainersLosers(props: { isPrivateMode: boolean; positions: Pos
 
   const gainers = getTopGainersLosers(true);
   const losers = getTopGainersLosers(false);
-  return (
+  return !!props.positions.length ? (
     <>
       <Flex
         mb={3}
@@ -165,5 +166,7 @@ export function TopGainersLosers(props: { isPrivateMode: boolean; positions: Pos
         />
       )}
     </>
+  ) : (
+    <Empty description="No Holdings" />
   );
 }
