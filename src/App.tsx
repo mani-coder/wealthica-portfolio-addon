@@ -17,6 +17,7 @@ import {
   parseTransactionsResponse,
 } from './api';
 import './App.less';
+import ClosedPnL from './components/ClosedPnL';
 import DepositVsPortfolioValueTimeline from './components/DepositsVsPortfolioValueTimeline';
 import HoldingsCharts from './components/HoldingsCharts';
 import HoldingsTable from './components/HoldingsTable';
@@ -27,14 +28,14 @@ import { TopGainersLosers } from './components/TopGainersLosers';
 import YoYPnLChart from './components/YoYPnLChart';
 import { TRANSACTIONS_FROM_DATE } from './constants';
 import { CURRENCIES_API_RESPONSE } from './mocks/currencies';
-import { INSTITUTIONS_DATA } from './mocks/institutions';
-import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio';
-import { POSITIONS_API_RESPONSE } from './mocks/positions';
-import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions';
-// import { INSTITUTIONS_DATA } from './mocks/institutions-prod';
-// import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio-prod';
-// import { POSITIONS_API_RESPONSE } from './mocks/positions-prod';
-// import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions-prod';
+// import { INSTITUTIONS_DATA } from './mocks/institutions';
+// import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio';
+// import { POSITIONS_API_RESPONSE } from './mocks/positions';
+// import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions';
+import { INSTITUTIONS_DATA } from './mocks/institutions-prod';
+import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio-prod';
+import { POSITIONS_API_RESPONSE } from './mocks/positions-prod';
+import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions-prod';
 import { Account, Portfolio, Position, Transaction } from './types';
 import { getSymbol } from './utils';
 
@@ -400,7 +401,7 @@ class App extends Component<Props, State> {
                 </Flex>
               )}
 
-              <Tabs defaultActiveKey="pnl" onChange={(tab) => trackEvent('tab-change', { tab })} size="large">
+              <Tabs defaultActiveKey="closed-pnl" onChange={(tab) => trackEvent('tab-change', { tab })} size="large">
                 <Tabs.TabPane forceRender tab="P&L Charts" key="pnl">
                   <PnLStatistics
                     portfolios={this.state.portfolios}
@@ -433,6 +434,14 @@ class App extends Component<Props, State> {
 
                 <Tabs.TabPane tab="Gainers/Losers" key="gainers-losers">
                   <TopGainersLosers positions={this.state.positions} isPrivateMode={this.state.privateMode} />
+                </Tabs.TabPane>
+
+                <Tabs.TabPane tab="Closed P&L" key="closed-pnl">
+                  <ClosedPnL
+                    transactions={this.state.securityTransactions}
+                    accounts={this.state.accounts}
+                    isPrivateMode={this.state.privateMode}
+                  />
                 </Tabs.TabPane>
               </Tabs>
             </>
