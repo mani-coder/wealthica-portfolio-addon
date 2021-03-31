@@ -36,7 +36,7 @@ type CurrentPosition = {
   date: Moment;
 };
 
-export default function ClosedPnL({ transactions, accounts, isPrivateMode, fromDate }: Props) {
+export default function RealizedPnL({ transactions, accounts, isPrivateMode, fromDate }: Props) {
   console.debug('Realized pnl', { fromDate });
   function getAccount(transaction: Transaction) {
     const account = accounts.find((account) => transaction.account === account.id);
