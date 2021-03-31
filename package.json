@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@ant-design/icons": "^4.6.2",
     "@craco/craco": "^6.1.1",
     "@wealthica/wealthica.js": "0.0.10",
     "antd": "^4.15.0",

@@ -35,13 +35,13 @@ import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions';
 // import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio-prod';
 // import { POSITIONS_API_RESPONSE } from './mocks/positions-prod';
 // import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions-prod';
-import { Account, Portfolio, Position } from './types';
+import { Account, Portfolio, Position, Transaction } from './types';
 import { getSymbol } from './utils';
 
 type State = {
   addon: any;
   currencyCache?: { [key: string]: number };
-  // groupsCache?: { [key: string]: string };
+  securityTransactions: Transaction[];
   portfolios: Portfolio[];
   allPortfolios: Portfolio[];
   positions: Position[];
@@ -61,6 +61,7 @@ class App extends Component<Props, State> {
     this.state = {
       addon: this.getAddon(),
       currencyCache: undefined,
+      securityTransactions: [],
       portfolios: [],
       allPortfolios: [],
       positions: [],
@@ -206,7 +207,7 @@ class App extends Component<Props, State> {
       position.transactions = securityTransactionsBySymbol[getSymbol(position.security)] || [];
     });
 
-    this.setState({ positions });
+    this.setState({ positions, securityTransactions });
   }
 
   computePortfolios = (portfolioByDate, transactions, accounts, currencyCache) => {
@@ -401,7 +402,11 @@ class App extends Component<Props, State> {
 
               <Tabs defaultActiveKey="pnl" onChange={(tab) => trackEvent('tab-change', { tab })} size="large">
                 <Tabs.TabPane forceRender tab="P&L Charts" key="pnl">
-                  <PnLStatistics portfolios={this.state.portfolios} privateMode={this.state.privateMode} />
+                  <PnLStatistics
+                    portfolios={this.state.portfolios}
+                    privateMode={this.state.privateMode}
+                    positions={this.state.positions}
+                  />
 
                   <DepositVsPortfolioValueTimeline
                     portfolios={this.state.portfolios}
@@ -426,7 +431,7 @@ class App extends Component<Props, State> {
                   <HoldingsTable positions={this.state.positions} isPrivateMode={this.state.privateMode} />
                 </Tabs.TabPane>
 
-                <Tabs.TabPane forceRender tab="Gainers/Losers" key="gainers-losers">
+                <Tabs.TabPane tab="Gainers/Losers" key="gainers-losers">
                   <TopGainersLosers positions={this.state.positions} isPrivateMode={this.state.privateMode} />
                 </Tabs.TabPane>
               </Tabs>
