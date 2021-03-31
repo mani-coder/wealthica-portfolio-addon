@@ -29,16 +29,12 @@ import { TopGainersLosers } from './components/TopGainersLosers';
 import YoYPnLChart from './components/YoYPnLChart';
 import { TRANSACTIONS_FROM_DATE } from './constants';
 import { CURRENCIES_API_RESPONSE } from './mocks/currencies';
-import { INSTITUTIONS_DATA } from './mocks/institutions';
-import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio';
-import { POSITIONS_API_RESPONSE } from './mocks/positions';
-import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions';
 import { Account, Portfolio, Position, Transaction } from './types';
 import { getSymbol } from './utils';
 
 type State = {
   addon: any;
-  currencyCache?: { [key: string]: number };
+  currencyCache: { [key: string]: number };
   securityTransactions: Transaction[];
   portfolios: Portfolio[];
   allPortfolios: Portfolio[];
@@ -52,25 +48,6 @@ type State = {
   isLoadingOnUpdate?: boolean;
 };
 type Props = {};
-let MOCK_INSTITUTIONS_DATA: any = INSTITUTIONS_DATA;
-let MOCK_PORTFOLIO_API_RESPONSE: any = PORTFOLIO_API_RESPONSE;
-let MOCK_POSITIONS_API_RESPONSE: any = POSITIONS_API_RESPONSE;
-let MOCK_TRANSACTIONS_API_RESPONSE: any = TRANSACTIONS_API_RESPONSE;
-
-if (process.env.NODE_ENV === 'development') {
-  import('./mocks/institutions-prod').then((module) => {
-    MOCK_INSTITUTIONS_DATA = module.INSTITUTIONS_DATA;
-  });
-  import('./mocks/portfolio-prod').then((module) => {
-    MOCK_PORTFOLIO_API_RESPONSE = module.PORTFOLIO_API_RESPONSE;
-  });
-  import('./mocks/transactions-prod').then((module) => {
-    MOCK_POSITIONS_API_RESPONSE = module.TRANSACTIONS_API_RESPONSE;
-  });
-  import('./mocks/positions-prod').then((module) => {
-    MOCK_TRANSACTIONS_API_RESPONSE = module.POSITIONS_API_RESPONSE;
-  });
-}
 
 class App extends Component<Props, State> {
   constructor(props: Props) {
@@ -78,7 +55,7 @@ class App extends Component<Props, State> {
 
     this.state = {
       addon: this.getAddon(),
-      currencyCache: undefined,
+      currencyCache: {},
       securityTransactions: [],
       portfolios: [],
       allPortfolios: [],
@@ -182,14 +159,7 @@ class App extends Component<Props, State> {
     options = this.mergeOptions(options);
     this.setState({ privateMode: options.privateMode, fromDate: options.fromDate });
 
-    const [
-      positions,
-      portfolioByDate,
-      transactions,
-      accounts,
-      currencyCache,
-      // groupsCache
-    ] = await Promise.all([
+    const [positions, portfolioByDate, transactions, accounts, currencyCache] = await Promise.all([
       this.loadPositions(options),
       this.loadPortfolioData(options),
       this.loadTransactions(options),
@@ -365,18 +335,35 @@ class App extends Component<Props, State> {
       });
   }
 
-  loadStaticPortfolioData() {
+  async loadStaticPortfolioData() {
+    let institutionsData, portfolioData, positionsData, transactionsData;
+    if (process.env.NODE_ENV === 'development') {
+      [institutionsData, portfolioData, positionsData, transactionsData] = await Promise.all([
+        import('./mocks/institutions-prod').then((response) => response.DATA),
+        import('./mocks/portfolio-prod').then((response) => response.DATA),
+        import('./mocks/positions-prod').then((response) => response.DATA),
+        import('./mocks/transactions-prod').then((response) => response.DATA),
+      ]);
+    } else {
+      [institutionsData, portfolioData, positionsData, transactionsData] = await Promise.all([
+        import('./mocks/institutions').then((response) => response.DATA),
+        import('./mocks/portfolio').then((response) => response.DATA),
+        import('./mocks/positions').then((response) => response.DATA),
+        import('./mocks/transactions').then((response) => response.DATA),
+      ]);
+    }
     const currencyCache = parseCurrencyReponse(CURRENCIES_API_RESPONSE);
-    const portfolioByDate = parsePortfolioResponse(MOCK_PORTFOLIO_API_RESPONSE);
-    const positions = parsePositionsResponse(MOCK_POSITIONS_API_RESPONSE);
-    const accounts = parseInstitutionsResponse(MOCK_INSTITUTIONS_DATA);
-    this.computePortfolios(positions, portfolioByDate, MOCK_TRANSACTIONS_API_RESPONSE, accounts, currencyCache);
+    const portfolioByDate = parsePortfolioResponse(portfolioData);
+    const positions = parsePositionsResponse(positionsData);
+    const accounts = parseInstitutionsResponse(institutionsData);
+
+    this.computePortfolios(positions, portfolioByDate, transactionsData, accounts, currencyCache);
     console.debug('State:', this.state);
   }
 
   componentDidMount() {
     if (!this.state.addon) {
-      setTimeout(() => this.loadStaticPortfolioData(), 0);
+      setTimeout(() => this.loadStaticPortfolioData(), 200);
     } else if (window.analytics) {
       window.analytics.page();
     }
@@ -453,6 +440,7 @@ class App extends Component<Props, State> {
 
                 <Tabs.TabPane tab="Realized P&L" key="realized-pnl">
                   <RealizedPnL
+                    currencyCache={this.state.currencyCache}
                     fromDate={this.state.fromDate}
                     transactions={this.state.securityTransactions}
                     accounts={this.state.accounts}

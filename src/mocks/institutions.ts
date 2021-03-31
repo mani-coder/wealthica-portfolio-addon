@@ -1,4 +1,4 @@
-export const INSTITUTIONS_DATA = [
+export const DATA = [
   {
     _id: '5bff61005f70de000476a47d',
     user: '63456346dgsgsgsgsdfgsdfg4',

@@ -1,4 +1,4 @@
-export const PORTFOLIO_API_RESPONSE = {
+export const DATA = {
   history: {
     total: {
       from: '2018-03-01T00:00:00.000Z',

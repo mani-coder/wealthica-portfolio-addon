@@ -1,4 +1,4 @@
-export const TRANSACTIONS_API_RESPONSE = [
+export const DATA = [
   {
     _id: '5bff61429fb8200012489ce9',
     date: '2018-03-19T00:00:00.000Z',
