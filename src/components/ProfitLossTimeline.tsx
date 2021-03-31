@@ -1,5 +1,5 @@
 import moment from 'moment';
-import React, { Component } from 'react';
+import React from 'react';
 import { Portfolio } from '../types';
 import Charts from './Charts';
 import Collapsible from './Collapsible';
@@ -9,17 +9,17 @@ type Props = {
   isPrivateMode: boolean;
 };
 
-export default class ProfitLossTimeline extends Component<Props> {
-  getSeries(): any {
+export default function ProfitLossTimeline(props: Props) {
+  function getSeries(): any {
     return [
       {
         name: 'P&L',
-        data: this.props.portfolios.map((portfolio) => {
+        data: props.portfolios.map((portfolio) => {
           return {
             x: moment(portfolio.date).valueOf(),
             y: portfolio.value - portfolio.deposits,
             pnlRatio: ((portfolio.value - portfolio.deposits) / portfolio.deposits) * 100,
-            displayValue: this.props.isPrivateMode
+            displayValue: props.isPrivateMode
               ? '-'
               : Number((portfolio.value - portfolio.deposits).toFixed(2)).toLocaleString(),
           };
@@ -29,7 +29,7 @@ export default class ProfitLossTimeline extends Component<Props> {
     ];
   }
 
-  getOptions(): Highcharts.Options {
+  function getOptions(): Highcharts.Options {
     return {
       title: {
         text: 'Profit/Loss ($)',
@@ -78,13 +78,13 @@ export default class ProfitLossTimeline extends Component<Props> {
             dashStyle: 'Dash',
           },
           labels: {
-            enabled: !this.props.isPrivateMode,
+            enabled: !props.isPrivateMode,
           },
           opposite: false,
         },
         {
           labels: {
-            enabled: !this.props.isPrivateMode,
+            enabled: !props.isPrivateMode,
           },
           linkedTo: 0,
         },
@@ -115,15 +115,13 @@ export default class ProfitLossTimeline extends Component<Props> {
           },
         ],
       },
-      series: this.getSeries(),
+      series: getSeries(),
     };
   }
 
-  render() {
-    return (
-      <Collapsible title="P&L Value Timeline">
-        <Charts constructorType={'stockChart'} options={this.getOptions()} />
-      </Collapsible>
-    );
-  }
+  return (
+    <Collapsible title="P&L Value Timeline">
+      <Charts constructorType={'stockChart'} options={getOptions()} />
+    </Collapsible>
+  );
 }

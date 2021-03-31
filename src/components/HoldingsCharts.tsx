@@ -1,12 +1,12 @@
 import Select from 'antd/es/select';
 import Typography from 'antd/es/typography';
 import * as Highcharts from 'highcharts';
-import React, { useState } from 'react';
-import Collapsible from './Collapsible';
+import React, { useMemo, useState } from 'react';
 import { Flex } from 'rebass';
 import { Account, Position } from '../types';
 import { formatCurrency, formatMoney, getSymbol, getURLParams } from '../utils';
 import Charts from './Charts';
+import Collapsible from './Collapsible';
 import StockDetails from './StockDetails';
 import StockTimeline from './StockTimeline';
 
@@ -19,62 +19,6 @@ type Props = {
 
 export default function HoldingsCharts(props: Props) {
   const [timelineSymbol, setTimelineSymbol] = useState<string>();
-
-  // const getDrillDown = (): any => {
-  //   return {
-  //     activeAxisLabelStyle: {
-  //       textDecoration: 'none',
-  //     },
-  //     activeDataLabelStyle: {
-  //       textDecoration: 'none',
-  //     },
-
-  //     series: props.positions.map((position) => {
-  //       return {
-  //         type: 'column',
-  //         id: getSymbol(position.security),
-  //         name: getSymbol(position.security),
-  //         data: position.transactions.map((transaction) => {
-  //           const isBuySell = ['buy', 'sell'].includes(transaction.type);
-  //           const type = _.startCase(transaction.type);
-  //           return {
-  //             name: moment(transaction.date).format('MMM D, Y'),
-  //             y: transaction.amount,
-  //             color: TYPE_TO_COLOR[transaction.type.toLowerCase()],
-  //             displayValue: formatMoney(transaction.amount),
-  //             type,
-  //             price: isBuySell ? transaction.price : 'N/A',
-  //             shares: isBuySell ? transaction.shares : 'N/A',
-  //             label: isBuySell
-  //               ? `${transaction.shares}@${transaction.price}`
-  //               : `${type}@${formatMoney(transaction.amount)}`,
-  //             transaction,
-  //           };
-  //         }),
-  //         legend: {
-  //           enabled: true,
-  //           align: 'right',
-  //           verticalAlign: 'top',
-  //           layout: 'vertical',
-  //           x: 0,
-  //           y: 100,
-  //         },
-
-  //         tooltip: {
-  //           useHTML: true,
-  //           pointFormat: `<b>{point.label}</b>
-  //           <br />Type: {point.type}`,
-  //           valueDecimals: 1,
-  //         },
-  //         dataLabels: {
-  //           enabled: !props.isPrivateMode,
-  //           format: '{point.label}',
-  //         },
-  //         // showInLegend: true,
-  //       };
-  //     }),
-  //   };
-  // };
 
   const getPositionsSeries = (): {
     column: Highcharts.SeriesColumnOptions;
@@ -237,13 +181,6 @@ export default function HoldingsCharts(props: Props) {
         textDecoration: 'none',
       },
 
-      // drillUpButton: {
-      //   position: {
-      //     align: 'right',
-      //     verticalAlign: 'middle',
-      //   },
-      // },
-
       series: [
         getStockSeriesForCurrency('CAD'),
         getStockSeriesForCurrency('USD'),
@@ -365,74 +302,6 @@ export default function HoldingsCharts(props: Props) {
       },
     };
   };
-
-  // const getGroupSeries = (): Highcharts.SeriesPieOptions => {
-  //   const positionDataByGroup = props.accounts.reduce((hash, account) => {
-  //     const group = account.group || 'N/A';
-  //     const data = hash[group] || {
-  //       group,
-  //       value: 0,
-  //       gain: 0,
-  //     };
-  //     data.value += account.value;
-  //     data.gain += account.positions.reduce((sum, position) => sum + position.gain_amount || 0, 0);
-  //     hash[group] = data;
-  //     return hash;
-  //   }, {} as { [K: string]: { group: string; value: number; gain: number } });
-
-  //   const groups = Object.keys(positionDataByGroup)
-  //     .map((group) => positionDataByGroup[group])
-  //     .filter((group) => group.value)
-  //     .sort((a, b) => b.value - a.value);
-  //   const totalValue = Number(groups.reduce((sum, group) => sum + group.value, 0).toFixed(2)).toLocaleString();
-
-  //   return {
-  //     type: 'pie' as 'pie',
-  //     name: 'Group Wise Positions',
-
-  //     // center: ['80%', '30%'],
-  //     // size: 150,
-  //     data: groups.map((group) => {
-  //       const accountsTable = props.accounts
-  //         .filter((account) => (account.group || 'N/A') === group.group && account.value)
-  //         .sort((a, b) => b.value - a.value)
-  //         .map((account) => {
-  //           return `
-  //                 <tr>
-  //                   <td>${account.name} ${account.group || account.type}</td>
-  //                   <td align="right">$${props.isPrivateMode ? '-' : formatCurrency(account.value, 2)}</td>
-  //                 </tr>`;
-  //         })
-  //         .join('');
-
-  //       return {
-  //         name: group.group,
-  //         y: group.value,
-  //         displayValue: props.isPrivateMode
-  //           ? '-'
-  //           : group.value
-  //           ? Number(group.value.toFixed(2)).toLocaleString()
-  //           : group.value,
-  //         totalValue: props.isPrivateMode ? '-' : totalValue,
-
-  //         additionalValue: `<tr><td>Gain ($) </td><td align="right">${
-  //           props.isPrivateMode ? '-' : `$${formatMoney(group.gain)}`
-  //         }</td></tr>
-  //           <tr><td>Gain (%)</td><td align="right">${((group.gain / group.value) * 100).toFixed(2)}%</td></tr>
-  //           <tr><td colspan="2" style="text-align: center;">======================</td></tr>
-  //           ${accountsTable}`,
-  //       } as Highcharts.SeriesPieDataOptions;
-  //     }),
-  //     tooltip: {
-  //       pointFormat: `<b>{point.percentage:.1f}%</b><br /><br />
-  //       <table><tr><td>Value</td><td align="right">\${point.displayValue}</td></tr>
-  //       <tr><td>Total Value</td><td align="right">\${point.totalValue}</td></tr>
-
-  //       {point.additionalValue}
-  //       </table>`,
-  //     },
-  //   };
-  // };
 
   const getOptions = ({
     title,
@@ -591,27 +460,46 @@ export default function HoldingsCharts(props: Props) {
     );
   };
 
-  const { column, pie } = getPositionsSeries();
+  const { column, pie } = useMemo(() => {
+    return getPositionsSeries();
+  }, [props.accounts, props.positions, props.isPrivateMode]);
+
+  const columnChartOptions = useMemo(
+    () =>
+      getOptions({
+        title: 'Your Holdings',
+        yAxisTitle: 'Market Value ($)',
+        subtitle: '(click on a stock to view transactions)',
+        series: [column],
+      }),
+    [column],
+  );
+  const pieChartOptions = useMemo(
+    () =>
+      getOptions({
+        subtitle: '(click on a stock to view timeline and transactions)',
+        series: [pie],
+      }),
+    [pie],
+  );
+
+  const usdCadChartOptions = useMemo(
+    () =>
+      getOptions({
+        title: 'USD/CAD Composition',
+        series: [getUSDCADSeries()],
+        drilldown: getUSDCADDrillDown(pie),
+      }),
+    [props.isPrivateMode, props.accounts, props.positions, pie],
+  );
 
   return (
     <>
-      <Charts
-        options={getOptions({
-          title: 'Your Holdings',
-          yAxisTitle: 'Market Value ($)',
-          subtitle: '(click on a stock to view transactions)',
-          series: [column],
-        })}
-      />
+      <Charts options={columnChartOptions} />
 
       <Flex width={1} flexWrap="wrap" alignItems="stretch">
         <Flex width={[1, 1, 2 / 3]} height="100%" justifyContent="center">
-          <Charts
-            options={getOptions({
-              subtitle: '(click on a stock to view timeline and transactions)',
-              series: [pie],
-            })}
-          />
+          <Charts options={pieChartOptions} />
         </Flex>
 
         <Flex width={[1, 1, 1 / 3]} pr={4} height="100%" justifyContent="center">
@@ -633,18 +521,8 @@ export default function HoldingsCharts(props: Props) {
       </div>
 
       <Collapsible title="USD/CAD Composition">
-        <Charts
-          options={getOptions({
-            title: 'USD/CAD Composition',
-            series: [getUSDCADSeries()],
-            drilldown: getUSDCADDrillDown(pie),
-          })}
-        />
+        <Charts options={usdCadChartOptions} />
       </Collapsible>
-
-      {/* <Collapsible title="Group Composition">
-        <Charts options={getOptions({ title: 'Group Composition', series: [getGroupSeries()] })} />
-      </Collapsible> */}
     </>
   );
 }
