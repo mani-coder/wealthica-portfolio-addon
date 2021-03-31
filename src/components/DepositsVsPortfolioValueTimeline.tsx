@@ -1,5 +1,5 @@
 import moment from 'moment';
-import React, { Component } from 'react';
+import React from 'react';
 import { Portfolio } from '../types';
 import Charts from './Charts';
 import Collapsible from './Collapsible';
@@ -9,16 +9,16 @@ type Props = {
   isPrivateMode: boolean;
 };
 
-export default class DepositVsPortfolioValueTimeline extends Component<Props> {
-  getSeries(): any {
+export default function DepositVsPortfolioValueTimeline(props: Props) {
+  function getSeries(): any {
     return [
       {
         name: 'Portfolio',
-        data: this.props.portfolios.map((portfolio) => {
+        data: props.portfolios.map((portfolio) => {
           return {
             x: moment(portfolio.date).valueOf(),
             y: portfolio.value,
-            displayValue: this.props.isPrivateMode ? '-' : Number(portfolio.value.toFixed(2)).toLocaleString(),
+            displayValue: props.isPrivateMode ? '-' : Number(portfolio.value.toFixed(2)).toLocaleString(),
           };
         }),
         type: 'spline',
@@ -26,11 +26,11 @@ export default class DepositVsPortfolioValueTimeline extends Component<Props> {
       },
       {
         name: 'Deposits',
-        data: this.props.portfolios.map((portfolio) => {
+        data: props.portfolios.map((portfolio) => {
           return {
             x: moment(portfolio.date).valueOf(),
             y: portfolio.deposits,
-            displayValue: this.props.isPrivateMode ? '-' : Number(portfolio.deposits.toFixed(2)).toLocaleString(),
+            displayValue: props.isPrivateMode ? '-' : Number(portfolio.deposits.toFixed(2)).toLocaleString(),
           };
         }),
         type: 'spline',
@@ -39,7 +39,7 @@ export default class DepositVsPortfolioValueTimeline extends Component<Props> {
     ];
   }
 
-  getOptions(): Highcharts.Options {
+  function getOptions(): Highcharts.Options {
     return {
       title: {
         text: 'Deposits Vs Portfolio Value',
@@ -62,13 +62,13 @@ export default class DepositVsPortfolioValueTimeline extends Component<Props> {
             dashStyle: 'Dash',
           },
           labels: {
-            enabled: !this.props.isPrivateMode,
+            enabled: !props.isPrivateMode,
           },
           opposite: false,
         },
         {
           labels: {
-            enabled: !this.props.isPrivateMode,
+            enabled: !props.isPrivateMode,
           },
           linkedTo: 0,
         },
@@ -100,15 +100,13 @@ export default class DepositVsPortfolioValueTimeline extends Component<Props> {
           },
         ],
       },
-      series: this.getSeries(),
+      series: getSeries(),
     };
   }
 
-  render() {
-    return (
-      <Collapsible title="Deposits Vs Portfolio Value Timeline">
-        <Charts constructorType={'stockChart'} options={this.getOptions()} />
-      </Collapsible>
-    );
-  }
+  return (
+    <Collapsible title="Deposits Vs Portfolio Value Timeline">
+      <Charts constructorType={'stockChart'} options={getOptions()} />
+    </Collapsible>
+  );
 }
