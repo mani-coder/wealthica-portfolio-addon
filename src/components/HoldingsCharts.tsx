@@ -9,7 +9,6 @@ import Charts from './Charts';
 import Collapsible from './Collapsible';
 import StockDetails from './StockDetails';
 import StockTimeline from './StockTimeline';
-import Empty from 'antd/lib/empty';
 
 type Props = {
   positions: Position[];
@@ -493,7 +492,7 @@ export default function HoldingsCharts(props: Props) {
     [props.isPrivateMode, props.accounts, props.positions, pie],
   );
 
-  return !!props.positions.length ? (
+  return (
     <>
       <Charts options={columnChartOptions} />
 
@@ -524,7 +523,5 @@ export default function HoldingsCharts(props: Props) {
         <Charts options={usdCadChartOptions} />
       </Collapsible>
     </>
-  ) : (
-    <Empty description="No Holdings" />
   );
 }

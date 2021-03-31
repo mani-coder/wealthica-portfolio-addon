@@ -1,8 +1,9 @@
 import { Addon } from '@wealthica/wealthica.js/index';
-import { Tabs } from 'antd';
 import Typography from 'antd/es/typography';
 import Text from 'antd/es/typography/Text';
+import Empty from 'antd/lib/empty';
 import Spin from 'antd/lib/spin';
+import Tabs from 'antd/lib/tabs';
 import _ from 'lodash';
 import moment from 'moment';
 import React, { Component } from 'react';
@@ -418,13 +419,19 @@ class App extends Component<Props, State> {
                 </Tabs.TabPane>
 
                 <Tabs.TabPane forceRender tab="Holdings Analyzer" key="holdings">
-                  <HoldingsCharts
-                    positions={this.state.positions}
-                    accounts={this.state.accounts}
-                    isPrivateMode={this.state.privateMode}
-                    addon={this.state.addon}
-                  />
-                  <HoldingsTable positions={this.state.positions} isPrivateMode={this.state.privateMode} />
+                  {!!this.state.positions.length ? (
+                    <>
+                      <HoldingsCharts
+                        positions={this.state.positions}
+                        accounts={this.state.accounts}
+                        isPrivateMode={this.state.privateMode}
+                        addon={this.state.addon}
+                      />
+                      <HoldingsTable positions={this.state.positions} isPrivateMode={this.state.privateMode} />
+                    </>
+                  ) : (
+                    <Empty description="No Holdings" />
+                  )}
                 </Tabs.TabPane>
 
                 <Tabs.TabPane tab="Gainers/Losers" key="gainers-losers">
