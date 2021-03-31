@@ -37,6 +37,7 @@ type CurrentPosition = {
 };
 
 export default function ClosedPnL({ transactions, accounts, isPrivateMode, fromDate }: Props) {
+  console.debug('Realized pnl', { fromDate });
   function getAccount(transaction: Transaction) {
     const account = accounts.find((account) => transaction.account === account.id);
     return account ? `${account.name} ${account.type}` : 'N/A';
@@ -252,7 +253,7 @@ export default function ClosedPnL({ transactions, accounts, isPrivateMode, fromD
 
   return (
     <Card
-      // title="Closed P&L"
+      // title="Realized P&L"
       // headStyle={{ paddingLeft: 16, fontSize: 18, fontWeight: 'bold' }}
       // style={{ marginTop: 16, marginBottom: 16 }}
       bodyStyle={{ padding: 0 }}
