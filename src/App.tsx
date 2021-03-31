@@ -151,7 +151,7 @@ class App extends Component<Props, State> {
   );
 
   async loadData(options) {
-    this.setState({ privateMode: this.state.options.privateMode, fromDate: options.fromDate });
+    this.setState({ privateMode: options.privateMode, fromDate: options.fromDate });
 
     const [
       positions,
