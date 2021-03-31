@@ -18,25 +18,25 @@ import {
   parseTransactionsResponse,
 } from './api';
 import './App.less';
-import ClosedPnL from './components/ClosedPnL';
 import DepositVsPortfolioValueTimeline from './components/DepositsVsPortfolioValueTimeline';
 import HoldingsCharts from './components/HoldingsCharts';
 import HoldingsTable from './components/HoldingsTable';
 import PnLStatistics from './components/PnLStatistics';
 import ProfitLossPercentageTimeline from './components/ProfitLossPercentageTimeline';
 import ProfitLossTimeline from './components/ProfitLossTimeline';
+import RealizedPnL from './components/RealizedPnL';
 import { TopGainersLosers } from './components/TopGainersLosers';
 import YoYPnLChart from './components/YoYPnLChart';
 import { TRANSACTIONS_FROM_DATE } from './constants';
 import { CURRENCIES_API_RESPONSE } from './mocks/currencies';
-import { INSTITUTIONS_DATA } from './mocks/institutions';
-import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio';
-import { POSITIONS_API_RESPONSE } from './mocks/positions';
-import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions';
-// import { INSTITUTIONS_DATA } from './mocks/institutions-prod';
-// import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio-prod';
-// import { POSITIONS_API_RESPONSE } from './mocks/positions-prod';
-// import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions-prod';
+// import { INSTITUTIONS_DATA } from './mocks/institutions';
+// import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio';
+// import { POSITIONS_API_RESPONSE } from './mocks/positions';
+// import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions';
+import { INSTITUTIONS_DATA } from './mocks/institutions-prod';
+import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio-prod';
+import { POSITIONS_API_RESPONSE } from './mocks/positions-prod';
+import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions-prod';
 import { Account, Portfolio, Position, Transaction } from './types';
 import { getSymbol } from './utils';
 
@@ -192,11 +192,16 @@ class App extends Component<Props, State> {
       currencyCache: _currencyCache,
     });
 
-    this.computePositions(positions, transactions, _currencyCache);
-    this.computePortfolios(portfolioByDate, transactions, accounts, _currencyCache);
+    this.computePortfolios(positions, portfolioByDate, transactions, accounts, _currencyCache);
   }
 
-  computePositions(positions, transactions, currencyCache) {
+  computePortfolios = (
+    positions: Position[],
+    portfolioByDate: any,
+    transactions: any,
+    accounts: Account[],
+    currencyCache: any,
+  ) => {
     const securityTransactions = parseSecurityTransactionsResponse(transactions, currencyCache);
     const securityTransactionsBySymbol = securityTransactions.reduce((hash, transaction) => {
       if (!hash[transaction.symbol]) {
@@ -210,13 +215,7 @@ class App extends Component<Props, State> {
       position.transactions = securityTransactionsBySymbol[getSymbol(position.security)] || [];
     });
 
-    this.setState({ positions, securityTransactions });
-  }
-
-  computePortfolios = (portfolioByDate, transactions, accounts, currencyCache) => {
     const transactionsByDate = parseTransactionsResponse(transactions, currencyCache, accounts);
-    // console.debug('Transactions by date: ', transactionsByDate);
-
     const portfolioPerDay = Object.keys(portfolioByDate).reduce((hash, date) => {
       const data = transactionsByDate[date] || {};
       hash[date] = {
@@ -251,6 +250,9 @@ class App extends Component<Props, State> {
     });
 
     this.setState({
+      positions,
+      securityTransactions,
+
       allPortfolios: portfolios,
       portfolios: portfolios.filter((portfolio) => moment(portfolio.date).isoWeekday() <= 5),
       isLoaded: true,
@@ -349,15 +351,11 @@ class App extends Component<Props, State> {
   }
 
   loadStaticPortfolioData() {
-    // const groupsCache = parseGroupNameByIdReponse(GROUPS_API_RESPONSE);
     const currencyCache = parseCurrencyReponse(CURRENCIES_API_RESPONSE);
     const portfolioByDate = parsePortfolioResponse(PORTFOLIO_API_RESPONSE);
     const positions = parsePositionsResponse(POSITIONS_API_RESPONSE);
     const accounts = parseInstitutionsResponse(INSTITUTIONS_DATA);
-
-    // console.debug('Positions:', positions);
-    this.computePositions(positions, TRANSACTIONS_API_RESPONSE, currencyCache);
-    this.computePortfolios(portfolioByDate, TRANSACTIONS_API_RESPONSE, accounts, currencyCache);
+    this.computePortfolios(positions, portfolioByDate, TRANSACTIONS_API_RESPONSE, accounts, currencyCache);
     console.debug('State:', this.state);
   }
 
@@ -439,7 +437,7 @@ class App extends Component<Props, State> {
                 </Tabs.TabPane>
 
                 <Tabs.TabPane tab="Realized P&L" key="realized-pnl">
-                  <ClosedPnL
+                  <RealizedPnL
                     fromDate={this.state.fromDate}
                     transactions={this.state.securityTransactions}
                     accounts={this.state.accounts}
