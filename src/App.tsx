@@ -151,7 +151,7 @@ class App extends Component<Props, State> {
   );
 
   async loadData(options) {
-    this.setState({ privateMode: this.state.options.privateMode, fromDate: options.fromDate });
+    this.setState({ privateMode: options.privateMode, fromDate: options.fromDate });
 
     const [
       positions,
@@ -161,10 +161,10 @@ class App extends Component<Props, State> {
       currencyCache,
       // groupsCache
     ] = await Promise.all([
-      this.loadPositions(this.state.options),
-      this.loadPortfolioData(this.state.options),
-      this.loadTransactions(this.state.options),
-      this.loadInstitutionsData(this.state.options),
+      this.loadPositions(options),
+      this.loadPortfolioData(options),
+      this.loadTransactions(options),
+      this.loadInstitutionsData(options),
       this.loadCurrenciesCache(),
     ]);
 
