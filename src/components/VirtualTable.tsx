@@ -86,12 +86,7 @@ export default function VirtualTable(props: Parameters<typeof Table>[0]) {
   };
 
   return (
-    <ResizeObserver
-      onResize={({ width }) => {
-        console.log('mani is cool', { width });
-        setTableWidth(width);
-      }}
-    >
+    <ResizeObserver onResize={({ width }) => setTableWidth(width)}>
       <Table
         {...props}
         className="virtual-table"

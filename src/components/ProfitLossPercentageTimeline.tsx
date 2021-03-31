@@ -11,15 +11,13 @@ type Props = {
   isPrivateMode: boolean;
 };
 
-export default class ProfitLossPercentageTimeline extends Component<Props> {
-  getSeries(): any {
-    const data = this.props.portfolios.map((portfolio) => {
+export default function ProfitLossPercentageTimeline(props: Props) {
+  function getSeries(): any {
+    const data = props.portfolios.map((portfolio) => {
       return {
         x: moment(portfolio.date).valueOf(),
         y: ((portfolio.value - portfolio.deposits) / portfolio.deposits) * 100,
-        pnlValue: this.props.isPrivateMode
-          ? '-'
-          : formatCurrency(portfolio.value - portfolio.deposits, 2).toLocaleString(),
+        pnlValue: props.isPrivateMode ? '-' : formatCurrency(portfolio.value - portfolio.deposits, 2).toLocaleString(),
       };
     });
     return [
@@ -54,7 +52,7 @@ export default class ProfitLossPercentageTimeline extends Component<Props> {
     ];
   }
 
-  getOptions(): Highcharts.Options {
+  function getOptions(): Highcharts.Options {
     return {
       title: {
         text: 'Profit/Loss (%)',
@@ -140,15 +138,13 @@ export default class ProfitLossPercentageTimeline extends Component<Props> {
           },
         ],
       },
-      series: this.getSeries(),
+      series: getSeries(),
     };
   }
 
-  render() {
-    return (
-      <Collapsible title="P&L Ratio Timeline">
-        <Charts constructorType={'stockChart'} options={this.getOptions()} />
-      </Collapsible>
-    );
-  }
+  return (
+    <Collapsible title="P&L Ratio Timeline">
+      <Charts constructorType={'stockChart'} options={getOptions()} />
+    </Collapsible>
+  );
 }
