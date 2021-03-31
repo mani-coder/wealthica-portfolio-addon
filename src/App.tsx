@@ -28,14 +28,14 @@ import { TopGainersLosers } from './components/TopGainersLosers';
 import YoYPnLChart from './components/YoYPnLChart';
 import { TRANSACTIONS_FROM_DATE } from './constants';
 import { CURRENCIES_API_RESPONSE } from './mocks/currencies';
-// import { INSTITUTIONS_DATA } from './mocks/institutions';
-// import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio';
-// import { POSITIONS_API_RESPONSE } from './mocks/positions';
-// import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions';
-import { INSTITUTIONS_DATA } from './mocks/institutions-prod';
-import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio-prod';
-import { POSITIONS_API_RESPONSE } from './mocks/positions-prod';
-import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions-prod';
+import { INSTITUTIONS_DATA } from './mocks/institutions';
+import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio';
+import { POSITIONS_API_RESPONSE } from './mocks/positions';
+import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions';
+// import { INSTITUTIONS_DATA } from './mocks/institutions-prod';
+// import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio-prod';
+// import { POSITIONS_API_RESPONSE } from './mocks/positions-prod';
+// import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions-prod';
 import { Account, Portfolio, Position, Transaction } from './types';
 import { getSymbol } from './utils';
 
@@ -49,6 +49,7 @@ type State = {
   accounts: Account[];
   isLoaded: boolean;
   privateMode: boolean;
+  fromDate: string;
 
   options?: any;
   isLoadingOnUpdate?: boolean;
@@ -69,6 +70,7 @@ class App extends Component<Props, State> {
       accounts: [],
       isLoaded: false,
       privateMode: false,
+      fromDate: TRANSACTIONS_FROM_DATE,
     };
   }
 
@@ -148,20 +150,8 @@ class App extends Component<Props, State> {
     { leading: true },
   );
 
-  mergeOptions(options) {
-    if (!this.state.options) {
-      this.setState({ options });
-    }
-    const oldOptions = this.state.options;
-    Object.keys(options).forEach((key) => {
-      oldOptions[key] = options[key];
-    });
-    this.setState({ options: oldOptions });
-  }
-
   async loadData(options) {
-    this.mergeOptions(options);
-    this.setState({ privateMode: this.state.options.privateMode });
+    this.setState({ privateMode: this.state.options.privateMode, fromDate: options.fromDate });
 
     const [
       positions,
@@ -176,18 +166,16 @@ class App extends Component<Props, State> {
       this.loadTransactions(this.state.options),
       this.loadInstitutionsData(this.state.options),
       this.loadCurrenciesCache(),
-      // this.loadGroupsCache(),
     ]);
 
     const _currencyCache = currencyCache || this.state.currencyCache;
-    // const _groupsCache = groupsCache || this.state.groupsCache;
+
     console.debug('Loaded data', {
       positions,
       portfolioByDate,
       transactions,
       accounts,
       currencyCache: _currencyCache,
-      // groupsCache: _groupsCache,
     });
 
     this.computePositions(positions, transactions, _currencyCache);
@@ -255,20 +243,14 @@ class App extends Component<Props, State> {
       isLoadingOnUpdate: false,
       accounts,
       currencyCache,
-      // accounts: (accounts || []).map((account) => ({
-      //   ...account,
-      //   group: groupsCache ? groupsCache[account.group] || account.group : account.group,
-      // })),
-      // groupsCache,
     });
-    // console.debug('Loaded the data', portfolios);
   };
 
   loadPortfolioData(options) {
     console.debug('Loading portfolio data.');
     const query = {
-      from: options.dateRangeFilter && options.dateRangeFilter[0],
-      to: options.dateRangeFilter && options.dateRangeFilter[1],
+      from: options.fromDate,
+      to: options.toDate,
       groups: options.groupsFilter,
       institutions: options.institutionsFilter,
       investments: options.investmentsFilter === 'all' ? null : options.investmentsFilter,
@@ -333,7 +315,7 @@ class App extends Component<Props, State> {
 
   loadTransactions(options) {
     console.debug('Loading transactions data.');
-    const fromDate = options.dateRangeFilter && options.dateRangeFilter[0];
+    const fromDate = options.fromDate;
     const query = {
       from: fromDate && fromDate < TRANSACTIONS_FROM_DATE ? fromDate : TRANSACTIONS_FROM_DATE,
       groups: options.groupsFilter,
@@ -401,7 +383,7 @@ class App extends Component<Props, State> {
                 </Flex>
               )}
 
-              <Tabs defaultActiveKey="closed-pnl" onChange={(tab) => trackEvent('tab-change', { tab })} size="large">
+              <Tabs defaultActiveKey="realized-pnl" onChange={(tab) => trackEvent('tab-change', { tab })} size="large">
                 <Tabs.TabPane forceRender tab="P&L Charts" key="pnl">
                   <PnLStatistics
                     portfolios={this.state.portfolios}
@@ -436,8 +418,9 @@ class App extends Component<Props, State> {
                   <TopGainersLosers positions={this.state.positions} isPrivateMode={this.state.privateMode} />
                 </Tabs.TabPane>
 
-                <Tabs.TabPane tab="Closed P&L" key="closed-pnl">
+                <Tabs.TabPane tab="Realized P&L" key="realized-pnl">
                   <ClosedPnL
+                    fromDate={this.state.fromDate}
                     transactions={this.state.securityTransactions}
                     accounts={this.state.accounts}
                     isPrivateMode={this.state.privateMode}

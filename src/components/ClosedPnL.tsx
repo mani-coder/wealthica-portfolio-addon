@@ -1,16 +1,17 @@
 import { Card, Typography } from 'antd';
 import Table, { ColumnProps } from 'antd/lib/table';
 import moment, { Moment } from 'moment';
+import 'moment-precise-range-plugin';
 import React, { useMemo } from 'react';
 import { Box } from 'rebass';
 import { Account, Transaction } from '../types';
 import { formatMoney } from '../utils';
-import 'moment-precise-range-plugin';
 
 type Props = {
   transactions: Transaction[];
   accounts: Account[];
   isPrivateMode: boolean;
+  fromDate: string;
 };
 
 type ClosedPosition = {
@@ -29,9 +30,13 @@ type ClosedPosition = {
   account: string;
 };
 
-type CurrentPosition = { shares: number; price: number; date: Moment };
+type CurrentPosition = {
+  shares: number;
+  price: number;
+  date: Moment;
+};
 
-export default function ClosedPnL({ transactions, accounts, isPrivateMode }: Props) {
+export default function ClosedPnL({ transactions, accounts, isPrivateMode, fromDate }: Props) {
   function getAccount(transaction: Transaction) {
     const account = accounts.find((account) => transaction.account === account.id);
     return account ? `${account.name} ${account.type}` : 'N/A';
@@ -50,11 +55,6 @@ export default function ClosedPnL({ transactions, accounts, isPrivateMode }: Pro
       if (!position) {
         position = { shares: 0, price: 0, date: transaction.date };
         book[key] = position;
-      }
-
-      const log = transaction.symbol === 'ABNB' && transaction.account === '27082310:margin:usd';
-      if (log) {
-        console.log('mani is cool', { ...position, transaction });
       }
 
       if (transaction.type === 'buy') {
@@ -84,9 +84,6 @@ export default function ClosedPnL({ transactions, accounts, isPrivateMode }: Pro
           };
           closedPositions.push(closedPosition);
           const openShares = position.shares + transaction.shares;
-          if (log) {
-            console.log('mani is cool closing---', { closedPosition, openShares, closedShares });
-          }
 
           if (openShares > 0) {
             position.shares = openShares;
@@ -134,9 +131,6 @@ export default function ClosedPnL({ transactions, accounts, isPrivateMode }: Pro
           closedPositions.push(closedPosition);
 
           const openShares = position.shares + transaction.shares;
-          if (log) {
-            console.log('mani is cool closing---', { closedPosition, openShares, closedShares });
-          }
 
           if (openShares < 0) {
             position.shares = openShares;
@@ -156,19 +150,16 @@ export default function ClosedPnL({ transactions, accounts, isPrivateMode }: Pro
         position.shares = shares;
         position.date = transaction.date;
       }
-
-      if (transaction.symbol === 'ABNB' && transaction.account === '27082310:margin:usd') {
-        console.log('mani is cool post position', { ...position, transaction });
-      }
     });
-    return closedPositions;
+    const startDate = moment(fromDate);
+    return closedPositions.filter((position) => position.date.isSameOrAfter(startDate)).reverse();
   }
 
   function getColumns(): ColumnProps<ClosedPosition>[] {
     return [
       {
         key: 'date',
-        title: 'Closed Date',
+        title: 'Date',
         dataIndex: 'date',
         render: (text) => text.format('YYYY-MM-DD'),
         sorter: (a, b) => a.date.valueOf() - b.date.valueOf(),
@@ -208,7 +199,7 @@ export default function ClosedPnL({ transactions, accounts, isPrivateMode }: Pro
         title: 'Shares',
         dataIndex: 'shares',
         align: 'right',
-        render: (text) => formatMoney(text, 0),
+        render: (text) => (isPrivateMode ? '-' : formatMoney(text, 0)),
         width: 75,
       },
       {
@@ -220,7 +211,6 @@ export default function ClosedPnL({ transactions, accounts, isPrivateMode }: Pro
             {formatMoney(position.buyPrice)} / {formatMoney(position.sellPrice)}
           </>
         ),
-        width: 200,
       },
       {
         key: 'gain',
@@ -235,7 +225,9 @@ export default function ClosedPnL({ transactions, accounts, isPrivateMode }: Pro
               {formatMoney(position.pnlRatio)}%
             </Typography.Text>
             <Box />
-            <Typography.Text style={{ color: 'inherit', fontSize: 13 }}>{formatMoney(position.pnl)}</Typography.Text>
+            <Typography.Text style={{ color: 'inherit', fontSize: 13 }}>
+              {isPrivateMode ? '-' : formatMoney(position.pnl)}
+            </Typography.Text>
           </Box>
         ),
         align: 'right',
@@ -249,7 +241,7 @@ export default function ClosedPnL({ transactions, accounts, isPrivateMode }: Pro
       },
       {
         key: 'holding-period',
-        title: 'Period',
+        title: 'Holding Period',
         render: (text, position) =>
           position.buyDate.diff(position.sellDate)
             ? moment.duration(position.buyDate.diff(position.sellDate)).humanize()
@@ -260,9 +252,8 @@ export default function ClosedPnL({ transactions, accounts, isPrivateMode }: Pro
 
   const closedPositions = useMemo(() => {
     return computeClosedPositions();
-  }, [transactions, accounts]);
+  }, [transactions, accounts, fromDate]);
 
-  console.log('mani is cool', closedPositions);
   return (
     <Card
       // title="Closed P&L"
