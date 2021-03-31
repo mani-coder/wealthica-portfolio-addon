@@ -214,11 +214,7 @@ export default function ClosedPnL({ transactions, accounts, isPrivateMode, fromD
       },
       {
         key: 'gain',
-        title: (
-          <>
-            Profit / Loss %<div style={{ fontSize: 12 }}>CAD</div>
-          </>
-        ),
+        title: 'P&L %',
         render: (text, position) => (
           <Box style={{ color: position.pnl < 0 ? 'red' : 'green' }}>
             <Typography.Text strong style={{ color: 'inherit', fontSize: 14 }}>
