@@ -31,7 +31,6 @@ export function Charts(props: Props) {
     console.debug('Failed to load high charts...');
     return <></>;
   }
-  return <></>;
 }
 
 export default React.memo(Charts);
