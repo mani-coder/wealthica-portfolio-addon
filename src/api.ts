@@ -123,7 +123,7 @@ export const parseTransactionsResponse = (response: any, currencyCache: any, acc
 
 export const parseSecurityTransactionsResponse = (response: any, currencyCache: any): Transaction[] => {
   return response
-    .filter((t) => !t.deleted)
+    .filter((t) => !t.deleted && t.type)
     .filter(
       (transaction) =>
         ['sell', 'buy', 'income', 'dividend', 'distribution', 'tax', 'fee', 'transfer'].includes(
@@ -147,11 +147,11 @@ export const parseSecurityTransactionsResponse = (response: any, currencyCache: 
         price:
           transaction.currency_amount && transaction.quantity
             ? Number(Math.abs(transaction.currency_amount / transaction.quantity).toFixed(3))
-            : undefined,
+            : 0,
         type: transaction.type,
         amount: Math.abs(amount),
         currency: transaction.security ? transaction.security.currency : 'USD',
-        shares: transaction.quantity,
+        shares: transaction.quantity || 0,
         fees: transaction.fee,
       };
     });

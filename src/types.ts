@@ -42,8 +42,8 @@ export type Transaction = {
   amount: number;
   currency: string;
   type: string;
-  price?: number;
-  shares?: number;
+  price: number;
+  shares: number;
   fees?: number;
   account: string;
 };

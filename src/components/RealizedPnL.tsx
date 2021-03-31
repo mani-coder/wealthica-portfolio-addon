@@ -5,13 +5,14 @@ import 'moment-precise-range-plugin';
 import React, { useMemo } from 'react';
 import { Box } from 'rebass';
 import { Account, Transaction } from '../types';
-import { formatMoney } from '../utils';
+import { formatMoney, getCurrencyInCAD } from '../utils';
 
 type Props = {
   transactions: Transaction[];
   accounts: Account[];
   isPrivateMode: boolean;
   fromDate: string;
+  currencyCache: { [K: string]: number };
 };
 
 type ClosedPosition = {
@@ -36,21 +37,67 @@ type CurrentPosition = {
   date: Moment;
 };
 
-export default function RealizedPnL({ transactions, accounts, isPrivateMode, fromDate }: Props) {
+export default function RealizedPnL({ currencyCache, transactions, accounts, isPrivateMode, fromDate }: Props) {
   console.debug('Realized pnl', { fromDate });
-  function getAccount(transaction: Transaction) {
-    const account = accounts.find((account) => transaction.account === account.id);
-    return account ? `${account.name} ${account.type}` : 'N/A';
+  function getAccount(account: string) {
+    const account_obj = accounts.find((_account) => account === _account.id);
+    return account_obj ? `${account_obj.name} ${account_obj.type}` : 'N/A';
+  }
+
+  function closePosition(position: CurrentPosition, transaction: Transaction) {
+    const closedShares = Math.min(Math.abs(position.shares), Math.abs(transaction.shares));
+    const buyRecord = transaction.type === 'buy' ? transaction : position;
+    const sellRecord = transaction.type === 'sell' ? transaction : position;
+
+    const buyValue = closedShares * buyRecord.price;
+    const sellValue = closedShares * sellRecord.price;
+
+    const pnl = sellValue - buyValue;
+    const pnlRatio = (pnl / buyValue) * 100;
+
+    const closedPosition = {
+      date: transaction.date,
+      account: getAccount(transaction.account),
+      symbol: transaction.symbol,
+      currency: transaction.currency,
+      shares: closedShares,
+
+      buyDate: buyRecord.date,
+      buyPrice: buyRecord.price,
+
+      sellDate: sellRecord.date,
+      sellPrice: sellRecord.price,
+
+      pnl: transaction.currency === 'usd' ? getCurrencyInCAD(transaction.date, pnl, currencyCache) : pnl,
+      pnlRatio,
+    };
+
+    const openShares = position.shares + transaction.shares;
+    position.shares = openShares;
+    if (openShares > 0) {
+      position.price = buyRecord.price;
+      position.date = buyRecord.date;
+    } else if (openShares < 0) {
+      position.price = sellRecord.price;
+      position.date = sellRecord.date;
+    } else {
+      position.price = 0;
+    }
+
+    return closedPosition;
+  }
+
+  function openPosition(position: CurrentPosition, transaction: Transaction) {
+    const shares = position.shares + transaction.shares;
+    position.price = (position.price * position.shares + transaction.price * transaction.shares) / shares;
+    position.shares = shares;
+    position.date = transaction.date;
   }
 
   function computeClosedPositions(): ClosedPosition[] {
     const closedPositions: ClosedPosition[] = [];
     const book: { [K: string]: CurrentPosition } = {};
     transactions.forEach((transaction) => {
-      if (!transaction.price || !transaction.shares) {
-        return;
-      }
-
       const key = `${transaction.account}-${transaction.symbol}`;
       let position = book[key];
       if (!position) {
@@ -60,96 +107,16 @@ export default function RealizedPnL({ transactions, accounts, isPrivateMode, fro
 
       if (transaction.type === 'buy') {
         if (position.shares < 0) {
-          const shares = Math.abs(position.shares);
-          const closedShares = shares > transaction.shares ? transaction.shares : shares;
-          const buyValue = closedShares * transaction.price;
-          const sellValue = closedShares * position.price;
-          const pnl = sellValue - buyValue;
-          const pnlRatio = (pnl / buyValue) * 100;
-
-          const closedPosition = {
-            date: transaction.date,
-            symbol: transaction.symbol,
-            currency: transaction.currency,
-            shares: closedShares,
-
-            buyDate: transaction.date,
-            buyPrice: transaction.price,
-
-            sellDate: position.date,
-            sellPrice: position.price,
-
-            pnl,
-            pnlRatio,
-            account: getAccount(transaction),
-          };
-          closedPositions.push(closedPosition);
-          const openShares = position.shares + transaction.shares;
-
-          if (openShares > 0) {
-            position.shares = openShares;
-            position.price = transaction.price;
-            position.date = transaction.date;
-          } else if (openShares < 0) {
-            // reduce the filled out position.
-            position.shares -= closedShares;
-          } else {
-            position.shares = position.price = 0;
-          }
-
-          return;
+          closedPositions.push(closePosition(position, transaction));
+        } else {
+          openPosition(position, transaction);
         }
-
-        const shares = position.shares + transaction.shares;
-        position.price = (position.price * position.shares + transaction.price * transaction.shares) / shares;
-        position.shares = shares;
-        position.date = transaction.date;
       } else if (transaction.type === 'sell') {
         if (position.shares > 0) {
-          // closing a position.
-          const shares = Math.abs(transaction.shares);
-          const closedShares = position.shares < shares ? position.shares : shares;
-          const buyValue = closedShares * position.price;
-          const sellValue = closedShares * transaction.price;
-          const pnl = sellValue - buyValue;
-          const pnlRatio = ((transaction.price - position.price) / position.price) * 100;
-
-          const closedPosition = {
-            date: transaction.date,
-            symbol: transaction.symbol,
-            currency: transaction.currency,
-            shares: closedShares,
-            buyDate: position.date,
-            buyPrice: position.price,
-
-            sellDate: transaction.date,
-            sellPrice: transaction.price,
-
-            pnl,
-            pnlRatio,
-            account: getAccount(transaction),
-          };
-          closedPositions.push(closedPosition);
-
-          const openShares = position.shares + transaction.shares;
-
-          if (openShares < 0) {
-            position.shares = openShares;
-            position.price = transaction.price;
-            position.date = transaction.date;
-          } else if (openShares > 0) {
-            // reduce the filled out position.
-            position.shares -= closedShares;
-          } else {
-            position.shares = position.price = 0;
-          }
-          return;
+          closedPositions.push(closePosition(position, transaction));
+        } else {
+          openPosition(position, transaction);
         }
-
-        const shares = position.shares + transaction.shares;
-        position.price = (position.price * position.shares + transaction.price * transaction.shares) / shares;
-        position.shares = shares;
-        position.date = transaction.date;
       }
     });
     const startDate = moment(fromDate);
@@ -215,7 +182,11 @@ export default function RealizedPnL({ transactions, accounts, isPrivateMode, fro
       },
       {
         key: 'gain',
-        title: 'P&L %',
+        title: (
+          <>
+            P&L<div style={{ fontSize: 12 }}>(CAD)</div>
+          </>
+        ),
         render: (text, position) => (
           <Box style={{ color: position.pnl < 0 ? 'red' : 'green' }}>
             <Typography.Text strong style={{ color: 'inherit', fontSize: 14 }}>

@@ -1,4 +1,4 @@
-export const POSITIONS_API_RESPONSE = [
+export const DATA = [
   {
     market_value: 155.27075406768117,
     currency: 'cad',
