@@ -26,7 +26,7 @@ export default function PnLStatistics({
   const marketValue = positions.reduce((value, position) => value + position.market_value, 0);
   const bookValue = positions.reduce((value, position) => value + position.book_value, 0);
   const unrealizePnLValue = marketValue - bookValue;
-  const unrealizedPnLRatio = (unrealizePnLValue / bookValue) * 100;
+  const unrealizedPnLRatio = unrealizePnLValue ? (unrealizePnLValue / bookValue) * 100 : 0;
 
   return (
     <Card bodyStyle={{ backgroundColor: '#f9f0ff' }} style={{ borderRadius: 6, borderColor: '#efdbff' }}>
