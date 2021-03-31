@@ -29,14 +29,10 @@ import { TopGainersLosers } from './components/TopGainersLosers';
 import YoYPnLChart from './components/YoYPnLChart';
 import { TRANSACTIONS_FROM_DATE } from './constants';
 import { CURRENCIES_API_RESPONSE } from './mocks/currencies';
-// import { INSTITUTIONS_DATA } from './mocks/institutions';
-// import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio';
-// import { POSITIONS_API_RESPONSE } from './mocks/positions';
-// import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions';
-import { INSTITUTIONS_DATA } from './mocks/institutions-prod';
-import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio-prod';
-import { POSITIONS_API_RESPONSE } from './mocks/positions-prod';
-import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions-prod';
+import { INSTITUTIONS_DATA } from './mocks/institutions';
+import { PORTFOLIO_API_RESPONSE } from './mocks/portfolio';
+import { POSITIONS_API_RESPONSE } from './mocks/positions';
+import { TRANSACTIONS_API_RESPONSE } from './mocks/transactions';
 import { Account, Portfolio, Position, Transaction } from './types';
 import { getSymbol } from './utils';
 
@@ -56,6 +52,25 @@ type State = {
   isLoadingOnUpdate?: boolean;
 };
 type Props = {};
+let MOCK_INSTITUTIONS_DATA: any = INSTITUTIONS_DATA;
+let MOCK_PORTFOLIO_API_RESPONSE: any = PORTFOLIO_API_RESPONSE;
+let MOCK_POSITIONS_API_RESPONSE: any = POSITIONS_API_RESPONSE;
+let MOCK_TRANSACTIONS_API_RESPONSE: any = TRANSACTIONS_API_RESPONSE;
+
+if (process.env.NODE_ENV === 'development') {
+  import('./mocks/institutions-prod').then((module) => {
+    MOCK_INSTITUTIONS_DATA = module.INSTITUTIONS_DATA;
+  });
+  import('./mocks/portfolio-prod').then((module) => {
+    MOCK_PORTFOLIO_API_RESPONSE = module.PORTFOLIO_API_RESPONSE;
+  });
+  import('./mocks/transactions-prod').then((module) => {
+    MOCK_POSITIONS_API_RESPONSE = module.TRANSACTIONS_API_RESPONSE;
+  });
+  import('./mocks/positions-prod').then((module) => {
+    MOCK_TRANSACTIONS_API_RESPONSE = module.POSITIONS_API_RESPONSE;
+  });
+}
 
 class App extends Component<Props, State> {
   constructor(props: Props) {
@@ -352,10 +367,10 @@ class App extends Component<Props, State> {
 
   loadStaticPortfolioData() {
     const currencyCache = parseCurrencyReponse(CURRENCIES_API_RESPONSE);
-    const portfolioByDate = parsePortfolioResponse(PORTFOLIO_API_RESPONSE);
-    const positions = parsePositionsResponse(POSITIONS_API_RESPONSE);
-    const accounts = parseInstitutionsResponse(INSTITUTIONS_DATA);
-    this.computePortfolios(positions, portfolioByDate, TRANSACTIONS_API_RESPONSE, accounts, currencyCache);
+    const portfolioByDate = parsePortfolioResponse(MOCK_PORTFOLIO_API_RESPONSE);
+    const positions = parsePositionsResponse(MOCK_POSITIONS_API_RESPONSE);
+    const accounts = parseInstitutionsResponse(MOCK_INSTITUTIONS_DATA);
+    this.computePortfolios(positions, portfolioByDate, MOCK_TRANSACTIONS_API_RESPONSE, accounts, currencyCache);
     console.debug('State:', this.state);
   }
 
