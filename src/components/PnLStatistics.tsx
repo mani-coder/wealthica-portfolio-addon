@@ -1,9 +1,9 @@
+import { ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons';
 import Card from 'antd/lib/card';
 import Statistic, { StatisticProps } from 'antd/lib/statistic';
 import React from 'react';
 import { Box, Flex } from 'rebass';
 import { Portfolio, Position } from '../types';
-import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
 
 function StatisticBox(props: StatisticProps) {
   return (
@@ -25,6 +25,7 @@ function PnLStatistics({
   const portfolio = portfolios[portfolios.length - 1];
   const marketValue = positions.reduce((value, position) => value + position.market_value, 0);
   const bookValue = positions.reduce((value, position) => value + position.book_value, 0);
+  const noHoldings = positions.length === 0;
   const unrealizePnLValue = marketValue - bookValue;
   const unrealizedPnLRatio = unrealizePnLValue ? (unrealizePnLValue / bookValue) * 100 : 0;
 
@@ -50,18 +51,18 @@ function PnLStatistics({
         />
         <StatisticBox
           title="Unrealized P&L Value"
-          valueStyle={{ color: unrealizePnLValue >= 0 ? 'green' : 'red' }}
-          value={privateMode ? '--' : unrealizePnLValue}
+          valueStyle={{ color: noHoldings ? 'grey' : unrealizePnLValue >= 0 ? 'green' : 'red' }}
+          value={privateMode ? '--' : noHoldings ? 'N/A' : unrealizePnLValue}
           precision={privateMode ? undefined : 2}
-          prefix="$"
+          prefix={noHoldings ? undefined : '$'}
         />
         <StatisticBox
           title="Unrealized P&L %"
-          valueStyle={{ color: unrealizedPnLRatio >= 0 ? 'green' : 'red' }}
-          value={privateMode ? '--' : unrealizedPnLRatio}
+          valueStyle={{ color: noHoldings ? 'grey' : unrealizedPnLRatio >= 0 ? 'green' : 'red' }}
+          value={privateMode ? '--' : noHoldings ? 'N/A' : unrealizedPnLRatio}
           precision={privateMode ? undefined : 2}
-          suffix="%"
-          prefix={unrealizedPnLRatio >= 0 ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
+          suffix={noHoldings ? undefined : '%'}
+          prefix={noHoldings ? undefined : unrealizedPnLRatio >= 0 ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
         />
       </Flex>
     </Card>
