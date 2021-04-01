@@ -317,6 +317,7 @@ export default function RealizedPnL({ currencyCache, transactions, accounts, isP
           pnl: gains[date],
         };
       })
+      .filter((value) => value.pnl)
       .sort((a, b) => moment(a.date).valueOf() - moment(b.date).valueOf())
       .map((value) => {
         return {
