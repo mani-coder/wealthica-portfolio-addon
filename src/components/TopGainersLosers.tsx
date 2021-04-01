@@ -1,7 +1,8 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import Typography from 'antd/es/typography';
 import Empty from 'antd/lib/empty';
 import Switch from 'antd/lib/switch';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Box, Flex } from 'rebass';
 import { trackEvent } from '../analytics';
 import { Position } from '../types';
@@ -120,8 +121,13 @@ export function TopGainersLosers(props: { isPrivateMode: boolean; positions: Pos
     };
   }
 
-  const gainers = getTopGainersLosers(true);
-  const losers = getTopGainersLosers(false);
+  const { gainers, losers } = useMemo(() => {
+    return {
+      gainers: getTopGainersLosers(true),
+      losers: getTopGainersLosers(false),
+    };
+  }, [sortByValue, props.isPrivateMode, props.positions]);
+
   return !!props.positions.length ? (
     <>
       <Flex

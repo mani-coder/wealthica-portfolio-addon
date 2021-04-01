@@ -11,7 +11,7 @@ type Props = {
   isPrivateMode: boolean;
 };
 
-export default function ProfitLossPercentageTimeline(props: Props) {
+function ProfitLossPercentageTimeline(props: Props) {
   function getSeries(): any {
     const data = props.portfolios.map((portfolio) => {
       return {
@@ -148,3 +148,5 @@ export default function ProfitLossPercentageTimeline(props: Props) {
     </Collapsible>
   );
 }
+
+export default React.memo(ProfitLossPercentageTimeline);

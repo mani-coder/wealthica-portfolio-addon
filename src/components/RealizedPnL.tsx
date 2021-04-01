@@ -363,6 +363,7 @@ export default function RealizedPnL({ currencyCache, transactions, accounts, isP
   const closedPositions = useMemo(() => {
     return computeClosedPositions();
   }, [transactions, accounts, fromDate]);
+
   const closedPnL = useMemo(() => {
     return closedPositions.reduce((pnl, position) => pnl + position.pnl, 0);
   }, [closedPositions]);

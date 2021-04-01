@@ -9,7 +9,7 @@ type Props = {
   isPrivateMode: boolean;
 };
 
-export default function ProfitLossTimeline(props: Props) {
+function ProfitLossTimeline(props: Props) {
   function getSeries(): any {
     return [
       {
@@ -125,3 +125,5 @@ export default function ProfitLossTimeline(props: Props) {
     </Collapsible>
   );
 }
+
+export default React.memo(ProfitLossTimeline);
