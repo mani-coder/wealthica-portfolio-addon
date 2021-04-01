@@ -397,7 +397,7 @@ class App extends Component<Props, State> {
                 </Flex>
               )}
 
-              <Tabs defaultActiveKey="pnl" onChange={(tab) => trackEvent('tab-change', { tab })} size="large">
+              <Tabs defaultActiveKey="realized-pnl" onChange={(tab) => trackEvent('tab-change', { tab })} size="large">
                 <Tabs.TabPane forceRender tab="P&L Charts" key="pnl">
                   <PnLStatistics
                     portfolios={this.state.portfolios}

@@ -1,11 +1,18 @@
-import { Card, Typography } from 'antd';
+/* eslint-disable react-hooks/exhaustive-deps */
+import { ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons';
+import { Empty, Statistic } from 'antd';
+import Typography from 'antd/es/typography';
+import Card from 'antd/lib/card';
+import Radio from 'antd/lib/radio';
 import Table, { ColumnProps } from 'antd/lib/table';
 import moment, { Moment } from 'moment';
 import 'moment-precise-range-plugin';
-import React, { useMemo } from 'react';
-import { Box } from 'rebass';
+import React, { useMemo, useState } from 'react';
+import { Box, Flex } from 'rebass';
+import { DATE_FORMAT } from '../constants';
 import { Account, Transaction } from '../types';
-import { formatMoney, getCurrencyInCAD } from '../utils';
+import { formatCurrency, formatMoney, getCurrencyInCAD } from '../utils';
+import { Charts } from './Charts';
 
 type Props = {
   transactions: Transaction[];
@@ -37,8 +44,11 @@ type CurrentPosition = {
   date: Moment;
 };
 
+const DATE_DISPLAY_FORMAT = 'MMM DD, YYYY';
+
 export default function RealizedPnL({ currencyCache, transactions, accounts, isPrivateMode, fromDate }: Props) {
-  console.debug('Realized pnl', { fromDate });
+  const [timeline, setTimeline] = useState<'month' | 'year' | 'week'>('month');
+
   function getAccount(account: string) {
     const account_obj = accounts.find((_account) => account === _account.id);
     return account_obj ? `${account_obj.name} ${account_obj.type}` : 'N/A';
@@ -218,18 +228,186 @@ export default function RealizedPnL({ currencyCache, transactions, accounts, isP
     ];
   }
 
+  const getOptions = ({
+    series,
+    closedPnL,
+  }: {
+    series: Highcharts.SeriesColumnOptions[];
+    closedPnL: number;
+  }): Highcharts.Options => {
+    return {
+      series,
+
+      tooltip: {
+        outside: true,
+
+        useHTML: true,
+        backgroundColor: '#FFF',
+        style: {
+          color: '#1F2A33',
+        },
+      },
+
+      title: {
+        text: undefined,
+      },
+      xAxis: {
+        type: 'category',
+        labels: {
+          style: {
+            fontSize: '13px',
+            fontFamily: 'Verdana, sans-serif',
+          },
+        },
+      },
+
+      yAxis: {
+        labels: {
+          enabled: !isPrivateMode,
+        },
+        title: {
+          text: 'P&L ($)',
+        },
+      },
+
+      plotOptions: {
+        column: {
+          zones: [
+            {
+              value: -0.00000001,
+              color: '#FF897C',
+            },
+            {
+              color: '#84C341',
+            },
+          ],
+        },
+      },
+    };
+  };
+
+  const getBarLabel = (date: string) => {
+    const startDate = moment(date);
+
+    switch (timeline) {
+      case 'month':
+        return startDate.format('MMM YY');
+      case 'week':
+        return `${startDate.format('MMM DD')} - ${moment(date).endOf(timeline).format('MMM DD')}, ${startDate.format(
+          'YY',
+        )}`;
+      case 'year':
+        return startDate.format('YYYY');
+    }
+  };
+
+  const getData = (closedPositions: ClosedPosition[]): Highcharts.SeriesColumnOptions[] => {
+    const gains = closedPositions.reduce((hash, value) => {
+      const key = value.date.clone().startOf(timeline).format(DATE_FORMAT);
+      hash[key] = hash[key] ? hash[key] + value.pnl : value.pnl;
+      return hash;
+    }, {} as { [K: string]: number });
+    const data = Object.keys(gains)
+      .map((date) => {
+        return {
+          date,
+          label: getBarLabel(date),
+          pnl: gains[date],
+        };
+      })
+      .sort((a, b) => moment(a.date).valueOf() - moment(b.date).valueOf())
+      .map((value) => {
+        return {
+          date: value.date,
+          label: value.label,
+          pnl: value.pnl,
+          startDate: moment(value.date).startOf(timeline).format(DATE_DISPLAY_FORMAT),
+          endDate: moment(value.date).endOf(timeline).format(DATE_DISPLAY_FORMAT),
+          color: value.pnl >= 0 ? 'green' : 'red',
+        };
+      });
+
+    console.debug('Realized Gains data -- ', data);
+
+    const series: Highcharts.SeriesColumnOptions[] = [
+      {
+        name: 'Realized P&L',
+        type: 'column',
+        data: data.map((value) => ({
+          key: value.label,
+          name: value.label,
+          label: value.label,
+          y: value.pnl,
+          pnl: !isPrivateMode ? formatMoney(value.pnl) : '-',
+          pnlHuman: !isPrivateMode ? formatCurrency(value.pnl, 2) : '-',
+          startDate: value.startDate,
+          endDate: value.endDate,
+        })),
+        tooltip: {
+          headerFormat: '',
+          pointFormat: `<span style="font-size: 12px;font-weight: 500;">{point.startDate} - {point.endDate}</span>
+          <br />
+          <b style="color: {point.color};font-size: 14px; font-weight: 700">{point.pnl} CAD</b><br />`,
+        },
+        dataLabels: {
+          enabled: true,
+          format: '{point.pnlHuman}',
+        },
+        showInLegend: false,
+      },
+    ];
+
+    return series;
+  };
+
   const closedPositions = useMemo(() => {
     return computeClosedPositions();
   }, [transactions, accounts, fromDate]);
+  const closedPnL = useMemo(() => {
+    return closedPositions.reduce((pnl, position) => pnl + position.pnl, 0);
+  }, [closedPositions]);
+  const options = useMemo(() => {
+    return getOptions({ series: getData(closedPositions), closedPnL });
+  }, [closedPositions, timeline, closedPnL]);
 
-  return (
-    <Card
-      // title="Realized P&L"
-      // headStyle={{ paddingLeft: 16, fontSize: 18, fontWeight: 'bold' }}
-      // style={{ marginTop: 16, marginBottom: 16 }}
-      bodyStyle={{ padding: 0 }}
-    >
-      <Table<ClosedPosition> dataSource={closedPositions} columns={getColumns()} />
-    </Card>
+  return !!closedPositions.length ? (
+    <>
+      <Flex mt={4} justifyContent="center">
+        <Statistic
+          title="Realized P&L"
+          value={isPrivateMode ? '--' : closedPnL}
+          precision={2}
+          suffix="CAD"
+          valueStyle={{ color: closedPnL >= 0 ? 'green' : 'red' }}
+          prefix={closedPnL >= 0 ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
+        />
+      </Flex>
+
+      <Charts options={options} />
+
+      <Flex width={1} justifyContent="center" py={2} mb={4}>
+        <Radio.Group
+          defaultValue={timeline}
+          size="large"
+          buttonStyle="solid"
+          onChange={(e) => setTimeline(e.target.value)}
+        >
+          <Radio.Button value="week">Week</Radio.Button>
+          <Radio.Button value="month">Month</Radio.Button>
+          <Radio.Button value="year">Year</Radio.Button>
+        </Radio.Group>
+      </Flex>
+
+      <Card
+        title="Realized P&L History"
+        headStyle={{ paddingLeft: 16, fontSize: 18, fontWeight: 'bold' }}
+        style={{ marginTop: 16, marginBottom: 16 }}
+        bodyStyle={{ padding: 0 }}
+      >
+        <Table<ClosedPosition> dataSource={closedPositions} columns={getColumns()} />
+      </Card>
+    </>
+  ) : (
+    <Empty description="No realized gains for the selected time period." />
   );
 }

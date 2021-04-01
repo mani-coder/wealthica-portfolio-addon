@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import Select from 'antd/es/select';
 import Typography from 'antd/es/typography';
 import * as Highcharts from 'highcharts';
