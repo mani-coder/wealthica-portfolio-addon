@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-no-target-blank */
 import Alert from 'antd/lib/alert';
 import moment, { Moment } from 'moment';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Collapsible from './Collapsible';
 import { Flex } from 'rebass';
 import { trackEvent } from '../analytics';
@@ -17,7 +17,7 @@ type Props = {
 const DATE_DISPLAY_FORMAT = 'MMM DD, YYYY';
 const PNL_WIDGET_OOKIE_NAME = '__pnl_widget_notification__';
 
-export default function YoYPnLChart(props: Props) {
+function YoYPnLChart(props: Props) {
   const [showPnLWidgetInfo, setShowPnLWidgetInfo] = useState(false);
   useEffect(() => {
     setShowPnLWidgetInfo(!getLocalCache(PNL_WIDGET_OOKIE_NAME));
@@ -241,9 +241,9 @@ export default function YoYPnLChart(props: Props) {
     return series;
   };
 
-  const options = getOptions({
-    series: getData(),
-  });
+  const options = useMemo(() => {
+    return getOptions({ series: getData() });
+  }, [props.isPrivateMode, props.portfolios]);
 
   return (
     <Collapsible title="P&L % Change Over Multiple Time Periods">
@@ -280,3 +280,5 @@ export default function YoYPnLChart(props: Props) {
     </Collapsible>
   );
 }
+
+export default React.memo(YoYPnLChart);

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Card, Typography } from 'antd';
 import { ColumnProps } from 'antd/lib/table';
 import React from 'react';
@@ -11,7 +12,7 @@ type Props = {
   isPrivateMode: boolean;
 };
 
-export default function HoldingsTable(props: Props) {
+function HoldingsTable(props: Props) {
   const marketValue = props.positions.reduce((sum, position) => {
     return sum + position.market_value;
   }, 0);
@@ -133,3 +134,5 @@ export default function HoldingsTable(props: Props) {
     </Card>
   );
 }
+
+export default React.memo(HoldingsTable);

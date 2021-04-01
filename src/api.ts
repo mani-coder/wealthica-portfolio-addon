@@ -99,14 +99,15 @@ export const parseTransactionsResponse = (response: any, currencyCache: any, acc
 
       if (['deposit'].includes(type)) {
         portfolioData.deposit += amount;
-      } else if (
-        type === 'transfer' &&
-        // FX and journal over shouldn't be treated as deposits.
-        !['FXT', 'BRW'].includes(transaction.origin_type) &&
-        // Security transfer over..
-        !transaction.symbol
-      ) {
-        portfolioData.deposit += amount;
+      } else if (type === 'transfer') {
+        if (
+          // FX and journal over shouldn't be treated as deposits.
+          !['FXT', 'BRW'].includes(transaction.origin_type) &&
+          // Security transfer over..
+          !transaction.symbol
+        ) {
+          portfolioData.deposit += amount;
+        }
       } else if (['fee', 'interest', 'tax'].includes(type)) {
         portfolioData.interest += Math.abs(amount);
       } else if (['income', 'dividend', 'distribution'].includes(type)) {

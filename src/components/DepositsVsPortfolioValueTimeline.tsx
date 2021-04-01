@@ -9,7 +9,7 @@ type Props = {
   isPrivateMode: boolean;
 };
 
-export default function DepositVsPortfolioValueTimeline(props: Props) {
+function DepositVsPortfolioValueTimeline(props: Props) {
   function getSeries(): any {
     return [
       {
@@ -110,3 +110,5 @@ export default function DepositVsPortfolioValueTimeline(props: Props) {
     </Collapsible>
   );
 }
+
+export default React.memo(DepositVsPortfolioValueTimeline);

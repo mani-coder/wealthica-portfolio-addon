@@ -13,7 +13,7 @@ function StatisticBox(props: StatisticProps) {
   );
 }
 
-export default function PnLStatistics({
+function PnLStatistics({
   portfolios,
   privateMode,
   positions,
@@ -67,3 +67,5 @@ export default function PnLStatistics({
     </Card>
   );
 }
+
+export default React.memo(PnLStatistics);
