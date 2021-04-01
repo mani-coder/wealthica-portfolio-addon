@@ -127,9 +127,7 @@ export const parseSecurityTransactionsResponse = (response: any, currencyCache: 
     .filter((t) => !t.deleted && t.type)
     .filter(
       (transaction) =>
-        ['sell', 'buy', 'income', 'dividend', 'distribution', 'tax', 'fee', 'transfer'].includes(
-          transaction.type.toLowerCase(),
-        ) &&
+        ['sell', 'buy', 'income', 'dividend', 'distribution', 'tax', 'fee'].includes(transaction.type.toLowerCase()) &&
         (transaction.security || transaction.symbol),
     )
     .map((transaction) => {
