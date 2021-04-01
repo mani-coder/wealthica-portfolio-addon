@@ -47,7 +47,7 @@ type CurrentPosition = {
 const DATE_DISPLAY_FORMAT = 'MMM DD, YYYY';
 
 export default function RealizedPnL({ currencyCache, transactions, accounts, isPrivateMode, fromDate }: Props) {
-  const [timeline, setTimeline] = useState<'month' | 'year' | 'week'>('month');
+  const [timeline, setTimeline] = useState<'month' | 'year' | 'week' | 'day'>('month');
 
   function getAccount(account: string) {
     const account_obj = accounts.find((_account) => account === _account.id);
@@ -298,6 +298,8 @@ export default function RealizedPnL({ currencyCache, transactions, accounts, isP
         )}`;
       case 'year':
         return startDate.format('YYYY');
+      case 'day':
+        return startDate.format('MMM DD, YYYY');
     }
   };
 
@@ -392,6 +394,7 @@ export default function RealizedPnL({ currencyCache, transactions, accounts, isP
           buttonStyle="solid"
           onChange={(e) => setTimeline(e.target.value)}
         >
+          <Radio.Button value="day">Day</Radio.Button>
           <Radio.Button value="week">Week</Radio.Button>
           <Radio.Button value="month">Month</Radio.Button>
           <Radio.Button value="year">Year</Radio.Button>
