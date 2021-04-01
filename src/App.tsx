@@ -34,7 +34,7 @@ import { getSymbol } from './utils';
 
 type State = {
   addon: any;
-  currencyCache: { [key: string]: number };
+  currencyCache?: { [key: string]: number };
   securityTransactions: Transaction[];
   portfolios: Portfolio[];
   allPortfolios: Portfolio[];
@@ -55,7 +55,7 @@ class App extends Component<Props, State> {
 
     this.state = {
       addon: this.getAddon(),
-      currencyCache: {},
+      currencyCache: undefined,
       securityTransactions: [],
       portfolios: [],
       allPortfolios: [],
@@ -440,7 +440,7 @@ class App extends Component<Props, State> {
 
                 <Tabs.TabPane tab="Realized P&L" key="realized-pnl">
                   <RealizedPnL
-                    currencyCache={this.state.currencyCache}
+                    currencyCache={this.state.currencyCache || {}}
                     fromDate={this.state.fromDate}
                     transactions={this.state.securityTransactions}
                     accounts={this.state.accounts}

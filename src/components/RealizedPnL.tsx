@@ -266,7 +266,7 @@ export default function RealizedPnL({ currencyCache, transactions, accounts, isP
           enabled: !isPrivateMode,
         },
         title: {
-          text: 'P&L ($)',
+          text: 'P&L $ (CAD)',
         },
       },
 
