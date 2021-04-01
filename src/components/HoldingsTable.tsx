@@ -91,7 +91,7 @@ function HoldingsTable(props: Props) {
         dataIndex: 'gain_percent',
         render: (text, position) => (
           <Box style={{ color: position.gain_percent < 0 ? 'red' : 'green' }}>
-            <Typography.Text strong style={{ color: 'inherit', fontSize: 16 }}>
+            <Typography.Text strong style={{ color: 'inherit', fontSize: 14 }}>
               {formatMoney(position.gain_percent * 100)}%
             </Typography.Text>
             <Box />
