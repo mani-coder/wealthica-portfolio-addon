@@ -455,6 +455,8 @@ class App extends Component<Props, State> {
             </Flex>
           )}
 
+          <br />
+          <hr />
           <Typography.Title level={4} type="secondary">
             Disclaimer
           </Typography.Title>
