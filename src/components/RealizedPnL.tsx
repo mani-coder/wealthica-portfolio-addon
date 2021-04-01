@@ -373,7 +373,7 @@ export default function RealizedPnL({ currencyCache, transactions, accounts, isP
 
   return !!closedPositions.length ? (
     <>
-      <Flex mb={3} justifyContent="center">
+      <Flex mt={2} mb={3} justifyContent="center">
         <Statistic
           value={isPrivateMode ? '--' : closedPnL}
           precision={2}
