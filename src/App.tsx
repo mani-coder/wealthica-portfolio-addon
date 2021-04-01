@@ -363,7 +363,7 @@ class App extends Component<Props, State> {
 
   componentDidMount() {
     if (!this.state.addon) {
-      setTimeout(() => this.loadStaticPortfolioData(), 200);
+      setTimeout(() => this.loadStaticPortfolioData(), 0);
     } else if (window.analytics) {
       window.analytics.page();
     }
@@ -397,7 +397,7 @@ class App extends Component<Props, State> {
                 </Flex>
               )}
 
-              <Tabs defaultActiveKey="realized-pnl" onChange={(tab) => trackEvent('tab-change', { tab })} size="large">
+              <Tabs defaultActiveKey="pnl" onChange={(tab) => trackEvent('tab-change', { tab })} size="large">
                 <Tabs.TabPane forceRender tab="P&L Charts" key="pnl">
                   <PnLStatistics
                     portfolios={this.state.portfolios}
