@@ -202,7 +202,7 @@ export default function RealizedPnL({ currencyCache, transactions, accounts, isP
         key: 'gain',
         title: (
           <>
-            P&L<div style={{ fontSize: 12 }}>(CAD)</div>
+            P&L $%<div style={{ fontSize: 12 }}>(CAD)</div>
           </>
         ),
         render: (text, position) => (
