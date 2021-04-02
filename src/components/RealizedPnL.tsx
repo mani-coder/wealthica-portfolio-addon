@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { ArrowDownOutlined, ArrowUpOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import { ArrowDownOutlined, ArrowUpOutlined, QuestionCircleTwoTone } from '@ant-design/icons';
 import { Empty, Statistic } from 'antd';
 import Tooltip from 'antd/es/tooltip';
 import Typography from 'antd/es/typography';
@@ -187,7 +187,7 @@ export default function RealizedPnL({ currencyCache, transactions, accounts, isP
           <>
             Buy Price / Sell Price{' '}
             <Tooltip title="This is the Adjusted Cost Base (ACB) which includes the buy/sell transaction fees.">
-              <QuestionCircleOutlined color="#f5f5f5" />
+              <QuestionCircleTwoTone twoToneColor="#bfbfbf" />
             </Tooltip>
           </>
         ),
@@ -202,7 +202,7 @@ export default function RealizedPnL({ currencyCache, transactions, accounts, isP
         key: 'gain',
         title: (
           <>
-            P&L<div style={{ fontSize: 12 }}>(CAD)</div>
+            P&L $%<div style={{ fontSize: 12 }}>(CAD)</div>
           </>
         ),
         render: (text, position) => (
