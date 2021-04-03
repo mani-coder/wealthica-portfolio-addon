@@ -35,10 +35,12 @@ export default function VirtualTable(props: Parameters<typeof Table>[0]) {
   });
 
   const resetVirtualGrid = () => {
-    gridRef.current.resetAfterIndices({
-      columnIndex: 0,
-      shouldForceUpdate: false,
-    });
+    if (gridRef && gridRef.current) {
+      gridRef.current.resetAfterIndices({
+        columnIndex: 0,
+        shouldForceUpdate: false,
+      });
+    }
   };
 
   useEffect(() => resetVirtualGrid, [tableWidth]);

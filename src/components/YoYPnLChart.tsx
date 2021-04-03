@@ -3,12 +3,12 @@
 import Alert from 'antd/lib/alert';
 import moment, { Moment } from 'moment';
 import React, { useEffect, useMemo, useState } from 'react';
-import Collapsible from './Collapsible';
 import { Flex } from 'rebass';
 import { trackEvent } from '../analytics';
 import { Portfolio } from '../types';
 import { formatCurrency, getLocalCache, getPreviousWeekday, setLocalCache } from '../utils';
 import Charts from './Charts';
+import Collapsible from './Collapsible';
 
 type Props = {
   portfolios: Portfolio[];
@@ -110,6 +110,7 @@ function YoYPnLChart(props: Props) {
 
     const lastDate = currentPortfolio.date;
 
+    const portfolioKeys = new Set();
     const portfolioValues: {
       id: string;
       label: string;
@@ -134,13 +135,17 @@ function YoYPnLChart(props: Props) {
     ].map((value) => {
       const portfolio = getNearestPortfolioDate(value.date.format('YYYY-MM-DD'));
       if (portfolio) {
-        portfolioValues.push({
-          id: value.id,
-          label: value.label,
-          date: value.date,
-          startPortfolio: portfolio,
-          endPortfolio: currentPortfolio,
-        });
+        const key = `${portfolio.date}-${currentPortfolio.date}`;
+        if (!portfolioKeys.has(key)) {
+          portfolioValues.push({
+            id: value.id,
+            label: value.label,
+            date: value.date,
+            startPortfolio: portfolio,
+            endPortfolio: currentPortfolio,
+          });
+          portfolioKeys.add(key);
+        }
       }
       return null;
     });
@@ -154,19 +159,23 @@ function YoYPnLChart(props: Props) {
       );
 
       if (startPortfolio && endPortfolio) {
-        portfolioValues.push({
-          id: `FY ${year}`,
-          label: `Jan - Dec ${year}`,
-          date: startDate,
-          startPortfolio,
-          endPortfolio,
-        });
+        const key = `${startPortfolio.date}-${endPortfolio.date}`;
+        if (!portfolioKeys.has(key)) {
+          portfolioValues.push({
+            id: `FY ${year}`,
+            label: `Jan - Dec ${year}`,
+            date: startDate,
+            startPortfolio,
+            endPortfolio,
+          });
+          portfolioKeys.add(key);
+        }
       }
     });
 
     const data = portfolioValues
       .filter((value) => value.endPortfolio.date !== value.startPortfolio.date)
-      .sort((a, b) => a.date.valueOf() - b.date.valueOf())
+      .sort((a, b) => (a.date.valueOf() > b.date.valueOf() ? 1 : -1))
       .map((value) => {
         const startPnl = value.startPortfolio.value - value.startPortfolio.deposits;
         const endPnl = value.endPortfolio.value - value.endPortfolio.deposits;
