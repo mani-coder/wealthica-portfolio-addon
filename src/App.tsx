@@ -22,6 +22,7 @@ import DepositVsPortfolioValueTimeline from './components/DepositsVsPortfolioVal
 import HoldingsCharts from './components/HoldingsCharts';
 import HoldingsTable from './components/HoldingsTable';
 import PnLStatistics from './components/PnLStatistics';
+import PortfolioVisualizer from './components/PortfolioVisualizer';
 import ProfitLossPercentageTimeline from './components/ProfitLossPercentageTimeline';
 import ProfitLossTimeline from './components/ProfitLossTimeline';
 import RealizedPnL from './components/RealizedPnL';
@@ -427,6 +428,9 @@ class App extends Component<Props, State> {
                         isPrivateMode={this.state.privateMode}
                         addon={this.state.addon}
                       />
+
+                      <PortfolioVisualizer positions={this.state.positions} />
+
                       <HoldingsTable positions={this.state.positions} isPrivateMode={this.state.privateMode} />
                     </>
                   ) : (

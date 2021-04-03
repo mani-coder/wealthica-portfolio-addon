@@ -1,10 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Card, Typography } from 'antd';
+import { Typography } from 'antd';
 import { ColumnProps } from 'antd/lib/table';
 import React from 'react';
 import { Box } from 'rebass';
 import { Position } from '../types';
 import { formatMoney, getSymbol } from '../utils';
+import Collapsible from './Collapsible';
 import VirtualTable from './VirtualTable';
 
 type Props = {
@@ -124,14 +125,11 @@ function HoldingsTable(props: Props) {
   }
 
   return (
-    <Card
-      title="Holdings Table"
-      headStyle={{ paddingLeft: 16, fontSize: 18, fontWeight: 'bold' }}
-      style={{ marginTop: 16, marginBottom: 16 }}
-      bodyStyle={{ padding: 0 }}
-    >
-      <VirtualTable scroll={{ y: 600 }} dataSource={props.positions} columns={getColumns() as any} />
-    </Card>
+    <div className="zero-padding">
+      <Collapsible title="Holdings Table">
+        <VirtualTable scroll={{ y: 600 }} dataSource={props.positions} columns={getColumns() as any} />
+      </Collapsible>
+    </div>
   );
 }
 

@@ -5,7 +5,7 @@ import * as Highcharts from 'highcharts';
 import React, { useMemo, useState } from 'react';
 import { Flex } from 'rebass';
 import { Account, Position } from '../types';
-import { formatCurrency, formatMoney, getSymbol, getURLParams } from '../utils';
+import { formatCurrency, formatMoney, getSymbol } from '../utils';
 import Charts from './Charts';
 import Collapsible from './Collapsible';
 import StockDetails from './StockDetails';
@@ -375,30 +375,6 @@ export default function HoldingsCharts(props: Props) {
     };
   };
 
-  const getPortfolioVisualizerLink = () => {
-    const marketValue = props.positions.reduce((sum, position) => {
-      return sum + position.market_value;
-    }, 0);
-
-    let remainingWeightage = 100;
-    const params = getURLParams(
-      props.positions.reduce((hash, position, index) => {
-        // symbol1=QD&allocation1_1=1&
-        // symbol2=TTD&allocation2_1=15
-        let weightage = Number(((position.market_value / marketValue) * 100).toFixed(1));
-        remainingWeightage -= weightage;
-        remainingWeightage = Number(remainingWeightage.toFixed(1));
-        if (index + 1 === props.positions.length) {
-          weightage += remainingWeightage;
-        }
-        hash[`symbol${index + 1}`] = getSymbol(position.security);
-        hash[`allocation${index + 1}_1`] = weightage;
-        return hash;
-      }, {}),
-    );
-    return `https://www.portfoliovisualizer.com/backtest-portfolio?s=y&timePeriod=4&initialAmount=10000&annualOperation=0&annualAdjustment=0&inflationAdjusted=true&annualPercentage=0.0&frequency=4&rebalanceType=1&showYield=false&reinvestDividends=true&${params}#analysisResults`;
-  };
-
   const renderStockTimeline = () => {
     if (!timelineSymbol) {
       return <></>;
@@ -508,17 +484,6 @@ export default function HoldingsCharts(props: Props) {
       </Flex>
 
       {renderStockTimeline()}
-
-      <div className="center">
-        <div
-          className="button"
-          onClick={() => {
-            window.open(getPortfolioVisualizerLink(), '_blank');
-          }}
-        >
-          Portfolio Visualizer
-        </div>
-      </div>
 
       <Collapsible title="USD/CAD Composition">
         <Charts options={usdCadChartOptions} />
