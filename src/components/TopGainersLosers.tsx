@@ -118,6 +118,31 @@ export function TopGainersLosers(props: { isPrivateMode: boolean; positions: Pos
           },
         },
       },
+      responsive: {
+        rules: [
+          {
+            condition: {
+              maxWidth: 500,
+            },
+            chartOptions: {
+              chart: {
+                height: 300,
+              },
+              yAxis: {
+                labels: {
+                  enabled: false,
+                },
+              },
+              subtitle: {
+                text: undefined,
+              },
+              navigator: {
+                enabled: false,
+              },
+            },
+          },
+        ],
+      },
     };
   }
 

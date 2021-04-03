@@ -128,6 +128,18 @@ function ProfitLossPercentageTimeline(props: Props) {
               chart: {
                 height: 300,
               },
+              yAxis: [
+                {
+                  labels: {
+                    enabled: false,
+                  },
+                },
+                {
+                  labels: {
+                    enabled: false,
+                  },
+                },
+              ],
               subtitle: {
                 text: undefined,
               },
