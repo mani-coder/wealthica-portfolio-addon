@@ -13,6 +13,7 @@ function DepositVsPortfolioValueTimeline(props: Props) {
   function getSeries(): any {
     return [
       {
+        id: 'portfolio',
         name: 'Portfolio',
         data: props.portfolios.map((portfolio) => {
           return {
@@ -25,6 +26,7 @@ function DepositVsPortfolioValueTimeline(props: Props) {
         color: '#4E2E5E',
       },
       {
+        id: 'deposits',
         name: 'Deposits',
         data: props.portfolios.map((portfolio) => {
           return {
@@ -90,11 +92,24 @@ function DepositVsPortfolioValueTimeline(props: Props) {
               chart: {
                 height: 300,
               },
+
               subtitle: {
                 text: undefined,
               },
+              yAxis: [
+                {
+                  labels: {
+                    enabled: false,
+                  },
+                },
+                {
+                  labels: {
+                    enabled: false,
+                  },
+                },
+              ],
               navigator: {
-                enabled: true,
+                enabled: false,
               },
             },
           },
