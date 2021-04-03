@@ -8,7 +8,7 @@ import _ from 'lodash';
 import moment from 'moment';
 import React, { Component } from 'react';
 import { Flex } from 'rebass';
-import { trackEvent } from './analytics';
+import { initTracking, trackEvent } from './analytics';
 import {
   parseCurrencyReponse,
   parseInstitutionsResponse,
@@ -75,10 +75,7 @@ class App extends Component<Props, State> {
       addon.on('init', (options) => {
         console.debug('Addon initialization', options);
         this.load(options);
-        if (window.analytics) {
-          window.analytics.identify(options.authUserId);
-        }
-        trackEvent('init');
+        initTracking(options.authUserId);
       });
 
       addon.on('reload', () => {
@@ -365,8 +362,6 @@ class App extends Component<Props, State> {
   componentDidMount() {
     if (!this.state.addon) {
       setTimeout(() => this.loadStaticPortfolioData(), 0);
-    } else if (window.analytics) {
-      window.analytics.page();
     }
   }
 
