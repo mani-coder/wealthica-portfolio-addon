@@ -5,6 +5,7 @@ import Radio from 'antd/lib/radio';
 import * as Highcharts from 'highcharts';
 import React, { useMemo, useState } from 'react';
 import { Flex } from 'rebass';
+import { trackEvent } from '../analytics';
 import { Account, Position } from '../types';
 import { formatCurrency, formatMoney, getCurrencyInCAD, getSymbol } from '../utils';
 import Charts from './Charts';
@@ -592,7 +593,10 @@ export default function HoldingsCharts(props: Props) {
             optionType="button"
             buttonStyle="solid"
             defaultValue={compositionGroup}
-            onChange={(e) => setCompositionGroup(e.target.value)}
+            onChange={(e) => {
+              setCompositionGroup(e.target.value);
+              trackEvent('holdings-composition-chart', { group: e.target.value });
+            }}
             options={[
               { label: 'Group By Currency', value: 'currency' },
               { label: 'Group By Accounts', value: 'accounts' },
