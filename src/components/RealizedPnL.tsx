@@ -1,10 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { ArrowDownOutlined, ArrowUpOutlined, QuestionCircleTwoTone } from '@ant-design/icons';
-import { Empty, Statistic } from 'antd';
 import Tooltip from 'antd/es/tooltip';
 import Typography from 'antd/es/typography';
 import Card from 'antd/lib/card';
+import Empty from 'antd/lib/empty';
 import Radio from 'antd/lib/radio';
+import Statistic from 'antd/lib/statistic';
 import Table, { ColumnProps } from 'antd/lib/table';
 import moment, { Moment } from 'moment';
 import 'moment-precise-range-plugin';
@@ -394,7 +395,7 @@ export default function RealizedPnL({ currencyCache, transactions, accounts, isP
         />
       </Flex>
 
-      <Charts options={options} />
+      <Charts key={timeline} options={options} />
 
       <Flex width={1} justifyContent="center" py={2} mb={4}>
         <Radio.Group
@@ -402,12 +403,14 @@ export default function RealizedPnL({ currencyCache, transactions, accounts, isP
           size="large"
           buttonStyle="solid"
           onChange={(e) => setTimeline(e.target.value)}
-        >
-          <Radio.Button value="day">Day</Radio.Button>
-          <Radio.Button value="week">Week</Radio.Button>
-          <Radio.Button value="month">Month</Radio.Button>
-          <Radio.Button value="year">Year</Radio.Button>
-        </Radio.Group>
+          options={[
+            { label: 'Day', value: 'day' },
+            { label: 'Week', value: 'week' },
+            { label: 'Month', value: 'month' },
+            { label: 'Year', value: 'year' },
+          ]}
+          optionType="button"
+        />
       </Flex>
 
       <Card

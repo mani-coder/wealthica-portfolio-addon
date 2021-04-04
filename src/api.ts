@@ -1,6 +1,6 @@
 import { DATE_FORMAT } from './constants';
 import { Account, Position, Transaction } from './types';
-import { getCurrencyInCAD, getDate, getSymbol } from './utils';
+import { getCurrencyInCAD, getDate, getSymbol, normalizeAccountType } from './utils';
 
 export const parseCurrencyReponse = (response: any) => {
   const date = getDate(response.from);
@@ -34,10 +34,13 @@ export const parseInstitutionsResponse = (response: any, groups?: string[], inst
               institution: instutition.id,
               name: instutition.name,
               created_at: getDate(instutition.creation_date),
-              type: account.name && account.name.includes('-') ? account.name.split('-')[1].trim() : account.name,
+              type: normalizeAccountType(
+                account.name && account.name.includes('-') ? account.name.split('-')[1].trim() : account.name,
+              ),
               group: account.group,
               cash: account.cash,
               value: account.value,
+              currency_value: account.currency_value,
               currency: account.currency,
               positions: (account.positions || []).map((position) => ({
                 ...position,

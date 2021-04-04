@@ -10,8 +10,8 @@ export const getDate = (date: string): Moment => {
   return moment(date.slice(0, 10), DATE_FORMAT);
 };
 
-export const getCurrencyInCAD = (date: Moment, value: number, currencyCache: any): number => {
-  const multiplier = currencyCache[date.format(DATE_FORMAT)];
+export const getCurrencyInCAD = (date: Moment | string, value: number, currencyCache: any): number => {
+  const multiplier = currencyCache[typeof date === 'string' ? date : date.format(DATE_FORMAT)];
   return multiplier ? value / multiplier : value;
 };
 
@@ -92,4 +92,16 @@ export function getLocalCache(name) {
   try {
     return window.localStorage.getItem(name);
   } catch {}
+}
+
+export function normalizeAccountType(type: string): string {
+  if (type.includes('SRRSP')) {
+    return 'SRRSP';
+  } else if (type.includes('RRSP') || type.includes('Registered Retirement Savings Plan')) {
+    return 'RRSP';
+  } else if (type.includes('TFSA') || type.includes('Tax Free Savings Plan')) {
+    return 'TFSA';
+  } else {
+    return type;
+  }
 }
