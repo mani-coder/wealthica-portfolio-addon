@@ -3,6 +3,7 @@ import Select from 'antd/es/select';
 import Typography from 'antd/es/typography';
 import Radio from 'antd/lib/radio';
 import * as Highcharts from 'highcharts';
+import _ from 'lodash';
 import React, { useMemo, useState } from 'react';
 import { Flex } from 'rebass';
 import { trackEvent } from '../analytics';
@@ -44,8 +45,8 @@ const COMPOSITION_TOOLTIP = {
   pointFormat: `<table>
     <tr><td>Value</td><td align="right" class="position-tooltip-value">CAD {point.displayValue}</td></tr>
     <tr><td>Total Value</td><td align="right" class="position-tooltip-value">CAD {point.totalValue}</td></tr>
-    <tr><td>Unrealized P/L ($) </td><td align="right" style="color:{point.pnlColor};" class="position-tooltip-value">CAD {point.gain}</td></tr>
-    <tr><td>Unrealized P/L (%)</td><td align="right" style="color:{point.pnlColor};" class="position-tooltip-value">{point.gainRatio:.2f}%</td></tr>
+    <tr><td>Unrealized P/L ($) </td><td align="right" style="color:{point.pnlColor};" class="position-tooltip-value">{point.gain}</td></tr>
+    <tr><td>Unrealized P/L (%)</td><td align="right" style="color:{point.pnlColor};" class="position-tooltip-value">{point.gainRatio}</td></tr>
     {point.additionalValue}
   </table>`,
 };
@@ -234,8 +235,9 @@ export default function HoldingsCharts(props: Props) {
             displayValue: props.isPrivateMode ? '-' : data.value ? formatMoney(data.value) : data.value,
             totalValue: props.isPrivateMode ? '-' : totalValue,
 
-            gain: props.isPrivateMode ? '-' : formatMoney(data.gain),
-            gainRatio: (data.gain / (data.value - data.gain)) * 100,
+            gain: props.isPrivateMode ? '-' : `CAD ${formatMoney(data.gain)}`,
+            gainRatio: `${((data.gain / (data.value - data.gain)) * 100).toFixed(2)}%`,
+
             pnlColor: data.gain >= 0 ? 'green' : 'red',
           } as Highcharts.SeriesPieDataOptions;
         })
@@ -262,6 +264,8 @@ export default function HoldingsCharts(props: Props) {
               displayValue: props.isPrivateMode ? '-' : data.value ? formatMoney(data.value) : data.value,
               totalValue: props.isPrivateMode ? '-' : totalValue,
               currency: currency.toUpperCase(),
+              gain: 'n/a',
+              gainRatio: 'n/a',
               additionalValue: `<tr><td colspan="2"><hr /></td></tr>${accountsTable}`,
             };
           }),
@@ -275,9 +279,13 @@ export default function HoldingsCharts(props: Props) {
     };
   };
 
-  const getAccountsCompositionDrillDown = (groupByType?: boolean): Highcharts.DrilldownOptions => {
+  function getGroupKey(group: string, account: Account) {
+    return group === 'type' ? account.type : group === 'institution' ? account.name : `${account.name} ${account.type}`;
+  }
+
+  const getAccountsCompositionDrillDown = (group: string): Highcharts.DrilldownOptions => {
     const accountsByName = props.accounts.reduce((hash, account) => {
-      const name = groupByType ? account.type : `${account.name} ${account.type}`;
+      const name = getGroupKey(group, account);
       let mergedAccount = hash[name];
       if (!mergedAccount) {
         mergedAccount = { name, cash: 0, value: 0, positions: [] };
@@ -322,8 +330,6 @@ export default function HoldingsCharts(props: Props) {
           displayValue: props.isPrivateMode ? '-' : formatCurrency(account.cash, 1),
           value: props.isPrivateMode ? '-' : formatMoney(account.cash),
           percentage: (account.cash / account.value) * 100,
-          gain: 'N/A',
-          profit: 'N/A',
         } as any);
       }
 
@@ -348,11 +354,11 @@ export default function HoldingsCharts(props: Props) {
     };
   };
 
-  const getAccountsCompositionSeries = (groupByType?: boolean): Highcharts.SeriesPieOptions => {
+  const getAccountsCompositionSeries = (group: string): Highcharts.SeriesPieOptions => {
     const totalValue = props.accounts.reduce((value, account) => value + account.value, 0);
     const data = Object.values(
       props.accounts.reduce((hash, account) => {
-        const name = groupByType ? account.type : `${account.name} ${account.type}`;
+        const name = getGroupKey(group, account);
         let mergedAccount = hash[name];
         if (!mergedAccount) {
           mergedAccount = { name, value: 0, holdingsValue: 0, gainAmount: 0 };
@@ -379,8 +385,8 @@ export default function HoldingsCharts(props: Props) {
             negative: account.value < 0,
             displayValue: props.isPrivateMode ? '-' : account.value ? formatMoney(account.value) : account.value,
             totalValue: props.isPrivateMode ? '-' : formatMoney(totalValue),
-            gain: props.isPrivateMode ? '-' : formatMoney(account.gainAmount),
-            gainRatio: (account.gainAmount / (account.holdingsValue - account.gainAmount)) * 100,
+            gain: props.isPrivateMode ? '-' : `CAD ${formatMoney(account.gainAmount)}`,
+            gainRatio: `${((account.gainAmount / (account.holdingsValue - account.gainAmount)) * 100).toFixed(2)}%`,
             pnlColor: account.gainAmount >= 0 ? 'green' : 'red',
           } as Highcharts.SeriesPieDataOptions;
         }),
@@ -392,6 +398,25 @@ export default function HoldingsCharts(props: Props) {
       tooltip: COMPOSITION_TOOLTIP,
     };
   };
+
+  function getCompositionGroupSeriesOptions(pie: any, group: string) {
+    let series;
+    let drilldown;
+    let title;
+    switch (group) {
+      case 'currency':
+        series = getCurrencyCompositionSeries();
+        drilldown = getCurrencyCompositionDrillDown(pie);
+        title = 'USD/CAD Composition';
+        break;
+      default:
+        series = getAccountsCompositionSeries(group);
+        drilldown = getAccountsCompositionDrillDown(group);
+        title = `${_.startCase(group)} Composition`;
+    }
+
+    return { series, drilldown, title };
+  }
 
   const getOptions = ({
     title,
@@ -550,24 +575,13 @@ export default function HoldingsCharts(props: Props) {
   );
 
   const compositionGroupOptions = useMemo(() => {
-    return {
-      currency: getOptions({
-        title: 'USD/CAD Composition',
-        series: [getCurrencyCompositionSeries()],
-        drilldown: getCurrencyCompositionDrillDown(pie),
-      }),
-      accounts: getOptions({
-        title: 'Accounts Composition',
-        series: [getAccountsCompositionSeries()],
-        drilldown: getAccountsCompositionDrillDown(),
-      }),
-      type: getOptions({
-        title: 'Account Type Composition',
-        series: [getAccountsCompositionSeries(true)],
-        drilldown: getAccountsCompositionDrillDown(true),
-      }),
-    };
-  }, [props.isPrivateMode, props.accounts, props.positions, pie]);
+    const { series, drilldown, title } = getCompositionGroupSeriesOptions(pie, compositionGroup);
+    return getOptions({
+      title,
+      series: [series],
+      drilldown,
+    });
+  }, [props.isPrivateMode, props.accounts, props.positions, pie, compositionGroup]);
 
   return (
     <>
@@ -586,10 +600,10 @@ export default function HoldingsCharts(props: Props) {
       {renderStockTimeline()}
 
       <Collapsible title="Holdings Composition">
-        <Charts key={compositionGroup} options={compositionGroupOptions[compositionGroup]} />
-        <Flex width={1} justifyContent="center" py={2} mb={2}>
+        <Charts key={compositionGroup} options={compositionGroupOptions} />
+        <Flex width={1} flexDirection="column" alignItems="center" py={2} mb={2}>
+          <Typography.Title level={4}>Group By</Typography.Title>
           <Radio.Group
-            size="large"
             optionType="button"
             buttonStyle="solid"
             defaultValue={compositionGroup}
@@ -598,9 +612,10 @@ export default function HoldingsCharts(props: Props) {
               trackEvent('holdings-composition-chart', { group: e.target.value });
             }}
             options={[
-              { label: 'Group By Currency', value: 'currency' },
-              { label: 'Group By Accounts', value: 'accounts' },
-              { label: 'Group By Type', value: 'type' },
+              { label: 'Currency', value: 'currency' },
+              { label: 'Institution', value: 'institution' },
+              { label: 'Account', value: 'accounts' },
+              { label: 'Account Type', value: 'type' },
             ]}
           />
         </Flex>
