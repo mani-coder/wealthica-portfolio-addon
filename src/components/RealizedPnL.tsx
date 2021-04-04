@@ -11,6 +11,7 @@ import moment, { Moment } from 'moment';
 import 'moment-precise-range-plugin';
 import React, { useMemo, useState } from 'react';
 import { Box, Flex } from 'rebass';
+import { trackEvent } from '../analytics';
 import { DATE_FORMAT } from '../constants';
 import { Account, Transaction } from '../types';
 import { formatCurrency, formatMoney, getCurrencyInCAD } from '../utils';
@@ -402,7 +403,10 @@ export default function RealizedPnL({ currencyCache, transactions, accounts, isP
           defaultValue={timeline}
           size="large"
           buttonStyle="solid"
-          onChange={(e) => setTimeline(e.target.value)}
+          onChange={(e) => {
+            trackEvent('realized-pnl-chart', { timeline: e.target.value });
+            setTimeline(e.target.value);
+          }}
           options={[
             { label: 'Day', value: 'day' },
             { label: 'Week', value: 'week' },
