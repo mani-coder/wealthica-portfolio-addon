@@ -6,9 +6,9 @@ export function initTracking(userHash) {
   }
 
   enabled = true;
-  window.analytics.identify(userHash);
-  trackEvent('init');
   trackPage();
+  trackEvent('init');
+  window.analytics.identify(userHash);
 }
 
 export function trackPage() {
