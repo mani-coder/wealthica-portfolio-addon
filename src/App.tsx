@@ -394,7 +394,7 @@ class App extends Component<Props, State> {
               )}
 
               <Tabs defaultActiveKey="pnl" onChange={(tab) => trackEvent('tab-change', { tab })} size="large">
-                <Tabs.TabPane forceRender tab="P&L Charts" key="pnl">
+                <Tabs.TabPane destroyInactiveTabPane forceRender tab="P&L Charts" key="pnl">
                   <PnLStatistics
                     portfolios={this.state.portfolios}
                     privateMode={this.state.privateMode}
@@ -418,6 +418,7 @@ class App extends Component<Props, State> {
                   {!!this.state.positions.length ? (
                     <>
                       <HoldingsCharts
+                        currencyCache={this.state.currencyCache || {}}
                         positions={this.state.positions}
                         accounts={this.state.accounts}
                         isPrivateMode={this.state.privateMode}
@@ -433,11 +434,11 @@ class App extends Component<Props, State> {
                   )}
                 </Tabs.TabPane>
 
-                <Tabs.TabPane tab="Gainers/Losers" key="gainers-losers">
+                <Tabs.TabPane destroyInactiveTabPane tab="Gainers/Losers" key="gainers-losers">
                   <TopGainersLosers positions={this.state.positions} isPrivateMode={this.state.privateMode} />
                 </Tabs.TabPane>
 
-                <Tabs.TabPane tab="Realized P&L" key="realized-pnl">
+                <Tabs.TabPane destroyInactiveTabPane tab="Realized P&L" key="realized-pnl">
                   <RealizedPnL
                     currencyCache={this.state.currencyCache || {}}
                     fromDate={this.state.fromDate}
