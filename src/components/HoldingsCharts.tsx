@@ -70,7 +70,7 @@ const COMPOSITION_TOOLTIP: Highcharts.PlotPieTooltipOptions = {
 export default function HoldingsCharts(props: Props) {
   const [timelineSymbol, setTimelineSymbol] = useState<string>();
   const [compositionGroup, setCompositionGroup] = useState<string>('type');
-  const [showHoldings, setShowHoldings] = useState(false);
+  const [showHoldings, setShowHoldings] = useState(true);
   const currencyCacheKeys = Object.keys(props.currencyCache);
   const lastCurrencyDate = currencyCacheKeys[currencyCacheKeys.length - 1];
   const colors = Highcharts.getOptions().colors;
@@ -569,7 +569,7 @@ export default function HoldingsCharts(props: Props) {
     const { series, drilldown, title } = getCompositionGroupSeriesOptions(compositionGroup);
     return getOptions({
       title,
-      subtitle: showHoldings ? '(click on the category name to drill into the holdings.)' : undefined,
+      subtitle: showHoldings ? undefined : '(click on the category name to drill into the holdings.)',
       series,
       drilldown,
     });
