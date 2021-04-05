@@ -569,7 +569,7 @@ export default function HoldingsCharts(props: Props) {
     const { series, drilldown, title } = getCompositionGroupSeriesOptions(compositionGroup);
     return getOptions({
       title,
-      subtitle: showHoldings ? '(click on the category name to drill into the holdings.)' : undefined,
+      subtitle: showHoldings ? undefined : '(click on the category name to drill into the holdings.)',
       series,
       drilldown,
     });
