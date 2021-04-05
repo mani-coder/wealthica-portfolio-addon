@@ -69,7 +69,7 @@ const COMPOSITION_TOOLTIP: Highcharts.PlotPieTooltipOptions = {
 
 export default function HoldingsCharts(props: Props) {
   const [timelineSymbol, setTimelineSymbol] = useState<string>();
-  const [compositionGroup, setCompositionGroup] = useState<string>('type');
+  const [compositionGroup, setCompositionGroup] = useState<string>('currency');
   const [showHoldings, setShowHoldings] = useState(true);
   const currencyCacheKeys = Object.keys(props.currencyCache);
   const lastCurrencyDate = currencyCacheKeys[currencyCacheKeys.length - 1];
