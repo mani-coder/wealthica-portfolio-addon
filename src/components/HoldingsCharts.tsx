@@ -56,17 +56,6 @@ const POSITION_TOOLTIP: Highcharts.PlotPieTooltipOptions = {
   headerFormat: '<b>{point.key}</b><hr />',
 };
 
-const COMPOSITION_TOOLTIP: Highcharts.PlotPieTooltipOptions = {
-  headerFormat: `<b>{point.key}<br />{point.percentage:.1f}%</b><hr />`,
-  pointFormat: `<table>
-    <tr><td>Value</td><td align="right" class="position-tooltip-value">CAD {point.displayValue}</td></tr>
-    <tr><td>Total Value</td><td align="right" class="position-tooltip-value">CAD {point.totalValue}</td></tr>
-    <tr><td>Unrealized P/L ($) </td><td align="right" style="color:{point.pnlColor};" class="position-tooltip-value">{point.gain}</td></tr>
-    <tr><td>Unrealized P/L (%)</td><td align="right" style="color:{point.pnlColor};" class="position-tooltip-value">{point.gainRatio}</td></tr>
-    {point.additionalValue}
-  </table>`,
-};
-
 export default function HoldingsCharts(props: Props) {
   const [timelineSymbol, setTimelineSymbol] = useState<string>();
   const [compositionGroup, setCompositionGroup] = useState<string>('currency');
@@ -183,14 +172,10 @@ export default function HoldingsCharts(props: Props) {
         const name = getGroupKey(group, account);
         let mergedAccount = hash[name];
         if (!mergedAccount) {
-          mergedAccount = { name, cash: 0, value: 0, positions: {}, accounts: [] };
+          mergedAccount = { name, value: 0, positions: {}, accounts: [] };
           hash[name] = mergedAccount;
         }
-        mergedAccount.value += account.value;
-        mergedAccount.cash +=
-          account.currency === 'usd'
-            ? getCurrencyInCAD(lastCurrencyDate, account.cash, props.currencyCache)
-            : account.cash;
+        mergedAccount.value += account.positions.reduce((sum, position) => sum + position.value, 0);
 
         account.positions.forEach((position) => {
           const symbol = getSymbol(position.security);
@@ -222,7 +207,6 @@ export default function HoldingsCharts(props: Props) {
           name: string;
           value: number;
           positions: { [K: string]: Position };
-          cash: number;
           accounts: Account[];
         };
       },
@@ -231,7 +215,7 @@ export default function HoldingsCharts(props: Props) {
     const getDataForAccount = (name: string, index: number) => {
       const account = accountsByName[name];
       const positions = Object.values(account.positions);
-      const numPositions = positions.length + (account.cash ? 1 : 0);
+      const numPositions = positions.length;
 
       const data = positions
         .sort((a, b) => b.value - a.value)
@@ -269,30 +253,31 @@ export default function HoldingsCharts(props: Props) {
           };
         });
 
-      if (account.cash) {
-        const accountsTable = account.accounts
-          .filter((account) => account.cash)
-          .sort((a, b) => b.cash - a.cash)
-          .map((account) => {
-            return `
-            <tr><td>${account.name} ${account.type}</td><td align="right">${account.currency.toUpperCase()} ${
-              props.isPrivateMode ? '-' : account.cash ? formatMoney(account.cash) : account.cash
-            }</td></tr>`;
-          })
-          .join('');
+      // if (account.cash) {
+      //   const accountsTable = account.accounts
+      //     .filter((account) => account.cash)
+      //     .sort((a, b) => b.cash - a.cash)
+      //     .map((account) => {
+      //       return `
+      //       <tr><td>${account.name} ${account.type}</td><td align="right">${account.currency.toUpperCase()} ${
+      //         props.isPrivateMode ? '-' : account.cash ? formatMoney(account.cash) : account.cash
+      //       }</td></tr>`;
+      //     })
+      //     .join('');
 
-        const brightness = 0.2 - positions.length / numPositions / 5;
-        const color = getColor(index);
+      //   const brightness = 0.2 - positions.length / numPositions / 5;
+      //   const color = getColor(index);
 
-        data.push({
-          color: color && showHoldings ? Highcharts.color(color).brighten(brightness).get() : undefined,
-          name: 'Cash',
-          y: account.cash,
-          displayValue: props.isPrivateMode ? '-' : formatCurrency(account.cash, 1),
-          value: props.isPrivateMode ? '-' : formatMoney(account.cash),
-          accountsTable,
-        } as any);
-      }
+      //   data.push({
+      //     color: color && showHoldings ? Highcharts.color(color).brighten(brightness).get() : undefined,
+      //     name: 'Cash',
+      //     y: Math.abs(account.cash),
+      //     negative: account.cash < 0,
+      //     displayValue: props.isPrivateMode ? '-' : formatCurrency(account.cash, 1),
+      //     value: props.isPrivateMode ? '-' : formatMoney(account.cash),
+      //     accountsTable,
+      //   } as any);
+      // }
 
       return drilldown
         ? {
@@ -334,9 +319,7 @@ export default function HoldingsCharts(props: Props) {
           dataLabels: {
             formatter() {
               const point = this.point;
-              return (point.percentage && point.percentage > 2.5) || point.name === 'Cash'
-                ? `${point.name}: ${point.percentage ? point.percentage.toFixed(1) : 'n/a'}%`
-                : null;
+              return this.percentage && this.percentage > 2.5 ? `${point.name}: ${this.percentage.toFixed(1)}%` : null;
             },
           },
           data: Object.keys(accountsByName)
@@ -352,18 +335,38 @@ export default function HoldingsCharts(props: Props) {
   const getAccountsCompositionSeries = (group: string): Highcharts.SeriesPieOptions[] => {
     const totalValue = props.accounts.reduce((value, account) => value + account.value, 0);
     const data = Object.values(
-      props.accounts.reduce((hash, account) => {
-        const name = getGroupKey(group, account);
-        let mergedAccount = hash[name];
-        if (!mergedAccount) {
-          mergedAccount = { name, value: 0, holdingsValue: 0, gainAmount: 0 };
-          hash[name] = mergedAccount;
-        }
-        mergedAccount.value += account.value;
-        mergedAccount.holdingsValue += account.positions.reduce((value, position) => value + position.value || 0, 0);
-        mergedAccount.gainAmount += account.positions.reduce((value, position) => value + position.gain_amount, 0);
-        return hash;
-      }, {} as { [K: string]: { name: string; value: number; holdingsValue: number; gainAmount: number } }),
+      props.accounts.reduce(
+        (hash, account) => {
+          const name = getGroupKey(group, account);
+          let mergedAccount = hash[name];
+          if (!mergedAccount) {
+            mergedAccount = { name, value: 0, gainAmount: 0, accounts: {} };
+            hash[name] = mergedAccount;
+          }
+          mergedAccount.value += account.positions.reduce((value, position) => value + position.value || 0, 0);
+          mergedAccount.gainAmount += account.positions.reduce((value, position) => value + position.gain_amount, 0);
+
+          const _name = `${account.name} ${account.type}`;
+          let _account = mergedAccount.accounts[_name];
+          if (!_account) {
+            _account = { name: _name, cad: 0, usd: 0, value: 0 };
+            mergedAccount.accounts[_name] = _account;
+          }
+          const cash = account.cash ? Number(account.cash.toFixed(2)) : 0;
+          _account.cad = _account.cad + (account.currency === 'cad' ? cash : 0);
+          _account.usd = _account.usd + (account.currency === 'usd' ? cash : 0);
+
+          return hash;
+        },
+        {} as {
+          [K: string]: {
+            name: string;
+            value: number;
+            gainAmount: number;
+            accounts: { [K: string]: { name: string; cad: number; usd: number; value: number } };
+          };
+        },
+      ),
     );
 
     const accountsSeries: Highcharts.SeriesPieOptions = {
@@ -375,22 +378,53 @@ export default function HoldingsCharts(props: Props) {
         .filter((account) => account.value)
         .sort((a, b) => b.value - a.value)
         .map((account, index) => {
+          const accounts = Object.values(account.accounts);
+          const cad = accounts.reduce((sum, account) => sum + account.cad, 0);
+          const usd = accounts.reduce((sum, account) => sum + account.usd, 0);
+          const cashTable = accounts
+            .filter((account) => !!account.cad || !!account.usd)
+            .sort((a, b) => b.usd + b.cad - (a.usd + a.cad))
+            .map(
+              (account) =>
+                `<tr>
+                <td style="vertical-align: top">${account.name}</td>
+                <td align="right">
+                ${
+                  !!account.cad
+                    ? `<div style="color:${account.cad < 0 ? 'red' : ''}">C$ ${formatMoney(account.cad)}</div>`
+                    : ''
+                }
+                ${
+                  !!account.usd
+                    ? `<span style="color:${account.usd < 0 ? 'red' : ''}">U$ ${formatMoney(account.usd)}</span>`
+                    : ''
+                }
+                </td>
+              </tr>`,
+            )
+            .join('');
+
           return {
             color: getColor(index),
             name: account.name,
             drilldown: showHoldings ? undefined : account.name,
             y: account.value,
-            negative: account.value < 0,
             displayValue: props.isPrivateMode ? '-' : account.value ? formatMoney(account.value) : account.value,
             totalValue: props.isPrivateMode ? '-' : formatMoney(totalValue),
             gain: props.isPrivateMode ? '-' : `CAD ${formatMoney(account.gainAmount)}`,
-            gainRatio: `${((account.gainAmount / (account.holdingsValue - account.gainAmount)) * 100).toFixed(2)}%`,
+            gainRatio: `${((account.gainAmount / (account.value - account.gainAmount)) * 100).toFixed(2)}%`,
             pnlColor: account.gainAmount >= 0 ? 'green' : 'red',
+            cash: cad + (usd ? getCurrencyInCAD(lastCurrencyDate, usd, props.currencyCache) : 0),
+            cad,
+            usd,
+            cashTable,
           } as Highcharts.SeriesPieDataOptions;
         }),
       dataLabels: {
         formatter() {
-          return this.percentage && this.percentage > 2 ? `${this.point.name}: ${this.percentage.toFixed(1)}%` : null;
+          return this.percentage && this.percentage > (showHoldings ? 2 : 0)
+            ? `${this.point.name}: ${this.percentage.toFixed(1)}%`
+            : null;
         },
         style: showHoldings
           ? {
@@ -401,7 +435,50 @@ export default function HoldingsCharts(props: Props) {
           : {},
         distance: showHoldings ? 150 : 50,
       },
-      tooltip: COMPOSITION_TOOLTIP,
+      tooltip: {
+        headerFormat: `<b>{point.key}<br />{point.percentage:.1f}%</b><hr />`,
+        pointFormatter() {
+          const point = this.options as any;
+          return `<table>
+          <tr><td>Value</td><td align="right" class="position-tooltip-value">CAD ${point.displayValue}</td></tr>
+          <tr><td>Total Value</td><td align="right" class="position-tooltip-value">CAD ${point.totalValue}</td></tr>
+          <tr><td>Unrealized P/L ($) </td><td align="right" style="color:${
+            point.pnlColor
+          };" class="position-tooltip-value">${point.gain}</td></tr>
+          <tr><td>Unrealized P/L (%)</td><td align="right" style="color:${
+            point.pnlColor
+          };" class="position-tooltip-value">${point.gainRatio}</td></tr>
+          <tr><td colspan="2"><hr /></td></tr>
+          ${
+            point.cashTable
+              ? `<tr><td style="font-weight: 600">Account</td><td align="right" style="font-weight: 600">Cash</td></tr>${point.cashTable}`
+              : ''
+          }
+          <tr><td colspan="2"><hr /></td></tr>
+          ${
+            !!point.cash &&
+            !props.isPrivateMode &&
+            `<tr><td>Total Cash</td><td align="right" class="position-tooltip-cash" style="color:${
+              point.cash < 0 ? 'red' : ''
+            };">CAD ${formatMoney(point.cash)}</td></tr>`
+          }
+          ${
+            !!point.cad &&
+            !props.isPrivateMode &&
+            `<tr><td>CAD Cash</td><td align="right" class="position-tooltip-cash" style="color:${
+              point.cad < 0 ? 'red' : ''
+            };">CAD ${formatMoney(point.cad)}</td></tr>`
+          }
+          ${
+            !!point.usd &&
+            !props.isPrivateMode &&
+            `<tr><td>USD Cash</td><td align="right" class="position-tooltip-cash" style="color:${
+              point.usd < 0 ? 'red' : ''
+            };">USD ${formatMoney(point.usd)}</td></tr>`
+          }
+        </table>`;
+        },
+      },
     };
 
     return showHoldings
@@ -418,9 +495,9 @@ export default function HoldingsCharts(props: Props) {
   } {
     const series = getAccountsCompositionSeries(group);
     const drilldown = showHoldings ? undefined : getAccountsCompositionHoldingsDrilldown(group, true);
-    const title = `${_.startCase(group)} Composition`;
+    const title = group === 'currency' ? 'USD vs CAD' : group === 'type' ? 'Account Type' : `${_.startCase(group)}`;
 
-    return { series, drilldown, title };
+    return { series, drilldown, title: `${title} Composition` };
   }
 
   const getOptions = ({
@@ -604,7 +681,7 @@ export default function HoldingsCharts(props: Props) {
               trackEvent('holdings-composition-chart', { group: e.target.value });
             }}
             options={[
-              { label: 'Currency', value: 'currency' },
+              { label: 'USD vs CAD', value: 'currency' },
               { label: 'Institution', value: 'institution' },
               { label: 'Account', value: 'accounts' },
               { label: 'Account Type', value: 'type' },
