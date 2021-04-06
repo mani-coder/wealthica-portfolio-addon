@@ -448,10 +448,10 @@ export default function HoldingsCharts(props: Props) {
           <tr><td>Unrealized P/L (%)</td><td align="right" style="color:${
             point.pnlColor
           };" class="position-tooltip-value">${point.gainRatio}</td></tr>
-          <tr><td colspan="2"><hr /></td></tr>
           ${
             point.cashTable
-              ? `<tr><td style="font-weight: 600">Account</td><td align="right" style="font-weight: 600">Cash</td></tr>${point.cashTable}`
+              ? `<tr><td colspan="2"><hr /></td></tr>
+              <tr><td style="font-weight: 600">Account</td><td align="right" style="font-weight: 600">Cash</td></tr>${point.cashTable}`
               : ''
           }
           <tr><td colspan="2"><hr /></td></tr>
