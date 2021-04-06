@@ -456,25 +456,25 @@ export default function HoldingsCharts(props: Props) {
           }
           <tr><td colspan="2"><hr /></td></tr>
           ${
-            !!point.cash &&
-            !props.isPrivateMode &&
-            `<tr><td>Total Cash</td><td align="right" class="position-tooltip-cash" style="color:${
-              point.cash < 0 ? 'red' : ''
-            };">CAD ${formatMoney(point.cash)}</td></tr>`
+            !!point.cash && !props.isPrivateMode
+              ? `<tr><td>Total Cash</td><td align="right" class="position-tooltip-cash" style="color:${
+                  point.cash < 0 ? 'red' : ''
+                };">CAD ${formatMoney(point.cash)}</td></tr>`
+              : ''
           }
           ${
-            !!point.cad &&
-            !props.isPrivateMode &&
-            `<tr><td>CAD Cash</td><td align="right" class="position-tooltip-cash" style="color:${
-              point.cad < 0 ? 'red' : ''
-            };">CAD ${formatMoney(point.cad)}</td></tr>`
+            !!point.cad && !props.isPrivateMode
+              ? `<tr><td>CAD Cash</td><td align="right" class="position-tooltip-cash" style="color:${
+                  point.cad < 0 ? 'red' : ''
+                };">CAD ${formatMoney(point.cad)}</td></tr>`
+              : ''
           }
           ${
-            !!point.usd &&
-            !props.isPrivateMode &&
-            `<tr><td>USD Cash</td><td align="right" class="position-tooltip-cash" style="color:${
-              point.usd < 0 ? 'red' : ''
-            };">USD ${formatMoney(point.usd)}</td></tr>`
+            !!point.usd && !props.isPrivateMode
+              ? `<tr><td>USD Cash</td><td align="right" class="position-tooltip-cash" style="color:${
+                  point.usd < 0 ? 'red' : ''
+                };">USD ${formatMoney(point.usd)}</td></tr>`
+              : ''
           }
         </table>`;
         },
