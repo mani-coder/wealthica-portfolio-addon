@@ -72,6 +72,7 @@ export default function HoldingsCharts(props: Props) {
     column: Highcharts.SeriesColumnOptions;
     pie: Highcharts.SeriesPieOptions;
   } => {
+    const totalValue = props.positions.reduce((sum, position) => sum + position.market_value, 0);
     const data = props.positions
       .sort((a, b) => b.value - a.value)
       .map((position) => {
@@ -94,6 +95,7 @@ export default function HoldingsCharts(props: Props) {
           value: props.isPrivateMode ? '-' : formatMoney(position.value),
           gain: position.gain_percent ? position.gain_percent * 100 : position.gain_percent,
           profit: props.isPrivateMode ? '-' : formatMoney(position.gain_amount),
+          percentage: (position.market_value / totalValue) * 100,
           buyPrice: formatMoney(
             position.investments.reduce((cost, investment) => cost + investment.book_value, 0) / position.quantity,
           ),
