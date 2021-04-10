@@ -10,7 +10,7 @@ type Props = {
   positions: Position[];
 };
 
-export default (props: Props) => {
+export default function Earnings(props: Props) {
   const [loading, setLoading] = useState(false);
   const [document, setDocument] = useState<any>();
   const symbol = 'test';
@@ -173,4 +173,4 @@ export default (props: Props) => {
       />
     </Collapsible>
   );
-};
+}
