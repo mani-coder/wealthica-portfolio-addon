@@ -468,7 +468,16 @@ class App extends Component<Props, State> {
             of the add-on is at your own risk and is provided without any warranty.
             <br />
             <br />
-            Please trade responsibly. Contact the developer at k.elayamani@gmail.com
+            Please trade responsibly. For any issues or feedback, contact the developer at{' '}
+            <a href="mailto:k.elayamani@gmail.com">k.elayamani@gmail.com</a> or create a github issue{' '}
+            <a
+              href="https://github.com/mani-coder/wealthica-portfolio-addon/issues/new?assignees=&labels=&template=custom.md&title="
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              here
+            </a>
+            .
           </Text>
           <br />
           <hr />
