@@ -126,7 +126,14 @@ function News({ positions }: { positions: Position[] }) {
           <Flex flexDirection="column" alignItems="flex-end" px={2} width={1 / 4}>
             <Radio.Group
               style={{ width: '100%' }}
-              onChange={(e) => setSymbol(e.target.value)}
+              onChange={(e) => {
+                setSymbol(e.target.value);
+                window.scroll({
+                  top: 0,
+                  left: 0,
+                  behavior: 'smooth',
+                });
+              }}
               value={symbol}
               buttonStyle="solid"
               optionType="button"
