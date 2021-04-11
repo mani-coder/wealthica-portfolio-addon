@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Typography } from 'antd';
+import Typography from 'antd/es/typography';
 import { ColumnProps } from 'antd/lib/table';
 import React from 'react';
 import { Box } from 'rebass';

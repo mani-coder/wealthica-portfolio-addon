@@ -1,8 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Switch } from 'antd';
 import Select from 'antd/es/select';
 import Typography from 'antd/es/typography';
 import Radio from 'antd/lib/radio';
+import Switch from 'antd/lib/switch';
 import * as Highcharts from 'highcharts';
 import _ from 'lodash';
 import React, { useMemo, useState } from 'react';

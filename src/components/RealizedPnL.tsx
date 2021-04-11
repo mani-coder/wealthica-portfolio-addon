@@ -1,5 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { ArrowDownOutlined, ArrowUpOutlined, QuestionCircleTwoTone } from '@ant-design/icons';
+import ArrowDownOutlined from '@ant-design/icons/ArrowDownOutlined';
+import ArrowUpOutlined from '@ant-design/icons/ArrowUpOutlined';
+import QuestionCircleTwoTone from '@ant-design/icons/QuestionCircleTwoTone';
 import Tooltip from 'antd/es/tooltip';
 import Typography from 'antd/es/typography';
 import Card from 'antd/lib/card';
