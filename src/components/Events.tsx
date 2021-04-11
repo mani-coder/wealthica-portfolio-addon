@@ -180,7 +180,7 @@ export function Events({ positions }: { positions: Position[] }) {
                   setDate(date.subtract(1, 'month').clone());
                 }}
               >
-                Prev
+                Prev Month
               </Button>
               <Typography.Title level={3}>
                 {date.format('MMMM YYYY')} {loading && <Spin />}
@@ -189,12 +189,11 @@ export function Events({ positions }: { positions: Position[] }) {
                 loading={loading}
                 disabled={date.clone().endOf('month').isSameOrAfter(range.end)}
                 type="primary"
-                icon={<RightOutlined />}
                 onClick={() => {
                   setDate(date.add(1, 'month').clone());
                 }}
               >
-                Next
+                Next Month <RightOutlined />
               </Button>
             </Flex>
             <Flex my={2} justifyContent="center">
