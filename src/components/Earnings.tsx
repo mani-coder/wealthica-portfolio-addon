@@ -1,10 +1,12 @@
-import { Select, Table, Typography } from 'antd';
+import Typography from 'antd/es/typography';
+import Select from 'antd/lib/select';
+import Table from 'antd/lib/table';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
-import Collapsible from './Collapsible';
 import { Flex } from 'rebass';
 import { Position } from '../types';
 import { buildCorsFreeUrl, getSymbol } from '../utils';
+import Collapsible from './Collapsible';
 
 type Props = {
   positions: Position[];

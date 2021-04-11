@@ -1,4 +1,5 @@
-import { ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons';
+import ArrowDownOutlined from '@ant-design/icons/ArrowDownOutlined';
+import ArrowUpOutlined from '@ant-design/icons/ArrowUpOutlined';
 import Card from 'antd/lib/card';
 import Statistic, { StatisticProps } from 'antd/lib/statistic';
 import React from 'react';
