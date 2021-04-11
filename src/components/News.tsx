@@ -3,7 +3,7 @@ import { Radio, Spin } from 'antd';
 import Empty from 'antd/es/empty';
 import Typography from 'antd/es/typography';
 import moment, { Moment } from 'moment';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Box, Flex } from 'rebass';
 import { Position } from '../types';
 import { buildCorsFreeUrl } from '../utils';
@@ -25,17 +25,19 @@ function Dot() {
 function NewsItem({ news }: { news: NewsResult }) {
   return (
     <Box pb={2} key={news.title}>
-      <div style={{ fontSize: 15, fontWeight: 500, paddingBottom: 4, paddingRight: 4 }}>
-        <Typography.Link href={news.url} target="_blank" rel="noopener noreferrer">
-          {news.title}
-        </Typography.Link>
-      </div>
+      <Flex alignItems="center">
+        <div style={{ fontSize: 15, fontWeight: 500, paddingBottom: 4, paddingRight: 4 }}>
+          <Typography.Link href={news.url} target="_blank" rel="noopener noreferrer">
+            {news.title}
+          </Typography.Link>
+        </div>
 
-      {news.sentiment === 'positive' ? (
-        <CaretUpOutlined style={{ color: 'green', fontSize: 22 }} />
-      ) : news.sentiment === 'negative' ? (
-        <CaretDownOutlined style={{ color: 'red', fontSize: 22 }} />
-      ) : undefined}
+        {news.sentiment === 'positive' ? (
+          <CaretUpOutlined style={{ color: 'green', fontSize: 30 }} />
+        ) : news.sentiment !== 'neutral' ? (
+          <CaretDownOutlined style={{ color: 'red', fontSize: 30 }} />
+        ) : undefined}
+      </Flex>
 
       <div style={{ fontSize: 13, color: '#8c8c8c' }}>
         {news.source}
@@ -119,43 +121,54 @@ function News({ positions }: { positions: Position[] }) {
       .finally(() => setLoading(false));
   }, [positions]);
 
+  const sidebarContainerRef = useRef<HTMLDivElement>();
+  const newsContainerRef = useRef<HTMLDivElement>();
+
   return (
     <Flex py={3} justifyContent="center">
       {!!news.length ? (
         <>
           <Flex flexDirection="column" alignItems="flex-end" px={2} width={1 / 4}>
-            <Radio.Group
-              style={{ width: '100%' }}
-              onChange={(e) => {
-                setSymbol(e.target.value);
-                window.scroll({
-                  top: 0,
-                  left: 0,
-                  behavior: 'smooth',
-                });
-              }}
-              value={symbol}
-              buttonStyle="solid"
-              optionType="button"
-            >
-              {['All', ...symbols].map((symbol) => (
-                <Radio.Button
-                  style={{
-                    width: '100%',
-                    display: 'flex',
-                    height: '50px',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    lineHeight: '30px',
-                  }}
-                  value={symbol}
-                >
-                  {symbol}
-                </Radio.Button>
-              ))}
-            </Radio.Group>
+            <Box width={1} ref={sidebarContainerRef}>
+              <Radio.Group
+                style={{ width: '100%' }}
+                onChange={(e) => {
+                  setSymbol(e.target.value);
+                  window.scroll({ top: 0, left: 0, behavior: 'smooth' });
+                  if (newsContainerRef?.current) {
+                    newsContainerRef.current.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+                  }
+                }}
+                value={symbol}
+                buttonStyle="solid"
+                optionType="button"
+              >
+                {['All', ...symbols].map((symbol) => (
+                  <Radio.Button
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      height: '50px',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      lineHeight: '30px',
+                    }}
+                    value={symbol}
+                  >
+                    {symbol}
+                  </Radio.Button>
+                ))}
+              </Radio.Group>
+            </Box>
           </Flex>
-          <Box width={3 / 4} px={2}>
+
+          <Box
+            ref={newsContainerRef}
+            width={3 / 4}
+            px={2}
+            height={sidebarContainerRef?.current && sidebarContainerRef.current.clientHeight}
+            style={{ overflow: 'scroll' }}
+          >
             {news
               .filter((_news) => symbol === 'All' || _news.symbol === symbol)
               .map((_news, index) => (
