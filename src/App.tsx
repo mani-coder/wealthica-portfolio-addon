@@ -19,6 +19,7 @@ import {
 } from './api';
 import './App.less';
 import DepositVsPortfolioValueTimeline from './components/DepositsVsPortfolioValueTimeline';
+import { Events } from './components/Events';
 import HoldingsCharts from './components/HoldingsCharts';
 import HoldingsTable from './components/HoldingsTable';
 import News from './components/News';
@@ -451,6 +452,10 @@ class App extends Component<Props, State> {
 
                 <Tabs.TabPane destroyInactiveTabPane tab="News" key="news">
                   <News positions={this.state.positions} />
+                </Tabs.TabPane>
+
+                <Tabs.TabPane destroyInactiveTabPane tab="Events" key="events">
+                  <Events positions={this.state.positions} />
                 </Tabs.TabPane>
               </Tabs>
             </>
