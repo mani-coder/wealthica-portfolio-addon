@@ -126,9 +126,10 @@ function News({ positions }: { positions: Position[] }) {
   const sidebarContainerRef = useRef<HTMLDivElement>();
   const newsContainerRef = useRef<HTMLDivElement>();
 
+  const selectedNews = news.filter((_news) => symbol === 'All' || _news.symbol === symbol);
   return (
     <Flex py={3} justifyContent="center">
-      {!!news.length ? (
+      {!!selectedNews.length ? (
         <>
           <Flex flexDirection="column" alignItems="flex-end" px={2} width={1 / 4}>
             <Box width={1} ref={sidebarContainerRef}>
@@ -171,17 +172,15 @@ function News({ positions }: { positions: Position[] }) {
             height={sidebarContainerRef?.current && sidebarContainerRef.current.clientHeight}
             style={{ overflow: 'scroll' }}
           >
-            {news
-              .filter((_news) => symbol === 'All' || _news.symbol === symbol)
-              .map((_news, index) => (
-                <NewsItem key={`${symbol}-${index}`} news={_news} />
-              ))}
+            {selectedNews.map((_news, index) => (
+              <NewsItem key={`${symbol}-${index}`} news={_news} />
+            ))}
           </Box>
         </>
       ) : loading ? (
         <Spin size="large" />
       ) : (
-        <Empty description="No News Found!" />
+        <Empty description="No News Articles Found!" />
       )}
     </Flex>
   );
