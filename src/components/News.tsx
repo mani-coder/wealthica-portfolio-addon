@@ -60,6 +60,7 @@ function News({ positions }: { positions: Position[] }) {
   const [loading, setLoading] = useState(false);
   const [symbols, setSymbols] = useState<string[]>([]);
   const [symbol, setSymbol] = useState<string>('All');
+  const [sentiment, setSentiment] = useState<'positive' | 'negative' | 'all'>('all');
 
   useEffect(() => {
     const _symbols = positions
@@ -126,11 +127,24 @@ function News({ positions }: { positions: Position[] }) {
   const sidebarContainerRef = useRef<HTMLDivElement>();
   const newsContainerRef = useRef<HTMLDivElement>();
 
-  const selectedNews = news.filter((_news) => symbol === 'All' || _news.symbol === symbol);
+  const selectedNews = news.filter(
+    (_news) => (sentiment === 'all' || _news.sentiment === sentiment) && (symbol === 'All' || _news.symbol === symbol),
+  );
   return (
-    <Flex py={3} justifyContent="center">
+    <Flex flexDirection="column" mb={3} alignItems="center">
+      <Flex width={1} justifyContent="center" mb={3}>
+        <Radio.Group defaultValue={sentiment} onChange={(e) => setSentiment(e.target.value)} buttonStyle="solid">
+          <Radio.Button value="all">All</Radio.Button>
+          <Radio.Button value="positive">
+            <CaretUpOutlined style={{ color: 'green' }} /> Bullish
+          </Radio.Button>
+          <Radio.Button value="negative">
+            <CaretDownOutlined style={{ color: 'red' }} /> Bearish
+          </Radio.Button>
+        </Radio.Group>
+      </Flex>
       {!!selectedNews.length ? (
-        <>
+        <Flex width={1}>
           <Flex flexDirection="column" alignItems="flex-end" px={2} width={1 / 4}>
             <Box width={1} ref={sidebarContainerRef}>
               <Radio.Group
@@ -176,7 +190,7 @@ function News({ positions }: { positions: Position[] }) {
               <NewsItem key={`${symbol}-${index}`} news={_news} />
             ))}
           </Box>
-        </>
+        </Flex>
       ) : loading ? (
         <Spin size="large" />
       ) : (
