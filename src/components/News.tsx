@@ -35,9 +35,9 @@ function NewsItem({ news }: { news: NewsResult }) {
         </div>
 
         {news.sentiment === 'positive' ? (
-          <CaretUpOutlined style={{ color: 'green', fontSize: 30 }} />
+          <CaretUpOutlined style={{ color: 'green', fontSize: 25 }} />
         ) : news.sentiment !== 'neutral' ? (
-          <CaretDownOutlined style={{ color: 'red', fontSize: 30 }} />
+          <CaretDownOutlined style={{ color: 'red', fontSize: 25 }} />
         ) : undefined}
       </Flex>
 
@@ -143,7 +143,7 @@ function News({ positions }: { positions: Position[] }) {
           </Radio.Button>
         </Radio.Group>
       </Flex>
-      {!!selectedNews.length ? (
+      {!!news.length ? (
         <Flex width={1}>
           <Flex flexDirection="column" alignItems="flex-end" px={2} width={1 / 4}>
             <Box width={1} ref={sidebarContainerRef}>
@@ -179,17 +179,23 @@ function News({ positions }: { positions: Position[] }) {
             </Box>
           </Flex>
 
-          <Box
-            ref={newsContainerRef}
-            width={3 / 4}
-            px={2}
-            height={sidebarContainerRef?.current && sidebarContainerRef.current.clientHeight}
-            style={{ overflow: 'scroll' }}
-          >
-            {selectedNews.map((_news, index) => (
-              <NewsItem key={`${symbol}-${index}`} news={_news} />
-            ))}
-          </Box>
+          {!!selectedNews.length ? (
+            <Box
+              ref={newsContainerRef}
+              width={3 / 4}
+              px={2}
+              height={sidebarContainerRef?.current && sidebarContainerRef.current.clientHeight}
+              style={{ overflow: 'scroll' }}
+            >
+              {selectedNews.map((_news, index) => (
+                <NewsItem key={`${symbol}-${index}`} news={_news} />
+              ))}
+            </Box>
+          ) : (
+            <Flex justifyContent="center" width={3 / 4} py={3}>
+              <Empty description="No News Articles Found!" />
+            </Flex>
+          )}
         </Flex>
       ) : loading ? (
         <Spin size="large" />
