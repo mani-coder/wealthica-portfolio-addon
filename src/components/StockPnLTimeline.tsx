@@ -23,7 +23,7 @@ type StockPrice = {
   closePrice: number;
 };
 
-export default function StockPnLTimeline({ isPrivateMode, symbol, position, addon }: Props) {
+function StockPnLTimeline({ isPrivateMode, symbol, position, addon }: Props) {
   const [loading, setLoading] = useState(false);
   const [prices, setPrices] = useState<StockPrice[]>([]);
 
@@ -129,7 +129,6 @@ export default function StockPnLTimeline({ isPrivateMode, symbol, position, addo
         book[date] = entry;
         prevEntry = entry.shares ? entry : undefined;
       });
-    console.log('mani is cool -- book for stock', book);
 
     const data: { x: number; y: number; pnl: string; currency: string }[] = [];
     let _entry;
@@ -348,3 +347,5 @@ export default function StockPnLTimeline({ isPrivateMode, symbol, position, addo
     </>
   );
 }
+
+export default React.memo(StockPnLTimeline);
