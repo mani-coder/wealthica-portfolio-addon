@@ -68,12 +68,6 @@ function DepositVsPortfolioValueTimeline(props: Props) {
           },
           opposite: false,
         },
-        {
-          labels: {
-            enabled: !props.isPrivateMode,
-          },
-          linkedTo: 0,
-        },
       ],
       plotOptions: {},
       tooltip: {

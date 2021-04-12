@@ -67,6 +67,7 @@ function YoYPnLChart(props: Props) {
       yAxis: {
         labels: {
           enabled: !props.isPrivateMode,
+          format: '{value}%',
         },
         title: {
           text: 'P&L Change (%)',

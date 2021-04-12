@@ -82,12 +82,6 @@ function ProfitLossTimeline(props: Props) {
           },
           opposite: false,
         },
-        {
-          labels: {
-            enabled: !props.isPrivateMode,
-          },
-          linkedTo: 0,
-        },
       ],
       tooltip: {
         pointFormat:
