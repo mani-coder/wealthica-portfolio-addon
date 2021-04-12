@@ -437,7 +437,11 @@ class App extends Component<Props, State> {
                 </Tabs.TabPane>
 
                 <Tabs.TabPane destroyInactiveTabPane tab="Gainers/Losers" key="gainers-losers">
-                  <TopGainersLosers positions={this.state.positions} isPrivateMode={this.state.privateMode} />
+                  <TopGainersLosers
+                    positions={this.state.positions}
+                    isPrivateMode={this.state.privateMode}
+                    addon={this.state.addon}
+                  />
                 </Tabs.TabPane>
 
                 <Tabs.TabPane destroyInactiveTabPane tab="Realized P&L" key="realized-pnl">

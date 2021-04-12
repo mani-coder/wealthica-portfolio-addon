@@ -8,15 +8,24 @@ import { trackEvent } from '../analytics';
 import { Position } from '../types';
 import { formatMoney, getSymbol } from '../utils';
 import Charts from './Charts';
+import StockPnLTimeline from './StockPnLTimeline';
 
-export function TopGainersLosers(props: { isPrivateMode: boolean; positions: Position[] }) {
+export function TopGainersLosers(props: { isPrivateMode: boolean; positions: Position[]; addon: any }) {
   const [sortByValue, setSortByValue] = useState(false);
+  const [pnlSymbol, setPnlSymbol] = useState<string>();
 
   function getTopGainersLosers(gainers: boolean) {
     return [
       {
         name: gainers ? 'Top Gainers' : 'Top Losers',
         type: 'column',
+        events: {
+          click(event) {
+            if (event.point.name && pnlSymbol !== event.point.name) {
+              setPnlSymbol(event.point.name);
+            }
+          },
+        },
         colorByPoint: true,
         data: props.positions
           .filter((position) => (gainers ? position.gain_percent > 0 : position.gain_percent <= 0))
@@ -153,6 +162,26 @@ export function TopGainersLosers(props: { isPrivateMode: boolean; positions: Pos
     };
   }, [sortByValue, props.isPrivateMode, props.positions]);
 
+  const renderStockPnLTimeline = () => {
+    if (!pnlSymbol) {
+      return <></>;
+    }
+    const position = props.positions.filter((position) => getSymbol(position.security) === pnlSymbol)[0];
+
+    if (!position) {
+      return <></>;
+    }
+
+    return (
+      <StockPnLTimeline
+        isPrivateMode={props.isPrivateMode}
+        symbol={pnlSymbol}
+        position={position}
+        addon={props.addon}
+      />
+    );
+  };
+
   return !!props.positions.length ? (
     <>
       <Flex
@@ -181,16 +210,20 @@ export function TopGainersLosers(props: { isPrivateMode: boolean; positions: Pos
         <Charts
           options={getOptions({
             title: 'Top Gainers',
+            subtitle: '(click on a stock to view the P/L timeline)',
             yAxisTitle: `Gain (${sortByValue ? '%' : '$'})`,
             series: gainers,
           })}
         />
       )}
 
+      {renderStockPnLTimeline()}
+
       {!!losers[0].data.length && (
         <Charts
           options={getOptions({
             title: 'Top Losers',
+            subtitle: '(click on a stock to view the P/L timeline)',
             yAxisTitle: `Loss (${sortByValue ? '%' : '$'})`,
             series: losers,
           })}
