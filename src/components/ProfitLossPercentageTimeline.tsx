@@ -105,12 +105,6 @@ function ProfitLossPercentageTimeline(props: Props) {
           },
           opposite: false,
         },
-        {
-          labels: {
-            format: '{value}%',
-          },
-          linkedTo: 0,
-        },
       ],
       tooltip: {
         pointFormat:

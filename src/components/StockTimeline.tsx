@@ -363,9 +363,6 @@ class StockTimeline extends Component<Props, State> {
           },
           opposite: false,
         },
-        {
-          linkedTo: 0,
-        },
       ],
       tooltip: {
         pointFormat: '{series.name}: <b>${point.y}',

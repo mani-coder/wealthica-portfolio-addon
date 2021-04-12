@@ -107,7 +107,7 @@ export function TopGainersLosers(props: { isPrivateMode: boolean; positions: Pos
 
       yAxis: {
         labels: {
-          enabled: !props.isPrivateMode,
+          enabled: sortByValue ? true : !props.isPrivateMode,
         },
         title: {
           text: yAxisTitle,
