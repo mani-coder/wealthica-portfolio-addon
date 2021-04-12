@@ -130,7 +130,7 @@ function StockPnLTimeline({ isPrivateMode, symbol, position, addon }: Props) {
         prevEntry = entry.shares ? entry : undefined;
       });
 
-    const data: { x: number; y: number; pnl: string; currency: string }[] = [];
+    const data: { x: number; y: number; pnl: string; currency: string; price: string }[] = [];
     let _entry;
     prices.forEach((price) => {
       const entry = book[price.timestamp.format('YYYY-MM-DD')];
@@ -143,6 +143,7 @@ function StockPnLTimeline({ isPrivateMode, symbol, position, addon }: Props) {
           y: ((price.closePrice - _entry.price) / _entry.price) * 100,
           pnl: isPrivateMode ? '-' : formatMoney(marketValue - bookValue),
           currency: position.security.currency.toUpperCase(),
+          price: formatMoney(price.closePrice),
         });
       }
     });
@@ -155,7 +156,7 @@ function StockPnLTimeline({ isPrivateMode, symbol, position, addon }: Props) {
         type: 'spline',
 
         tooltip: {
-          pointFormat: '<b>{point.y:.2f}%</b> <br /><br /> {point.pnl} {point.currency}',
+          pointFormat: `P/L (%): <b>{point.y:.2f}%</b> <br />P/L ($): <b>{point.pnl} {point.currency}</b><br />Price: {point.price} {point.currency}`,
           valueDecimals: 2,
           split: true,
         },
