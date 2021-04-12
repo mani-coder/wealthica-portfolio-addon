@@ -257,6 +257,7 @@ export default function StockPnLTimeline({ isPrivateMode, symbol, position, addo
       rangeSelector: {
         selected: 1,
         enabled: true,
+        inputEnabled: false,
       },
 
       scrollbar: {
@@ -278,10 +279,10 @@ export default function StockPnLTimeline({ isPrivateMode, symbol, position, addo
           zones: [
             {
               value: -0.00000001,
-              color: '#ffa39e',
+              color: '#FF897C',
             },
             {
-              color: '#95de64',
+              color: '#84C341',
             },
           ],
         },
@@ -301,6 +302,9 @@ export default function StockPnLTimeline({ isPrivateMode, symbol, position, addo
           opposite: false,
         },
       ],
+      navigator: {
+        enabled: false,
+      },
       responsive: {
         rules: [
           {
@@ -313,9 +317,6 @@ export default function StockPnLTimeline({ isPrivateMode, symbol, position, addo
               },
               subtitle: {
                 text: undefined,
-              },
-              navigator: {
-                enabled: false,
               },
             },
           },
