@@ -77,7 +77,7 @@ export const parseTransactionsResponse = (response: any, currencyCache: any, acc
       let date = getDate(transaction.date);
       if (['deposit', 'transfer', 'withdrawal'].includes(type)) {
         // adjust the date of transaction, so that portfolio isn't screw'd up.
-        const account = accounts.find((account) => account.institution === transaction.institution);
+        const account = (accounts || []).find((account) => account.institution === transaction.institution);
         if (account && account.created_at > date) {
           // console.debug('Aligning transaction date with the account creation date', account, transaction);
           date = account.created_at;

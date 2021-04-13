@@ -95,7 +95,10 @@ export function getLocalCache(name) {
 }
 
 export function normalizeAccountType(type: string): string {
-  if (type.includes('SRRSP')) {
+  if (!type) {
+    // handle none type issue.
+    return '';
+  } else if (type.includes('SRRSP')) {
     return 'SRRSP';
   } else if (type.includes('RRSP') || type.includes('Registered Retirement Savings Plan')) {
     return 'RRSP';
