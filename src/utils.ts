@@ -95,14 +95,12 @@ export function getLocalCache(name) {
 }
 
 export function normalizeAccountType(type: string): string {
-  if (!type) {
-    // handle none type issue.
-    return '';
-  } else if (type.includes('SRRSP')) {
+  type = type ? type.toUpperCase() : '';
+  if (type.includes('SRRSP')) {
     return 'SRRSP';
-  } else if (type.includes('RRSP') || type.includes('Registered Retirement Savings Plan')) {
+  } else if (type.includes('RRSP') || type.includes('REGISTERED RETIREMENT SAVINGS PLAN')) {
     return 'RRSP';
-  } else if (type.includes('TFSA') || type.includes('Tax Free Savings Plan')) {
+  } else if (type.includes('TFSA') || type.includes('TAX FREE SAVINGS PLAN')) {
     return 'TFSA';
   } else {
     return type;
