@@ -35,7 +35,11 @@ export const parseInstitutionsResponse = (response: any, groups?: string[], inst
               name: instutition.name,
               created_at: getDate(instutition.creation_date),
               type: normalizeAccountType(
-                account.name && account.name.includes('-') ? account.name.split('-')[1].trim() : account.name,
+                account.type
+                  ? account.type
+                  : account.name && account.name.includes('-')
+                  ? account.name.split('-')[1].trim()
+                  : account.name,
               ),
               group: account.group,
               cash: account.cash,
