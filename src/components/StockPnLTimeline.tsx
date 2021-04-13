@@ -3,12 +3,12 @@ import Empty from 'antd/lib/empty';
 import Spin from 'antd/lib/spin';
 import _ from 'lodash';
 import moment, { Moment } from 'moment';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Flex } from 'rebass';
 import { trackEvent } from '../analytics';
 import { TYPE_TO_COLOR } from '../constants';
 import { Position, Transaction } from '../types';
-import { buildCorsFreeUrl, formatCurrency, formatMoney, getDate } from '../utils';
+import { buildCorsFreeUrl, formatCurrency, formatMoney, getDate, max, min } from '../utils';
 import Charts from './Charts';
 
 type Props = {
@@ -16,6 +16,7 @@ type Props = {
   position: Position;
   isPrivateMode: boolean;
   addon?: any;
+  showValueChart?: boolean;
 };
 
 type StockPrice = {
@@ -23,11 +24,26 @@ type StockPrice = {
   closePrice: number;
 };
 
-function StockPnLTimeline({ isPrivateMode, symbol, position, addon }: Props) {
+const POINT_FORMAT = `P/L (%): <b>{point.pnlRatio:.2f}%</b> <br />P/L ($): <b>{point.pnlValue} {point.currency}</b><br />Price: {point.stockPrice} {point.currency}`;
+
+function StockPnLTimeline({ isPrivateMode, symbol, position, addon, showValueChart }: Props) {
   const [loading, setLoading] = useState(false);
   const [prices, setPrices] = useState<StockPrice[]>([]);
+  const mounted = useRef<boolean>(false);
+
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
 
   function parseSecuritiesResponse(response) {
+    if (!mounted.current) {
+      setPrices([]);
+      return;
+    }
+
     const to = getDate(response.to);
     const data: StockPrice[] = [];
     let prevPrice;
@@ -57,7 +73,7 @@ function StockPnLTimeline({ isPrivateMode, symbol, position, addon }: Props) {
   }
 
   useEffect(() => {
-    if (symbol) {
+    if (symbol && mounted.current) {
       setLoading(true);
 
       trackEvent('stock-pnl-timeline');
@@ -130,21 +146,29 @@ function StockPnLTimeline({ isPrivateMode, symbol, position, addon }: Props) {
         prevEntry = entry.shares ? entry : undefined;
       });
 
-    const data: { x: number; y: number; pnl: string; currency: string; price: string }[] = [];
+    let data: any[] = [];
     let _entry;
     prices.forEach((price) => {
       const entry = book[price.timestamp.format('YYYY-MM-DD')];
       _entry = entry ? entry : _entry;
-      if (_entry && _entry.shares) {
-        const bookValue = _entry.price * _entry.shares;
-        const marketValue = price.closePrice * _entry.shares;
-        data.push({
-          x: price.timestamp.valueOf(),
-          y: ((price.closePrice - _entry.price) / _entry.price) * 100,
-          pnl: isPrivateMode ? '-' : formatMoney(marketValue - bookValue),
-          currency: position.security.currency.toUpperCase(),
-          price: formatMoney(price.closePrice),
-        });
+      if (_entry) {
+        if (_entry.shares === 0) {
+          // nullify the book on selling shares.
+          data = [];
+        } else {
+          const bookValue = _entry.price * _entry.shares;
+          const marketValue = price.closePrice * _entry.shares;
+          const pnlRatio = ((price.closePrice - _entry.price) / _entry.price) * 100;
+          data.push({
+            x: price.timestamp.valueOf(),
+            y: showValueChart ? marketValue - bookValue : pnlRatio,
+            d: price.timestamp.format('YYYY-MM-DD'),
+            pnlRatio,
+            pnlValue: isPrivateMode ? '-' : formatMoney(marketValue - bookValue),
+            currency: position.security.currency.toUpperCase(),
+            stockPrice: formatMoney(price.closePrice),
+          });
+        }
       }
     });
 
@@ -156,10 +180,31 @@ function StockPnLTimeline({ isPrivateMode, symbol, position, addon }: Props) {
         type: 'spline',
 
         tooltip: {
-          pointFormat: `P/L (%): <b>{point.y:.2f}%</b> <br />P/L ($): <b>{point.pnl} {point.currency}</b><br />Price: {point.price} {point.currency}`,
-          valueDecimals: 2,
+          pointFormat: POINT_FORMAT,
           split: true,
         },
+      },
+      {
+        type: 'flags',
+        name: 'Max Gain/Loss',
+        tooltip: {
+          pointFormat: `<b>{point.text}</b><br />${POINT_FORMAT}`,
+        },
+        data: [
+          {
+            ...min(data, 'y'),
+            title: 'L',
+            text: 'Max Loss',
+          },
+          {
+            ...max(data, 'y'),
+            title: 'G',
+            text: 'Max Gain',
+          },
+        ].sort((a, b) => a.x - b.x),
+        onSeries: 'dataseries',
+        shape: 'squarepin',
+        width: 16,
       },
       ...['buy', 'sell', 'income', 'dividend', 'distribution', 'tax', 'fee'].map((type) => getFlags(type)),
     ];
@@ -176,8 +221,6 @@ function StockPnLTimeline({ isPrivateMode, symbol, position, addon }: Props) {
 
       tooltip: {
         pointFormat: '<b>{point.text}</b>',
-        valueDecimals: 2,
-        split: true,
       },
 
       data: position.transactions
@@ -231,7 +274,7 @@ function StockPnLTimeline({ isPrivateMode, symbol, position, addon }: Props) {
 
     return {
       title: {
-        text: `P/L Timeline for ${symbol}`,
+        text: `P/L (${showValueChart ? '$' : '%'}) Timeline for ${symbol}`,
         style: {
           color: '#1F2A33',
           textDecoration: 'underline',
@@ -294,10 +337,12 @@ function StockPnLTimeline({ isPrivateMode, symbol, position, addon }: Props) {
             dashStyle: 'Dash',
           },
           labels: {
-            format: '{value}%',
+            formatter() {
+              return showValueChart ? formatCurrency(this.value, 2) : `${formatMoney(this.value, 0)}%`;
+            },
           },
           title: {
-            text: 'P/L %',
+            text: undefined,
           },
           opposite: false,
         },
@@ -329,8 +374,13 @@ function StockPnLTimeline({ isPrivateMode, symbol, position, addon }: Props) {
     };
   }
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const options = useMemo(() => getOptions(getSeries()), [symbol, position, prices]);
+  const options = useMemo(
+    () => {
+      return getOptions(getSeries());
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [symbol, position, prices, showValueChart],
+  );
 
   return (
     <>

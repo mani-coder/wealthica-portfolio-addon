@@ -42,7 +42,7 @@ function ProfitLossPercentageTimeline(props: Props) {
           {
             ...max(data, 'y'),
             title: 'G',
-            text: 'Max Loss',
+            text: 'Max Gain',
           },
         ].sort((a, b) => a.x - b.x),
         onSeries: 'dataseries',

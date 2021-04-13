@@ -6,7 +6,7 @@ import React, { useMemo, useState } from 'react';
 import { Box, Flex } from 'rebass';
 import { trackEvent } from '../analytics';
 import { Position } from '../types';
-import { formatMoney, getSymbol } from '../utils';
+import { formatCurrency, formatMoney, getSymbol } from '../utils';
 import Charts from './Charts';
 import StockPnLTimeline from './StockPnLTimeline';
 
@@ -36,6 +36,7 @@ export function TopGainersLosers(props: { isPrivateMode: boolean; positions: Pos
               y: sortByValue ? position.gain_amount : position.gain_percent * 100,
               gainRatio: position.gain_percent * 100,
               gain: props.isPrivateMode ? '-' : formatMoney(position.gain_amount),
+              gainDisplay: props.isPrivateMode ? '-' : formatCurrency(position.gain_amount, 1),
             };
           }),
         tooltip: {
@@ -54,7 +55,7 @@ export function TopGainersLosers(props: { isPrivateMode: boolean; positions: Pos
         },
         dataLabels: {
           enabled: true,
-          format: sortByValue ? '{point.y:.1f}' : '{point.y:.1f}%',
+          format: sortByValue ? '{point.gainDisplay}' : '{point.y:.1f}%',
         },
         showInLegend: false,
       },
@@ -178,6 +179,7 @@ export function TopGainersLosers(props: { isPrivateMode: boolean; positions: Pos
         symbol={pnlSymbol}
         position={position}
         addon={props.addon}
+        showValueChart={sortByValue}
       />
     );
   };
@@ -211,7 +213,7 @@ export function TopGainersLosers(props: { isPrivateMode: boolean; positions: Pos
           options={getOptions({
             title: 'Top Gainers',
             subtitle: '(click on a stock to view the P/L timeline)',
-            yAxisTitle: `Gain (${sortByValue ? '%' : '$'})`,
+            yAxisTitle: `Gain (${sortByValue ? '$' : '%'})`,
             series: gainers,
           })}
         />
@@ -224,7 +226,7 @@ export function TopGainersLosers(props: { isPrivateMode: boolean; positions: Pos
           options={getOptions({
             title: 'Top Losers',
             subtitle: '(click on a stock to view the P/L timeline)',
-            yAxisTitle: `Loss (${sortByValue ? '%' : '$'})`,
+            yAxisTitle: `Loss (${sortByValue ? '$' : '%'})`,
             series: losers,
           })}
         />
