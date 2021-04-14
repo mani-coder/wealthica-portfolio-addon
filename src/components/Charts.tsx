@@ -1,5 +1,6 @@
 // import HC_exporting from 'highcharts/modules/exporting';
 // import HC_ExportData from 'highcharts/modules/export-data';
+import ErrorBoundary from 'antd/lib/alert/ErrorBoundary';
 import HighchartsReact from 'highcharts-react-official';
 import * as Highcharts from 'highcharts/highstock';
 import HC_DrillDown from 'highcharts/modules/drilldown';
@@ -15,22 +16,19 @@ type Props = {
 };
 
 export function Charts(props: Props) {
-  try {
-    const options = props.options;
-    return !!options.series && !!options.series.length ? (
+  const options = props.options;
+  return !!options.series && !!options.series.length ? (
+    <ErrorBoundary message="Failed to load the chart!">
       <HighchartsReact
         highcharts={Highcharts}
         constructorType={props.constructorType}
         options={options}
         oneToOne={true}
       />
-    ) : (
-      <></>
-    );
-  } catch {
-    console.debug('Failed to load high charts...');
-    return <></>;
-  }
+    </ErrorBoundary>
+  ) : (
+    <></>
+  );
 }
 
 export default React.memo(Charts);
