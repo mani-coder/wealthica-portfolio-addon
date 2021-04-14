@@ -288,9 +288,10 @@ function StockPnLTimeline({ isPrivateMode, symbol, position, addon, showValueCha
               position.investments.reduce((cost, investment) => {
                 return cost + investment.book_value;
               }, 0) / position.quantity,
-            )}, Value: $${formatCurrency(position.book_value, 2)}, P/L: $${formatCurrency(position.gain_amount, 2)}${
-              dividends ? `, Dividends: $${formatCurrency(dividends, 2)}` : ''
-            }`,
+            )}, Market Value: CAD ${formatCurrency(position.market_value, 2)}, P/L: CAD ${formatCurrency(
+              position.gain_amount,
+              2,
+            )}${dividends ? `, Dividends: CAD ${formatCurrency(dividends, 2)}` : ''}`,
         style: {
           color: '#1F2A33',
           fontWeight: 'bold',
