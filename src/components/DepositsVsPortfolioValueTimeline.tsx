@@ -54,10 +54,10 @@ function DepositVsPortfolioValueTimeline(props: Props) {
         },
       },
 
-      rangeSelector: {
-        selected: 1,
-        enabled: process.env.NODE_ENV === 'development',
-      },
+      rangeSelector: { selected: 1, enabled: process.env.NODE_ENV === 'development', inputEnabled: false },
+      navigator: { enabled: true },
+      scrollbar: { enabled: false },
+
       yAxis: [
         {
           crosshair: {
