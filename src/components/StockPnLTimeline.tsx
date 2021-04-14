@@ -298,24 +298,9 @@ function StockPnLTimeline({ isPrivateMode, symbol, position, addon, showValueCha
         },
       },
 
-      rangeSelector: {
-        selected: 1,
-        enabled: true,
-        inputEnabled: false,
-      },
-
-      scrollbar: {
-        barBackgroundColor: 'gray',
-        barBorderRadius: 7,
-        barBorderWidth: 0,
-        buttonBackgroundColor: 'gray',
-        buttonBorderWidth: 0,
-        buttonBorderRadius: 7,
-        trackBackgroundColor: 'none',
-        trackBorderWidth: 1,
-        trackBorderRadius: 8,
-        trackBorderColor: '#CCC',
-      },
+      rangeSelector: { selected: 1, enabled: true, inputEnabled: false },
+      navigator: { enabled: false },
+      scrollbar: { enabled: false },
 
       plotOptions: {
         spline: {
@@ -348,9 +333,6 @@ function StockPnLTimeline({ isPrivateMode, symbol, position, addon, showValueCha
           opposite: false,
         },
       ],
-      navigator: {
-        enabled: false,
-      },
       responsive: {
         rules: [
           {

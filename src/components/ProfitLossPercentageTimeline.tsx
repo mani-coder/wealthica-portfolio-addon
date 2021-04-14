@@ -64,23 +64,10 @@ function ProfitLossPercentageTimeline(props: Props) {
         },
       },
 
-      rangeSelector: {
-        selected: 1,
-        enabled: process.env.NODE_ENV === 'development',
-      },
+      rangeSelector: { selected: 1, enabled: process.env.NODE_ENV === 'development', inputEnabled: false },
+      navigator: { enabled: true },
+      scrollbar: { enabled: false },
 
-      scrollbar: {
-        barBackgroundColor: 'gray',
-        barBorderRadius: 7,
-        barBorderWidth: 0,
-        buttonBackgroundColor: 'gray',
-        buttonBorderWidth: 0,
-        buttonBorderRadius: 7,
-        trackBackgroundColor: 'none',
-        trackBorderWidth: 1,
-        trackBorderRadius: 8,
-        trackBorderColor: '#CCC',
-      },
       plotOptions: {
         spline: {
           zones: [

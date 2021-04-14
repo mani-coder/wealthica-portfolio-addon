@@ -337,23 +337,9 @@ class StockTimeline extends Component<Props, State> {
         },
       },
 
-      rangeSelector: {
-        selected: 1,
-        enabled: process.env.NODE_ENV === 'development',
-      },
-
-      scrollbar: {
-        barBackgroundColor: 'gray',
-        barBorderRadius: 7,
-        barBorderWidth: 0,
-        buttonBackgroundColor: 'gray',
-        buttonBorderWidth: 0,
-        buttonBorderRadius: 7,
-        trackBackgroundColor: 'none',
-        trackBorderWidth: 1,
-        trackBorderRadius: 8,
-        trackBorderColor: '#CCC',
-      },
+      rangeSelector: { selected: 1, enabled: true, inputEnabled: false },
+      navigator: { enabled: false },
+      scrollbar: { enabled: false },
 
       yAxis: [
         {
