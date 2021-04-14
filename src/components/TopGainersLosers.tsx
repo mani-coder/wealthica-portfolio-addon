@@ -14,7 +14,7 @@ export function TopGainersLosers(props: { isPrivateMode: boolean; positions: Pos
   const [sortByValue, setSortByValue] = useState(false);
   const [pnlSymbol, setPnlSymbol] = useState<string>();
 
-  function getTopGainersLosers(gainers: boolean) {
+  function getTopGainersLosers(gainers: boolean): Highcharts.SeriesColumnOptions[] {
     return [
       {
         name: gainers ? 'Top Gainers' : 'Top Losers',
@@ -22,7 +22,9 @@ export function TopGainersLosers(props: { isPrivateMode: boolean; positions: Pos
         events: {
           click(event) {
             if (event.point.name && pnlSymbol !== event.point.name) {
-              setPnlSymbol(event.point.name);
+              setTimeout(() => {
+                setPnlSymbol(event.point.name);
+              }, 50);
             }
           },
         },
@@ -68,7 +70,7 @@ export function TopGainersLosers(props: { isPrivateMode: boolean; positions: Pos
     subtitle,
     series,
   }: {
-    series: any;
+    series: Highcharts.SeriesColumnOptions[];
     title?: string;
     subtitle?: string;
     yAxisTitle?: string;
@@ -158,8 +160,18 @@ export function TopGainersLosers(props: { isPrivateMode: boolean; positions: Pos
 
   const { gainers, losers } = useMemo(() => {
     return {
-      gainers: getTopGainersLosers(true),
-      losers: getTopGainersLosers(false),
+      gainers: getOptions({
+        title: 'Top Gainers',
+        subtitle: '(click on a stock to view the P/L timeline)',
+        yAxisTitle: `Gain (${sortByValue ? '$' : '%'})`,
+        series: getTopGainersLosers(true),
+      }),
+      losers: getOptions({
+        title: 'Top Losers',
+        subtitle: '(click on a stock to view the P/L timeline)',
+        yAxisTitle: `Loss (${sortByValue ? '$' : '%'})`,
+        series: getTopGainersLosers(false),
+      }),
     };
   }, [sortByValue, props.isPrivateMode, props.positions]);
 
@@ -208,29 +220,13 @@ export function TopGainersLosers(props: { isPrivateMode: boolean; positions: Pos
         </Typography.Text>
       </Flex>
 
-      {!!gainers[0].data.length && (
-        <Charts
-          options={getOptions({
-            title: 'Top Gainers',
-            subtitle: '(click on a stock to view the P/L timeline)',
-            yAxisTitle: `Gain (${sortByValue ? '$' : '%'})`,
-            series: gainers,
-          })}
-        />
+      {!!(gainers.series && gainers.series[0] && (gainers.series[0] as any).data.length) && (
+        <Charts options={gainers} />
       )}
 
       {renderStockPnLTimeline()}
 
-      {!!losers[0].data.length && (
-        <Charts
-          options={getOptions({
-            title: 'Top Losers',
-            subtitle: '(click on a stock to view the P/L timeline)',
-            yAxisTitle: `Loss (${sortByValue ? '$' : '%'})`,
-            series: losers,
-          })}
-        />
-      )}
+      {!!(losers.series && losers.series[0] && (losers.series[0] as any).data.length) && <Charts options={losers} />}
     </>
   ) : (
     <Empty description="No Holdings" />
