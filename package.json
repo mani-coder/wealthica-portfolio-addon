@@ -4,10 +4,8 @@
   "private": true,
   "dependencies": {
     "@ant-design/icons": "^4.6.2",
-    "@craco/craco": "^6.1.1",
     "@wealthica/wealthica.js": "0.0.10",
     "antd": "^4.15.0",
-    "craco-less": "^1.17.1",
     "highcharts": "^7.2.2",
     "highcharts-react-official": "^2.1.3",
     "lodash": "^4.17.19",
@@ -38,6 +36,8 @@
   ],
   "homepage": "https://mani-coder.github.io/wealthica-portfolio-addon/",
   "devDependencies": {
+    "@craco/craco": "^6.1.1",
+    "craco-less": "^1.17.1",
     "@babel/helper-builder-react-jsx": "^7.10.4",
     "@babel/helper-call-delegate": "^7.12.1",
     "@babel/helper-regex": "^7.10.5",
