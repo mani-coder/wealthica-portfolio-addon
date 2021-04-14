@@ -1,12 +1,12 @@
 /* eslint-disable no-template-curly-in-string */
+import Spin from 'antd/lib/spin';
 import _ from 'lodash';
 import moment, { Moment } from 'moment';
 import React, { Component } from 'react';
-import Spin from 'antd/lib/spin';
 import { trackEvent } from '../analytics';
 import { TYPE_TO_COLOR } from '../constants';
 import { Position, Transaction } from '../types';
-import { buildCorsFreeUrl, formatCurrency, getDate } from '../utils';
+import { buildCorsFreeUrl, formatCurrency, formatMoney, getDate } from '../utils';
 import Charts from './Charts';
 
 type Props = {
@@ -322,13 +322,15 @@ class StockTimeline extends Component<Props, State> {
       },
       subtitle: {
         text: this.props.isPrivateMode
-          ? 'Shares: -, Value: -, Profit: -'
-          : `Shares: ${this.props.position.quantity}, Value: $${formatCurrency(
-              this.props.position.book_value,
+          ? 'Shares: -, Market Value: -, Profit: -'
+          : `Shares: ${this.props.position.quantity}@${formatMoney(
+              this.props.position.investments.reduce((cost, investment) => {
+                return cost + investment.book_value;
+              }, 0) / this.props.position.quantity,
+            )}, Market Value: CAD ${formatCurrency(this.props.position.market_value, 2)}, P/L: CAD ${formatCurrency(
+              this.props.position.gain_amount,
               2,
-            )}, Profit: $${formatCurrency(this.props.position.gain_amount, 2)}${
-              dividends ? `, Dividends: $${formatCurrency(dividends, 2)}` : ''
-            }`,
+            )}${dividends ? `, Dividends: CAD ${formatCurrency(dividends, 2)}` : ''}`,
         style: {
           color: '#1F2A33',
           fontWeight: 'bold',
