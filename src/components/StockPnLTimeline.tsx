@@ -138,7 +138,7 @@ function StockPnLTimeline({ isPrivateMode, symbol, position, addon, showValueCha
         const newPositionShares = lastBuySell.shares + t.shares;
         const newPosition = {
           price:
-            t.type === 'buy'
+            t.type === 'buy' && newPositionShares
               ? (lastBuySell.price * lastBuySell.shares + t.price * t.shares) / newPositionShares
               : lastBuySell.price,
           shares: newPositionShares,
