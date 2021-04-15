@@ -1,12 +1,12 @@
 {
   "files": {
     "main.css": "/wealthica-portfolio-addon/static/css/main.306bb147.chunk.css",
-    "main.js": "/wealthica-portfolio-addon/static/js/main.4411d6ad.chunk.js",
-    "main.js.map": "/wealthica-portfolio-addon/static/js/main.4411d6ad.chunk.js.map",
+    "main.js": "/wealthica-portfolio-addon/static/js/main.b6ac258d.chunk.js",
+    "main.js.map": "/wealthica-portfolio-addon/static/js/main.b6ac258d.chunk.js.map",
     "runtime-main.js": "/wealthica-portfolio-addon/static/js/runtime-main.16b1f5b4.js",
     "runtime-main.js.map": "/wealthica-portfolio-addon/static/js/runtime-main.16b1f5b4.js.map",
-    "static/js/2.7c8fd726.chunk.js": "/wealthica-portfolio-addon/static/js/2.7c8fd726.chunk.js",
-    "static/js/2.7c8fd726.chunk.js.map": "/wealthica-portfolio-addon/static/js/2.7c8fd726.chunk.js.map",
+    "static/js/2.255e7c38.chunk.js": "/wealthica-portfolio-addon/static/js/2.255e7c38.chunk.js",
+    "static/js/2.255e7c38.chunk.js.map": "/wealthica-portfolio-addon/static/js/2.255e7c38.chunk.js.map",
     "static/js/3.e36ce31d.chunk.js": "/wealthica-portfolio-addon/static/js/3.e36ce31d.chunk.js",
     "static/js/3.e36ce31d.chunk.js.map": "/wealthica-portfolio-addon/static/js/3.e36ce31d.chunk.js.map",
     "static/js/4.81510e99.chunk.js": "/wealthica-portfolio-addon/static/js/4.81510e99.chunk.js",
@@ -25,12 +25,12 @@
     "static/js/10.9bf18488.chunk.js.map": "/wealthica-portfolio-addon/static/js/10.9bf18488.chunk.js.map",
     "index.html": "/wealthica-portfolio-addon/index.html",
     "static/css/main.306bb147.chunk.css.map": "/wealthica-portfolio-addon/static/css/main.306bb147.chunk.css.map",
-    "static/js/2.7c8fd726.chunk.js.LICENSE.txt": "/wealthica-portfolio-addon/static/js/2.7c8fd726.chunk.js.LICENSE.txt"
+    "static/js/2.255e7c38.chunk.js.LICENSE.txt": "/wealthica-portfolio-addon/static/js/2.255e7c38.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.16b1f5b4.js",
-    "static/js/2.7c8fd726.chunk.js",
+    "static/js/2.255e7c38.chunk.js",
     "static/css/main.306bb147.chunk.css",
-    "static/js/main.4411d6ad.chunk.js"
+    "static/js/main.b6ac258d.chunk.js"
   ]
 }
