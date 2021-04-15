@@ -26,6 +26,25 @@ export const formatMoney = (amount?: number, precision?: number): string => {
   });
 };
 
+function getRandomInt(n) {
+  return Math.floor(Math.random() * n);
+}
+export function shuffle(s: string) {
+  var arr = s.split(''); // Convert String to array
+  var n = arr.length; // Length of the array
+
+  for (var i = 0; i < n - 1; ++i) {
+    var j = getRandomInt(n); // Get random of [0, n-1]
+
+    var temp = arr[i]; // Swap arr[i] and arr[j]
+    arr[i] = arr[j];
+    arr[j] = temp;
+  }
+
+  s = arr.join(''); // Convert Array to string
+  return s; // Return shuffled string
+}
+
 export const getSymbol = (security: Security): string => {
   return `${security.symbol || security.name}${security.currency === 'usd' ? '' : '.TO'}`;
 };

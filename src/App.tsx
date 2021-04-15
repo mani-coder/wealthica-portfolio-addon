@@ -1,4 +1,5 @@
 import { Addon } from '@wealthica/wealthica.js/index';
+import { Badge } from 'antd';
 import Typography from 'antd/es/typography';
 import Text from 'antd/es/typography/Text';
 import Empty from 'antd/lib/empty';
@@ -18,6 +19,7 @@ import {
   parseTransactionsResponse,
 } from './api';
 import './App.less';
+import ChangeLog, { getNewChangeLogsCount, setChangeLogViewDate } from './components/ChangeLog';
 import DepositVsPortfolioValueTimeline from './components/DepositsVsPortfolioValueTimeline';
 import { Events } from './components/Events';
 import HoldingsCharts from './components/HoldingsCharts';
@@ -49,6 +51,7 @@ type State = {
 
   options?: any;
   isLoadingOnUpdate?: boolean;
+  newChangeLogsCount?: number;
 };
 type Props = {};
 
@@ -365,6 +368,15 @@ class App extends Component<Props, State> {
     if (!this.state.addon) {
       setTimeout(() => this.loadStaticPortfolioData(), 0);
     }
+
+    setTimeout(() => this.computeChangeLogCount(), 1000);
+  }
+
+  computeChangeLogCount() {
+    const newChangeLogsCount = getNewChangeLogsCount();
+    if (newChangeLogsCount) {
+      this.setState({ newChangeLogsCount });
+    }
   }
 
   render() {
@@ -395,7 +407,17 @@ class App extends Component<Props, State> {
                 </Flex>
               )}
 
-              <Tabs defaultActiveKey="pnl" onChange={(tab) => trackEvent('tab-change', { tab })} size="large">
+              <Tabs
+                defaultActiveKey="pnl"
+                onChange={(tab) => {
+                  if (tab === 'change-log' && this.state.newChangeLogsCount) {
+                    setChangeLogViewDate();
+                    this.setState({ newChangeLogsCount: undefined });
+                  }
+                  trackEvent('tab-change', { tab });
+                }}
+                size="large"
+              >
                 <Tabs.TabPane destroyInactiveTabPane forceRender tab="P&L Charts" key="pnl">
                   <PnLStatistics
                     portfolios={this.state.portfolios}
@@ -460,6 +482,18 @@ class App extends Component<Props, State> {
 
                 <Tabs.TabPane destroyInactiveTabPane tab="Events" key="events">
                   <Events positions={this.state.positions} />
+                </Tabs.TabPane>
+
+                <Tabs.TabPane
+                  destroyInactiveTabPane
+                  tab={
+                    <Badge count={this.state.newChangeLogsCount} overflowCount={9} offset={[15, 2]}>
+                      Change Log
+                    </Badge>
+                  }
+                  key="change-log"
+                >
+                  <ChangeLog />
                 </Tabs.TabPane>
               </Tabs>
             </>
