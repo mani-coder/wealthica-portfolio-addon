@@ -484,24 +484,17 @@ class App extends Component<Props, State> {
                   <Events positions={this.state.positions} />
                 </Tabs.TabPane>
 
-                {!!(
-                  process.env.NODE_ENV === 'development' ||
-                  (this.state.options &&
-                    this.state.options.authUser &&
-                    this.state.options.authUser.email === 'k.elayamani@gmail.com')
-                ) && (
-                  <Tabs.TabPane
-                    destroyInactiveTabPane
-                    tab={
-                      <Badge count={this.state.newChangeLogsCount} overflowCount={9} offset={[15, 2]}>
-                        Change Log
-                      </Badge>
-                    }
-                    key="change-log"
-                  >
-                    <ChangeLog />
-                  </Tabs.TabPane>
-                )}
+                <Tabs.TabPane
+                  destroyInactiveTabPane
+                  tab={
+                    <Badge count={this.state.newChangeLogsCount} overflowCount={9} offset={[15, 2]}>
+                      Change Log
+                    </Badge>
+                  }
+                  key="change-log"
+                >
+                  <ChangeLog />
+                </Tabs.TabPane>
               </Tabs>
             </>
           ) : (
