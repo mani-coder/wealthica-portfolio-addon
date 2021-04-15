@@ -1,12 +1,10 @@
 /* eslint-disable react/jsx-no-target-blank */
 /* eslint-disable react-hooks/exhaustive-deps */
-import Alert from 'antd/lib/alert';
 import moment, { Moment } from 'moment';
-import React, { useEffect, useMemo, useState } from 'react';
-import { Flex } from 'rebass';
+import React, { useMemo } from 'react';
 import { trackEvent } from '../analytics';
 import { Portfolio } from '../types';
-import { formatCurrency, getLocalCache, getPreviousWeekday, setLocalCache } from '../utils';
+import { formatCurrency, getPreviousWeekday } from '../utils';
 import Charts from './Charts';
 import Collapsible from './Collapsible';
 
@@ -16,14 +14,8 @@ type Props = {
 };
 
 const DATE_DISPLAY_FORMAT = 'MMM DD, YYYY';
-const PNL_WIDGET_OOKIE_NAME = '__pnl_widget_notification__';
 
 function YoYPnLChart(props: Props) {
-  const [showPnLWidgetInfo, setShowPnLWidgetInfo] = useState(false);
-  useEffect(() => {
-    setShowPnLWidgetInfo(!getLocalCache(PNL_WIDGET_OOKIE_NAME));
-  }, []);
-
   const portfoliosByDate = props.portfolios.reduce((hash, portfolio) => {
     hash[portfolio.date] = portfolio;
     return hash;
@@ -284,35 +276,6 @@ function YoYPnLChart(props: Props) {
   return (
     <Collapsible title="P&L % Change Over Multiple Time Periods">
       <Charts options={options} />
-
-      {showPnLWidgetInfo && (
-        <Flex my={2}>
-          <Alert
-            message={
-              <>
-                This chart is available as a developer widget which can be added to the dashboard. If you want to give
-                it a try, please follow the instructions outlined{' '}
-                <a
-                  href="https://github.com/mani-coder/wealthica-pnl-widget"
-                  target="_blank"
-                  onClick={() => trackEvent('click-pnl-widget-info')}
-                >
-                  here
-                </a>
-                .
-              </>
-            }
-            type="info"
-            showIcon
-            closable
-            onClose={() => {
-              setLocalCache(PNL_WIDGET_OOKIE_NAME, 1);
-              setShowPnLWidgetInfo(false);
-              trackEvent('close-pnl-widget-info');
-            }}
-          />
-        </Flex>
-      )}
     </Collapsible>
   );
 }
