@@ -144,6 +144,7 @@ function StockPnLTimeline({ isPrivateMode, symbol, position, addon, showValueCha
           shares: newPositionShares,
           date,
         };
+        console.log('mani is cool', { a: t.account, newPosition, lastBuySell, shares: t.shares, price: t.price });
         if (newPosition.date !== lastBuySell.date) {
           accountBook.push(lastBuySell);
         }
@@ -165,6 +166,7 @@ function StockPnLTimeline({ isPrivateMode, symbol, position, addon, showValueCha
         }
         book.all.push(allEntry);
       });
+    console.log('mani is cool', book);
 
     const allBook = book.all.reduce((hash, entry) => {
       hash[entry.date] = { shares: entry.shares, price: entry.price };
