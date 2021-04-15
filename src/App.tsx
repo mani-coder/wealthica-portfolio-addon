@@ -488,7 +488,7 @@ class App extends Component<Props, State> {
                   destroyInactiveTabPane
                   tab={
                     <Badge count={this.state.newChangeLogsCount} overflowCount={9} offset={[15, 2]}>
-                      Change Log
+                      Latest Changes
                     </Badge>
                   }
                   key="change-log"
