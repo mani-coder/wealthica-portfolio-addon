@@ -485,9 +485,10 @@ class App extends Component<Props, State> {
                 </Tabs.TabPane>
 
                 {!!(
-                  this.state.options &&
-                  this.state.options.authUser &&
-                  this.state.options.authUser.email === 'k.elayamani@gmail.com'
+                  process.env.NODE_ENV === 'development' ||
+                  (this.state.options &&
+                    this.state.options.authUser &&
+                    this.state.options.authUser.email === 'k.elayamani@gmail.com')
                 ) && (
                   <Tabs.TabPane
                     destroyInactiveTabPane
