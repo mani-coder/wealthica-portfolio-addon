@@ -240,13 +240,7 @@ export default function RealizedPnL({ currencyCache, transactions, accounts, isP
     ];
   }
 
-  const getOptions = ({
-    series,
-    closedPnL,
-  }: {
-    series: Highcharts.SeriesColumnOptions[];
-    closedPnL: number;
-  }): Highcharts.Options => {
+  const getOptions = ({ series }: { series: Highcharts.SeriesColumnOptions[] }): Highcharts.Options => {
     return {
       series,
 
@@ -383,8 +377,8 @@ export default function RealizedPnL({ currencyCache, transactions, accounts, isP
     return closedPositions.reduce((pnl, position) => pnl + position.pnl, 0);
   }, [closedPositions]);
   const options = useMemo(() => {
-    return getOptions({ series: getData(closedPositions), closedPnL });
-  }, [closedPositions, timeline, closedPnL]);
+    return getOptions({ series: getData(closedPositions) });
+  }, [closedPositions, timeline]);
 
   return !!closedPositions.length ? (
     <>

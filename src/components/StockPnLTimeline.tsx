@@ -24,7 +24,7 @@ type StockPrice = {
   closePrice: number;
 };
 
-const POINT_FORMAT = `P/L (%): <b>{point.pnlRatio:.2f}%</b> <br />P/L ($): <b>{point.pnlValue} {point.currency}</b><br />Price: {point.stockPrice} {point.currency}`;
+const POINT_FORMAT = `P/L (%): <b>{point.pnlRatio:.2f}%</b> <br />P/L ($): <b>{point.pnlValue} {point.currency}</b><br />Stock Price: {point.stockPrice} {point.currency}<br />Book Value: {point.shares}@{point.price}`;
 
 function StockPnLTimeline({ isPrivateMode, symbol, position, addon, showValueChart }: Props) {
   const [loading, setLoading] = useState(false);
@@ -120,36 +120,60 @@ function StockPnLTimeline({ isPrivateMode, symbol, position, addon, showValueCha
   }
 
   function getSeries(): any[] {
-    const book: { [K: string]: { shares: number; price: number } } = {};
-    let prevEntry;
+    const book: {
+      [K: string]: { shares: number; price: number; date: string }[];
+    } = { all: [] };
+
     position.transactions
       .filter((t) => ['buy', 'sell'].includes(t.type))
       .forEach((t) => {
         const date = getNextWeekday(t.date.clone());
-        let entry = book[date];
-        if (!prevEntry) {
-          entry = { shares: t.shares, price: t.price };
-        } else if (entry) {
-          const shares = entry.shares + t.shares;
-          entry = {
-            price: shares ? (entry.price * entry.shares + t.price * t.shares) / shares : t.price,
-            shares,
-          };
-        } else {
-          const shares = prevEntry.shares + t.shares;
-          entry = {
-            price: shares ? (prevEntry.price * prevEntry.shares + t.price * t.shares) / shares : t.price,
-            shares,
-          };
+        let accountBook = book[t.account];
+        if (!accountBook) {
+          accountBook = [];
+          book[t.account] = accountBook;
         }
-        book[date] = entry;
-        prevEntry = entry.shares ? entry : undefined;
+
+        let lastBuySell = accountBook.pop() || { shares: 0, price: 0, date };
+        const newPositionShares = lastBuySell.shares + t.shares;
+        const newPosition = {
+          price:
+            t.type === 'buy'
+              ? (lastBuySell.price * lastBuySell.shares + t.price * t.shares) / newPositionShares
+              : lastBuySell.price,
+          shares: newPositionShares,
+          date,
+        };
+        if (newPosition.date !== lastBuySell.date) {
+          accountBook.push(lastBuySell);
+        }
+        accountBook.push(newPosition);
+
+        // Update all book.
+        let allLastBuySell = book.all.pop() || { shares: 0, price: 0, date };
+        const shares = allLastBuySell.shares + t.shares;
+        const allEntry = {
+          price: shares
+            ? (allLastBuySell.price * allLastBuySell.shares + newPosition.price * t.shares) / shares
+            : t.price,
+          shares,
+          date,
+        };
+
+        if (allEntry.date !== allLastBuySell.date) {
+          book.all.push(allLastBuySell);
+        }
+        book.all.push(allEntry);
       });
 
+    const allBook = book.all.reduce((hash, entry) => {
+      hash[entry.date] = { shares: entry.shares, price: entry.price };
+      return hash;
+    }, {} as { [K: string]: { shares: number; price: number } });
     let data: any[] = [];
     let _entry;
     prices.forEach((price) => {
-      const entry = book[price.timestamp.format('YYYY-MM-DD')];
+      const entry = allBook[price.timestamp.format('YYYY-MM-DD')];
       _entry = entry ? entry : _entry;
       if (_entry) {
         if (_entry.shares === 0) {
@@ -167,6 +191,8 @@ function StockPnLTimeline({ isPrivateMode, symbol, position, addon, showValueCha
             pnlValue: isPrivateMode ? '-' : formatMoney(marketValue - bookValue),
             currency: position.security.currency.toUpperCase(),
             stockPrice: formatMoney(price.closePrice),
+            price: formatMoney(_entry.price),
+            shares: _entry.shares,
           });
         }
       }
