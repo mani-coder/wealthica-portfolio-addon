@@ -10,3 +10,5 @@ export const TYPE_TO_COLOR = {
   tax: 'brown',
   fee: 'brown',
 };
+
+export const CHANGE_LOG_DATE_CACHE_KEY = '__pnl_change_log_date__';
