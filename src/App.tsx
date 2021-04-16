@@ -255,6 +255,7 @@ class App extends Component<Props, State> {
     const query = {
       from: options.fromDate,
       to: options.toDate,
+      assets: false,
       groups: options.groupsFilter,
       institutions: options.institutionsFilter,
       investments: options.investmentsFilter === 'all' ? null : options.investmentsFilter,
@@ -274,7 +275,7 @@ class App extends Component<Props, State> {
   loadPositions(options) {
     console.debug('Loading positions data.');
     const query = {
-      assets: true,
+      assets: false,
       groups: options.groupsFilter,
       institutions: options.institutionsFilter,
       investments: options.investmentsFilter === 'all' ? null : options.investmentsFilter,
@@ -294,7 +295,7 @@ class App extends Component<Props, State> {
   loadInstitutionsData(options) {
     console.debug('Loading institutions data..');
     const query = {
-      assets: true,
+      assets: false,
       groups: options.groupsFilter,
       institutions: options.institutionsFilter,
       investments: options.investmentsFilter === 'all' ? null : options.investmentsFilter,
@@ -321,6 +322,7 @@ class App extends Component<Props, State> {
     console.debug('Loading transactions data.');
     const fromDate = options.fromDate;
     const query = {
+      assets: false,
       from: fromDate && fromDate < TRANSACTIONS_FROM_DATE ? fromDate : TRANSACTIONS_FROM_DATE,
       groups: options.groupsFilter,
       institutions: options.institutionsFilter,
