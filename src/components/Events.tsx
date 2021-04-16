@@ -51,9 +51,14 @@ export function Events({ positions }: { positions: Position[] }) {
     }
 
     const url = buildCorsFreeUrl(
-      `https://portfolio.nasdaq.com/api/portfolio/getPortfolioEvents/?fromDate=${date.format(
-        'YYYY-MM-DD',
-      )}&toDate=${date.clone().endOf('month').format('YYYY-MM-DD')}&tickers=${_symbols}`,
+      `https://portfolio.nasdaq.com/api/portfolio/getPortfolioEvents/?fromDate=${date
+        .clone()
+        .subtract(30, 'days')
+        .format('YYYY-MM-DD')}&toDate=${date
+        .clone()
+        .endOf('month')
+        .add(30, 'days')
+        .format('YYYY-MM-DD')}&tickers=${_symbols}`,
     );
     setLoading(true);
 
