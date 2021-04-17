@@ -204,11 +204,11 @@ export function getNewChangeLogsCount(): number {
   const changeLogDate = getLocalCache(CHANGE_LOG_DATE_CACHE_KEY);
   if (changeLogDate) {
     const date = moment(changeLogDate);
-    return LOGS.filter((log) => moment(log.date).isSameOrAfter(date)).length;
+    return LOGS.filter((log) => moment(log.date).isAfter(date)).length;
   }
   return LOGS.length;
 }
 
 export function setChangeLogViewDate() {
-  setLocalCache(CHANGE_LOG_DATE_CACHE_KEY, moment().format('YYYY-MM-DD'));
+  setLocalCache(CHANGE_LOG_DATE_CACHE_KEY, LOGS[0].date);
 }
