@@ -312,15 +312,17 @@ function StockPnLTimeline({ isPrivateMode, symbol, position, addon, showValueCha
       },
       subtitle: {
         text: isPrivateMode
-          ? 'Shares: -, Value: -, P/L: -'
+          ? ''
           : `Shares: ${position.quantity}@${formatMoney(
               position.investments.reduce((cost, investment) => {
                 return cost + investment.book_value;
               }, 0) / position.quantity,
-            )}, Market Value: CAD ${formatCurrency(position.market_value, 2)}, P/L: CAD ${formatCurrency(
-              position.gain_amount,
+            )}, Market Value: CAD ${formatCurrency(position.market_value, 2)}, P/L: ${formatMoney(
+              position.gain_percent * 100,
               2,
-            )}${dividends ? `, Dividends: CAD ${formatCurrency(dividends, 2)}` : ''}`,
+            )}% / CAD ${formatCurrency(position.gain_amount, 2)}${
+              dividends ? `, Dividends: CAD ${formatCurrency(dividends, 2)}` : ''
+            }`,
         style: {
           color: '#1F2A33',
           fontWeight: 'bold',

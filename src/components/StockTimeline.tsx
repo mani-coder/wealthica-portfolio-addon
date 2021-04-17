@@ -327,10 +327,12 @@ class StockTimeline extends Component<Props, State> {
               this.props.position.investments.reduce((cost, investment) => {
                 return cost + investment.book_value;
               }, 0) / this.props.position.quantity,
-            )}, Market Value: CAD ${formatCurrency(this.props.position.market_value, 2)}, P/L: CAD ${formatCurrency(
-              this.props.position.gain_amount,
+            )}, Market Value: CAD ${formatCurrency(this.props.position.market_value, 2)}, P/L:  ${formatMoney(
+              this.props.position.gain_percent * 100,
               2,
-            )}${dividends ? `, Dividends: CAD ${formatCurrency(dividends, 2)}` : ''}`,
+            )}% / CAD ${formatCurrency(this.props.position.gain_amount, 2)}${
+              dividends ? `, Dividends: CAD ${formatCurrency(dividends, 2)}` : ''
+            }`,
         style: {
           color: '#1F2A33',
           fontWeight: 'bold',
