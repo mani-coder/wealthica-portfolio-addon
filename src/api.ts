@@ -109,7 +109,7 @@ export const parseTransactionsResponse = (response: any, currencyCache: any, acc
       } else if (type === 'transfer') {
         if (
           // FX and journal over shouldn't be treated as deposits.
-          !['FXT', 'BRW'].includes(transaction.origin_type) &&
+          !['FXT', 'BRW', 'ExchTrade'].includes(transaction.origin_type) &&
           // Security transfer over..
           !transaction.symbol
         ) {
