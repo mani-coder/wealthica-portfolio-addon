@@ -48,6 +48,13 @@ export type Transaction = {
   account: string;
 };
 
+export type AccountTransaction = {
+  date: Moment;
+  amount: number;
+  type: string;
+  account: string;
+};
+
 export type Position = {
   security: Security;
   value: number;

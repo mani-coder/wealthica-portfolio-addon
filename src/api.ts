@@ -1,5 +1,5 @@
 import { DATE_FORMAT } from './constants';
-import { Account, Position, Transaction } from './types';
+import { Account, AccountTransaction, Position, Transaction } from './types';
 import { getCurrencyInCAD, getDate, getSymbol, normalizeAccountType } from './utils';
 
 export const parseCurrencyReponse = (response: any) => {
@@ -159,6 +159,28 @@ export const parseSecurityTransactionsResponse = (response: any, currencyCache: 
         currency: transaction.security ? transaction.security.currency : 'USD',
         shares: transaction.quantity || 0,
         fees: transaction.fee,
+      };
+    });
+};
+
+export const parseAccountTransactionsResponse = (response: any, currencyCache: any): AccountTransaction[] => {
+  return response
+    .filter((t) => !t.deleted && t.type)
+    .filter((transaction) => ['interest', 'deposit', 'withdrawal', 'transfer'].includes(transaction.type.toLowerCase()))
+    .map((transaction) => {
+      const date = getDate(transaction.date);
+
+      let amount = Number(transaction.currency_amount);
+      amount =
+        transaction.investment && transaction.investment.includes(':usd')
+          ? getCurrencyInCAD(date, amount, currencyCache)
+          : amount;
+
+      return {
+        date,
+        account: transaction.investment,
+        amount: Math.abs(amount),
+        type: transaction.type,
       };
     });
 };

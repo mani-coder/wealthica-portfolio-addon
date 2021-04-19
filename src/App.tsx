@@ -11,6 +11,7 @@ import React, { Component } from 'react';
 import { Flex } from 'rebass';
 import { initTracking, trackEvent } from './analytics';
 import {
+  parseAccountTransactionsResponse,
   parseCurrencyReponse,
   parseInstitutionsResponse,
   parsePortfolioResponse,
@@ -24,6 +25,7 @@ import DepositVsPortfolioValueTimeline from './components/DepositsVsPortfolioVal
 import { Events } from './components/Events';
 import HoldingsCharts from './components/HoldingsCharts';
 import HoldingsTable from './components/HoldingsTable';
+import Interests from './components/Interests';
 import News from './components/News';
 import PnLStatistics from './components/PnLStatistics';
 import PortfolioVisualizer from './components/PortfolioVisualizer';
@@ -34,13 +36,14 @@ import { TopGainersLosers } from './components/TopGainersLosers';
 import YoYPnLChart from './components/YoYPnLChart';
 import { TRANSACTIONS_FROM_DATE } from './constants';
 import { CURRENCIES_API_RESPONSE } from './mocks/currencies';
-import { Account, Portfolio, Position, Transaction } from './types';
+import { Account, AccountTransaction, Portfolio, Position, Transaction } from './types';
 import { getSymbol } from './utils';
 
 type State = {
   addon: any;
   currencyCache?: { [key: string]: number };
   securityTransactions: Transaction[];
+  accountTransactions: AccountTransaction[];
   portfolios: Portfolio[];
   allPortfolios: Portfolio[];
   positions: Position[];
@@ -63,6 +66,7 @@ class App extends Component<Props, State> {
       addon: this.getAddon(),
       currencyCache: undefined,
       securityTransactions: [],
+      accountTransactions: [],
       portfolios: [],
       allPortfolios: [],
       positions: [],
@@ -240,6 +244,7 @@ class App extends Component<Props, State> {
     this.setState({
       positions,
       securityTransactions,
+      accountTransactions: parseAccountTransactionsResponse(transactions, currencyCache),
 
       allPortfolios: portfolios,
       portfolios: portfolios.filter((portfolio) => moment(portfolio.date).isoWeekday() <= 5),
@@ -382,6 +387,13 @@ class App extends Component<Props, State> {
   }
 
   render() {
+    const fromDate = this.state.fromDate ? moment(this.state.fromDate) : undefined;
+    const interestsTransactions = fromDate
+      ? (this.state.accountTransactions || []).filter(
+          (transaction) => transaction.type === 'interest' && transaction.date.isSameOrAfter(fromDate),
+        )
+      : [];
+
     return (
       <Flex width={1} justifyContent="center">
         <div style={{ padding: 4, maxWidth: this.state.addon ? '100%' : 1100 }}>
@@ -478,6 +490,16 @@ class App extends Component<Props, State> {
                   />
                 </Tabs.TabPane>
 
+                {!!interestsTransactions.length && (
+                  <Tabs.TabPane destroyInactiveTabPane tab="Interest" key="interest">
+                    <Interests
+                      currencyCache={this.state.currencyCache || {}}
+                      transactions={interestsTransactions}
+                      accounts={this.state.accounts}
+                      isPrivateMode={this.state.privateMode}
+                    />
+                  </Tabs.TabPane>
+                )}
                 <Tabs.TabPane destroyInactiveTabPane tab="News" key="news">
                   <News positions={this.state.positions} />
                 </Tabs.TabPane>
