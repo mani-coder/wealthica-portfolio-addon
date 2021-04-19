@@ -17,12 +17,11 @@ type Props = {
   transactions: AccountTransaction[];
   accounts: Account[];
   isPrivateMode: boolean;
-  currencyCache: { [K: string]: number };
 };
 
 const DATE_DISPLAY_FORMAT = 'MMM DD, YYYY';
 
-export default function Interests({ currencyCache, transactions, accounts, isPrivateMode }: Props) {
+export default function Interests({ transactions, accounts, isPrivateMode }: Props) {
   const [timeline, setTimeline] = useState<'month' | 'year' | 'week' | 'day'>('month');
   const accountNameById = useMemo(() => {
     return accounts.reduce((hash, account) => {
@@ -94,7 +93,7 @@ export default function Interests({ currencyCache, transactions, accounts, isPri
           enabled: !isPrivateMode,
         },
         title: {
-          text: 'P&L $ (CAD)',
+          text: 'Interest $ (CAD)',
         },
       },
     };

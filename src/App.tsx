@@ -493,7 +493,6 @@ class App extends Component<Props, State> {
                 {!!interestsTransactions.length && (
                   <Tabs.TabPane destroyInactiveTabPane tab="Interest" key="interest">
                     <Interests
-                      currencyCache={this.state.currencyCache || {}}
                       transactions={interestsTransactions}
                       accounts={this.state.accounts}
                       isPrivateMode={this.state.privateMode}
