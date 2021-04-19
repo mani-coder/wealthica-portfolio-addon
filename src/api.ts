@@ -181,6 +181,7 @@ export const parseAccountTransactionsResponse = (response: any, currencyCache: a
         account: transaction.investment,
         amount: Math.abs(amount),
         type: transaction.type,
+        description: transaction.description,
       };
     });
 };

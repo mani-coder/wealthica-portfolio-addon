@@ -53,6 +53,7 @@ export type AccountTransaction = {
   amount: number;
   type: string;
   account: string;
+  description: string;
 };
 
 export type Position = {

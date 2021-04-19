@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+import { Typography } from 'antd';
 import Card from 'antd/lib/card';
 import Radio from 'antd/lib/radio';
 import Statistic from 'antd/lib/statistic';
@@ -38,20 +39,28 @@ export default function Interests({ transactions, accounts, isPrivateMode }: Pro
         dataIndex: 'date',
         render: (text) => text.format('YYYY-MM-DD'),
         sorter: (a, b) => a.date.valueOf() - b.date.valueOf(),
+        width: 150,
       },
       {
         key: 'account',
         title: 'Account',
         dataIndex: 'account',
         render: (account) => accountNameById[account],
+        width: 250,
       },
       {
         key: 'interest',
         title: 'Interest (CAD)',
         dataIndex: 'amount',
-        render: (interest) => formatMoney(interest),
+        render: (interest) => <Typography.Text strong>${formatMoney(interest)}</Typography.Text>,
         align: 'right',
         sorter: (a, b) => a.amount - b.amount,
+        width: 200,
+      },
+      {
+        key: 'description',
+        title: 'Description',
+        dataIndex: 'description',
       },
     ];
   }
@@ -84,7 +93,7 @@ export default function Interests({ transactions, accounts, isPrivateMode }: Pro
       },
       plotOptions: {
         column: {
-          color: '#b37feb',
+          color: '#ffa39e',
         },
       },
 
@@ -185,7 +194,7 @@ export default function Interests({ transactions, accounts, isPrivateMode }: Pro
       <Flex mt={2} mb={3} justifyContent="center">
         <Statistic
           value={isPrivateMode ? '--' : interest}
-          valueStyle={{ fontWeight: 600 }}
+          valueStyle={{ fontWeight: 600, fontSize: 36, color: '#ff4d4f' }}
           precision={2}
           suffix="CAD"
         />
