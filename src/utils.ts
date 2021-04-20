@@ -121,6 +121,8 @@ export function normalizeAccountType(type: string): string {
     return 'RRSP';
   } else if (type.includes('TFSA') || type.includes('TAX FREE SAVINGS PLAN')) {
     return 'TFSA';
+  } else if (type.toLocaleUpperCase() === 'CASH' || type.toLocaleUpperCase() === 'MARGIN') {
+    return 'Margin';
   } else {
     return type;
   }
