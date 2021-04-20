@@ -419,7 +419,28 @@ export default function RealizedPnL({ currencyCache, transactions, accounts, isP
         style={{ marginTop: 16, marginBottom: 16 }}
         bodyStyle={{ padding: 0 }}
       >
-        <Table<ClosedPosition> dataSource={closedPositions} columns={getColumns()} />
+        <Table<ClosedPosition>
+          dataSource={closedPositions}
+          summary={(positions) => {
+            const totalPnL = positions.reduce((pnl, position) => pnl + position.pnl, 0);
+
+            return (
+              <>
+                <Table.Summary.Row>
+                  <Table.Summary.Cell colSpan={5} align="right" index={0}>
+                    <Typography.Text strong>Total</Typography.Text>
+                  </Table.Summary.Cell>
+                  <Table.Summary.Cell index={1} colSpan={3}>
+                    <Typography.Text strong style={{ color: totalPnL > 0 ? 'green' : 'red' }}>
+                      {formatMoney(totalPnL)} CAD
+                    </Typography.Text>
+                  </Table.Summary.Cell>
+                </Table.Summary.Row>
+              </>
+            );
+          }}
+          columns={getColumns()}
+        />
       </Card>
     </>
   ) : (

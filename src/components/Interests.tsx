@@ -163,7 +163,7 @@ export default function Interests({ transactions, accounts, isPrivateMode }: Pro
           label: value.label,
           y: value.interest,
           interest: !isPrivateMode ? formatMoney(value.interest) : '-',
-          interestHuman: !isPrivateMode ? formatCurrency(value.interest, 2) : '-',
+          interestHuman: !isPrivateMode ? `$${formatCurrency(value.interest, 2)}` : '-',
           startDate: value.startDate,
           endDate: value.endDate,
         })),
@@ -175,7 +175,7 @@ export default function Interests({ transactions, accounts, isPrivateMode }: Pro
         },
         dataLabels: {
           enabled: true,
-          format: '${point.interestHuman}',
+          format: '{point.interestHuman}',
         },
         showInLegend: false,
       },
@@ -227,7 +227,7 @@ export default function Interests({ transactions, accounts, isPrivateMode }: Pro
         style={{ marginTop: 16, marginBottom: 16 }}
         bodyStyle={{ padding: 0 }}
       >
-        <Table<AccountTransaction> dataSource={transactions} columns={getColumns()} />
+        <Table<AccountTransaction> dataSource={transactions.reverse()} columns={getColumns()} />
       </Card>
     </>
   );
