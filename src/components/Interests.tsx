@@ -175,7 +175,7 @@ export default function Interests({ transactions, accounts, isPrivateMode }: Pro
         },
         dataLabels: {
           enabled: true,
-          format: '{point.interestHuman}',
+          format: '${point.interestHuman}',
         },
         showInLegend: false,
       },
@@ -194,9 +194,9 @@ export default function Interests({ transactions, accounts, isPrivateMode }: Pro
       <Flex mt={2} mb={3} justifyContent="center">
         <Statistic
           value={isPrivateMode ? '--' : interest}
-          valueStyle={{ fontWeight: 600, fontSize: 36, color: '#ff4d4f' }}
+          valueStyle={{ fontWeight: 600, fontSize: 36, color: '#ff7875' }}
           precision={2}
-          suffix="CAD"
+          prefix="C$"
         />
       </Flex>
 
