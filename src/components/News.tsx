@@ -132,7 +132,12 @@ function News({ positions }: { positions: Position[] }) {
   return (
     <Flex flexDirection="column" mb={3} alignItems="center">
       <Flex width={1} justifyContent="center" mb={3}>
-        <Radio.Group defaultValue={sentiment} onChange={(e) => setSentiment(e.target.value)} buttonStyle="solid">
+        <Radio.Group
+          size="large"
+          defaultValue={sentiment}
+          onChange={(e) => setSentiment(e.target.value)}
+          buttonStyle="solid"
+        >
           <Radio.Button key="all" value="all">
             All
           </Radio.Button>
