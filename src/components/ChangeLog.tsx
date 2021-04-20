@@ -9,6 +9,7 @@ import React, { useState } from 'react';
 import { VariableSizeList as List } from 'react-window';
 import { Box, Flex } from 'rebass';
 import { CHANGE_LOG_DATE_CACHE_KEY } from '../constants';
+import AutoReSizer from '../hooks/useResizeHook';
 import { getLocalCache, setLocalCache } from '../utils';
 
 const LOGS: {
@@ -19,6 +20,14 @@ const LOGS: {
   date: string;
   link?: React.ReactElement;
 }[] = [
+  {
+    date: '2021-04-19',
+    tab: 'Events',
+    title: 'Table view of the earnings calendar to easily skim through the upcoming earnings',
+    description:
+      'The table view will be give a quick view of the upcoming earnings for your holdings in addition to the calendar view.',
+    images: ['https://ik.imagekit.io/manicoder/wealthica-portfolio-addon/earnings-table__eCvysZ8d.png'],
+  },
   {
     date: '2021-04-12',
     tab: 'Gainers/Losers',
@@ -139,8 +148,6 @@ const LOGS: {
   },
 ];
 
-const ITEM_HEIGHT = 425;
-
 function LogItem({ index, style }) {
   const [preview, setPreview] = useState<string>();
   const log = LOGS[index];
@@ -172,9 +179,8 @@ function LogItem({ index, style }) {
         </Flex>
         <Divider />
         <Modal
-          // getContainer={parent}
           width="fit-content"
-          style={{ maxWidth: '100%' }}
+          style={{ maxWidth: '100%', top: 10 }}
           closable
           maskClosable
           footer={null}
@@ -192,11 +198,20 @@ function LogItem({ index, style }) {
 
 export default function ChangeLog() {
   return (
-    <Box py={3}>
-      <List height={800} itemCount={LOGS.length} itemSize={() => ITEM_HEIGHT} width="100%">
-        {({ index, style }) => <LogItem index={index} style={style} />}
-      </List>
-    </Box>
+    <AutoReSizer>
+      {({ width }) => (
+        <Box py={3}>
+          <List
+            height={800}
+            itemCount={LOGS.length}
+            itemSize={() => (width > 1000 ? 425 : width > 600 ? 525 : 600)}
+            width="100%"
+          >
+            {({ index, style }) => <LogItem index={index} style={style} />}
+          </List>
+        </Box>
+      )}
+    </AutoReSizer>
   );
 }
 

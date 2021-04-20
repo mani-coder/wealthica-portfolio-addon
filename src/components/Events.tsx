@@ -248,7 +248,7 @@ export function Events({ positions }: { positions: Position[] }) {
 
       {events?.earnings && !!events?.earnings.length && (
         <Card
-          title={<>Upcoming Earnings ({date.format('MMM DD, YYYY')} -)</>}
+          title={<>Upcoming Earnings (Starting {date.format('MMM DD, YYYY')})</>}
           headStyle={{ paddingLeft: 16, fontSize: 18, fontWeight: 'bold' }}
           style={{ marginTop: 16, marginBottom: 16 }}
           bodyStyle={{ padding: 0 }}
