@@ -25,6 +25,7 @@ function Dot() {
 }
 
 function NewsItem({ news }: { news: NewsResult }) {
+  console.log('mani is cool', news);
   return (
     <Box pb={2} key={news.title}>
       <Flex alignItems="center">
@@ -44,7 +45,7 @@ function NewsItem({ news }: { news: NewsResult }) {
       <div style={{ fontSize: 13, color: '#8c8c8c' }}>
         {news.source}
         <Dot />
-        {moment(news.timestamp).format('MMM DD, YYYY')}
+        {moment(news.timestamp).format('MMM DD, YYYY hh:mm A')} EDT
         <Dot />
         {news.name} <Dot />
         {news.symbol}
@@ -74,9 +75,7 @@ function News({ positions }: { positions: Position[] }) {
       return;
     }
 
-    const url = buildCorsFreeUrl(
-      `https://portfolio.nasdaq.com/api/portfolio/getPortfolioNews/?tickers=${_symbols}&sentiment=yes`,
-    );
+    const url = buildCorsFreeUrl(`https://portfolio.nasdaq.com/api/portfolio/getPortfolioNews/?tickers=${_symbols}`);
     setLoading(true);
 
     fetch(url, {
@@ -127,18 +126,23 @@ function News({ positions }: { positions: Position[] }) {
   const sidebarContainerRef = useRef<HTMLDivElement>();
   const newsContainerRef = useRef<HTMLDivElement>();
 
-  const selectedNews = news.filter(
-    (_news) => (sentiment === 'all' || _news.sentiment === sentiment) && (symbol === 'All' || _news.symbol === symbol),
-  );
+  const selectedNews = news
+    .filter(
+      (_news) =>
+        (sentiment === 'all' || _news.sentiment === sentiment) && (symbol === 'All' || _news.symbol === symbol),
+    )
+    .slice(0, 1);
   return (
     <Flex flexDirection="column" mb={3} alignItems="center">
       <Flex width={1} justifyContent="center" mb={3}>
         <Radio.Group defaultValue={sentiment} onChange={(e) => setSentiment(e.target.value)} buttonStyle="solid">
-          <Radio.Button value="all">All</Radio.Button>
-          <Radio.Button value="positive">
+          <Radio.Button key="all" value="all">
+            All
+          </Radio.Button>
+          <Radio.Button key="positive" value="positive">
             <CaretUpOutlined style={{ color: 'green' }} /> Bullish
           </Radio.Button>
-          <Radio.Button value="negative">
+          <Radio.Button key="negative" value="negative">
             <CaretDownOutlined style={{ color: 'red' }} /> Bearish
           </Radio.Button>
         </Radio.Group>
