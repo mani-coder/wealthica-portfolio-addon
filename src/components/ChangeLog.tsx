@@ -21,9 +21,20 @@ const LOGS: {
   link?: React.ReactElement;
 }[] = [
   {
+    date: '2021-04-20',
+    tab: 'Interest',
+    title: 'Interest transactions aggregated by day/week/month/year and complete history',
+    description:
+      'Ever wondered how much interest you are paying on your borrowed margin money. We have added a new tab called "Interest" to aggregate the interest by day/week/month/year. We also show the interest transactions in a table to have a quick view. Please note the new tab will show up only if you have any interest type transactions.',
+    images: [
+      'https://ik.imagekit.io/manicoder/wealthica-portfolio-addon/interest-1_qpbwiPw6R.png',
+      'https://ik.imagekit.io/manicoder/wealthica-portfolio-addon/interest-2_xqvGqhWzQ.png',
+    ],
+  },
+  {
     date: '2021-04-19',
     tab: 'Events',
-    title: 'Table view of the earnings calendar to easily skim through the upcoming earnings',
+    title: 'Table view for the Earnings Calendar',
     description:
       'The table view will be give a quick view of the upcoming earnings for your holdings in addition to the calendar view.',
     images: ['https://ik.imagekit.io/manicoder/wealthica-portfolio-addon/earnings-table__eCvysZ8d.png'],
