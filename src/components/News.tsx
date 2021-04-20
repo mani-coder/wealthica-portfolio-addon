@@ -126,12 +126,9 @@ function News({ positions }: { positions: Position[] }) {
   const sidebarContainerRef = useRef<HTMLDivElement>();
   const newsContainerRef = useRef<HTMLDivElement>();
 
-  const selectedNews = news
-    .filter(
-      (_news) =>
-        (sentiment === 'all' || _news.sentiment === sentiment) && (symbol === 'All' || _news.symbol === symbol),
-    )
-    .slice(0, 1);
+  const selectedNews = news.filter(
+    (_news) => (sentiment === 'all' || _news.sentiment === sentiment) && (symbol === 'All' || _news.symbol === symbol),
+  );
   return (
     <Flex flexDirection="column" mb={3} alignItems="center">
       <Flex width={1} justifyContent="center" mb={3}>
