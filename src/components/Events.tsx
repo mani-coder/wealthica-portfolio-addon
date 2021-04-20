@@ -1,9 +1,11 @@
 import LeftOutlined from '@ant-design/icons/LeftOutlined';
 import RightOutlined from '@ant-design/icons/RightOutlined';
+import { Card } from 'antd';
 import Button from 'antd/es/button';
 import Typography from 'antd/es/typography';
 import Calendar from 'antd/lib/calendar';
 import Spin from 'antd/lib/spin';
+import Table, { ColumnProps } from 'antd/lib/table';
 import Tag from 'antd/lib/tag';
 import moment, { Moment } from 'moment';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -57,7 +59,7 @@ export function Events({ positions }: { positions: Position[] }) {
         .format('YYYY-MM-DD')}&toDate=${date
         .clone()
         .endOf('month')
-        .add(30, 'days')
+        .add(60, 'days')
         .format('YYYY-MM-DD')}&tickers=${_symbols}`,
     );
     setLoading(true);
@@ -164,6 +166,39 @@ export function Events({ positions }: { positions: Position[] }) {
     );
   }
 
+  function getColumns(): ColumnProps<Earning>[] {
+    return [
+      {
+        key: 'date',
+        title: 'Date',
+        dataIndex: 'date',
+        render: (text) => moment(text).format('MMM DD, YY'),
+      },
+      {
+        key: 'Company',
+        title: 'Symbol',
+        dataIndex: 'ticker',
+      },
+      {
+        key: 'periodEnding',
+        title: 'Period Ending',
+        dataIndex: 'periodEnding',
+      },
+      {
+        key: 'lastEps',
+        title: 'Last EPS',
+        dataIndex: 'lastEps',
+        align: 'right',
+      },
+      {
+        key: 'eps',
+        title: 'EPS',
+        dataIndex: 'eps',
+        align: 'right',
+      },
+    ];
+  }
+
   return (
     <>
       <Typography.Title level={3} style={{ textAlign: 'center' }}>
@@ -210,6 +245,20 @@ export function Events({ positions }: { positions: Position[] }) {
           </Box>
         )}
       />
+
+      {events?.earnings && !!events?.earnings.length && (
+        <Card
+          title={<>Upcoming Earnings ({date.format('MMM DD, YYYY')} -)</>}
+          headStyle={{ paddingLeft: 16, fontSize: 18, fontWeight: 'bold' }}
+          style={{ marginTop: 16, marginBottom: 16 }}
+          bodyStyle={{ padding: 0 }}
+        >
+          <Table<Earning>
+            columns={getColumns()}
+            dataSource={events.earnings.filter((earning) => moment(earning.date).isSameOrAfter(date))}
+          />
+        </Card>
+      )}
     </>
   );
 }
