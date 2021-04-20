@@ -24,7 +24,7 @@ type StockPrice = {
   closePrice: number;
 };
 
-const POINT_FORMAT = `P/L (%): <b>{point.pnlRatio:.2f}%</b> <br />P/L ($): <b>{point.pnlValue} {point.currency}</b><br />Stock Price: {point.stockPrice} {point.currency}<br />Book Value: {point.shares}@{point.price}`;
+const POINT_FORMAT = `P/L (%): <b>{point.pnlRatio:.2f}%</b> <br />P/L ($): <b>{point.pnlValue} {point.currency}</b><br />Stock Price: {point.stockPrice} {point.currency}<br />`;
 
 function StockPnLTimeline({ isPrivateMode, symbol, position, addon, showValueChart }: Props) {
   const [loading, setLoading] = useState(false);
@@ -317,11 +317,11 @@ function StockPnLTimeline({ isPrivateMode, symbol, position, addon, showValueCha
               position.investments.reduce((cost, investment) => {
                 return cost + investment.book_value;
               }, 0) / position.quantity,
-            )}, Market Value: CAD ${formatCurrency(position.market_value, 2)}, P/L: ${formatMoney(
+            )}, Market Value: ${formatCurrency(position.market_value, 2)} CAD, P/L: ${formatMoney(
               position.gain_percent * 100,
               2,
-            )}% / CAD ${formatCurrency(position.gain_amount, 2)}${
-              dividends ? `, Dividends: CAD ${formatCurrency(dividends, 2)}` : ''
+            )}% / ${formatCurrency(position.gain_amount, 2)}  CAD${
+              dividends ? `, Dividends: ${formatCurrency(dividends, 2)} CAD` : ''
             }`,
         style: {
           color: '#1F2A33',
