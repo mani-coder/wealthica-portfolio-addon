@@ -172,7 +172,7 @@ export function Events({ positions }: { positions: Position[] }) {
         key: 'date',
         title: 'Date',
         dataIndex: 'date',
-        render: (text) => moment(text).format('MMM DD, YY'),
+        render: (text) => moment(text).format('MMM DD, YYYY'),
       },
       {
         key: 'Company',
