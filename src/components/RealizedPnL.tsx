@@ -9,6 +9,7 @@ import Empty from 'antd/lib/empty';
 import Radio from 'antd/lib/radio';
 import Statistic from 'antd/lib/statistic';
 import Table, { ColumnProps } from 'antd/lib/table';
+import * as Highcharts from 'highcharts';
 import moment, { Moment } from 'moment';
 import 'moment-precise-range-plugin';
 import React, { useMemo, useState } from 'react';
@@ -18,6 +19,7 @@ import { DATE_FORMAT } from '../constants';
 import { Account, Transaction } from '../types';
 import { formatCurrency, formatMoney, getCurrencyInCAD } from '../utils';
 import { Charts } from './Charts';
+import Collapsible from './Collapsible';
 
 type Props = {
   transactions: Transaction[];
@@ -53,6 +55,11 @@ const DATE_DISPLAY_FORMAT = 'MMM DD, YYYY';
 
 export default function RealizedPnL({ currencyCache, transactions, accounts, isPrivateMode, fromDate }: Props) {
   const [timeline, setTimeline] = useState<'month' | 'year' | 'week' | 'day'>('month');
+  const colors = Highcharts.getOptions().colors;
+
+  function getColor(index) {
+    return colors ? colors[index % colors?.length] : undefined;
+  }
 
   function getAccount(account: string) {
     const account_obj = accounts.find((_account) => account === _account.id);
@@ -240,7 +247,11 @@ export default function RealizedPnL({ currencyCache, transactions, accounts, isP
     ];
   }
 
-  const getOptions = ({ series }: { series: Highcharts.SeriesColumnOptions[] }): Highcharts.Options => {
+  const getOptions = ({
+    series,
+  }: {
+    series: Highcharts.SeriesColumnOptions[] | Highcharts.SeriesPieOptions[];
+  }): Highcharts.Options => {
     return {
       series,
 
@@ -369,6 +380,151 @@ export default function RealizedPnL({ currencyCache, transactions, accounts, isP
     return series;
   };
 
+  const getClosedPnlAccountDrillDown = (closedPositions: ClosedPosition[]): Highcharts.SeriesPieOptions => {
+    const accountsByName = closedPositions.reduce((hash, position) => {
+      const name = position.account;
+      let mergedAccount = hash[name];
+      if (!mergedAccount) {
+        mergedAccount = { name, value: 0, positions: {} };
+        hash[name] = mergedAccount;
+      }
+      mergedAccount.value += position.pnl;
+
+      const symbol = position.symbol;
+      const existingPosition = mergedAccount.positions[symbol];
+      if (!existingPosition) {
+        mergedAccount.positions[symbol] = { symbol, pnl: position.pnl };
+      } else {
+        const pnl = existingPosition.pnl + position.pnl;
+        mergedAccount.positions[symbol] = {
+          symbol,
+          pnl,
+        };
+      }
+
+      return hash;
+    }, {} as { [K: string]: { name: string; value: number; positions: { [K: string]: { symbol: string; pnl: number } } } });
+
+    const getDataForAccount = (name: string, index: number) => {
+      const account = accountsByName[name];
+      const positions = Object.values(account.positions);
+      const numPositions = positions.length;
+
+      const data = positions
+        .sort((a, b) => b.pnl - a.pnl)
+        .map((position, idx) => {
+          const symbol = position.symbol;
+          const brightness = 0.2 - idx / numPositions / 5;
+          const color = getColor(index);
+
+          return {
+            color: color ? Highcharts.color(color).brighten(brightness).get() : undefined,
+            name: symbol,
+            y: position.pnl,
+            displayValue: isPrivateMode ? '-' : formatCurrency(position.pnl, 1),
+            value: isPrivateMode ? '-' : formatMoney(position.pnl),
+            pnlColor: position.pnl >= 0 ? 'green' : 'red',
+          };
+        });
+
+      return data;
+    };
+
+    return {
+      type: 'pie' as 'pie',
+      id: 'holdings',
+      name: 'Holdings',
+      size: '80%',
+      innerSize: '60%',
+      dataLabels: {
+        formatter() {
+          const point = this.point;
+          return this.percentage && this.percentage > 2.5 ? `${point.name}: ${this.percentage.toFixed(1)}%` : null;
+        },
+      },
+      data: Object.keys(accountsByName)
+        .sort((a, b) => accountsByName[b].value - accountsByName[a].value)
+        .reduce((array, name, index) => {
+          array.push(...(getDataForAccount(name, index) as any));
+          return array;
+        }, [] as Highcharts.SeriesPieDataOptions[]),
+      tooltip: {
+        pointFormatter() {
+          const point = this.options as any;
+          return `<table width="100%">
+            <tr><td>Weightage</td><td align="right" class="position-tooltip-value">${this.percentage.toFixed(
+              1,
+            )}%</td></tr>
+            <tr><td>Realized P&L</td><td align="right" class="position-tooltip-value" style="color: ${
+              point.pnlColor
+            };">CAD ${point.value}</td></tr>
+          </table>`;
+        },
+        headerFormat: '<b>{point.key}</b><hr />',
+      },
+    };
+  };
+
+  const getClosedPnLByAccountSeries = (
+    closedPositions: ClosedPosition[],
+    closedPnL: number,
+  ): Highcharts.SeriesPieOptions[] => {
+    const data = Object.values(
+      closedPositions.reduce((hash, position) => {
+        const name = position.account;
+        let mergedAccount = hash[name];
+        if (!mergedAccount) {
+          mergedAccount = { name, value: 0 };
+          hash[name] = mergedAccount;
+        }
+        mergedAccount.value += position.pnl;
+        return hash;
+      }, {} as { [K: string]: { name: string; value: number } }),
+    );
+
+    const accountsSeries: Highcharts.SeriesPieOptions = {
+      type: 'pie' as 'pie',
+      id: 'accounts',
+      name: 'Accounts',
+      size: '60%',
+      data: data
+        .filter((account) => account.value)
+        .sort((a, b) => b.value - a.value)
+        .map((account, index) => {
+          return {
+            color: getColor(index),
+            name: account.name,
+            y: account.value,
+            displayValue: isPrivateMode ? '-' : account.value ? formatMoney(account.value) : account.value,
+            totalValue: isPrivateMode ? '-' : formatMoney(closedPnL),
+          } as Highcharts.SeriesPieDataOptions;
+        }),
+      dataLabels: {
+        formatter() {
+          return this.percentage && this.percentage > 2 ? `${this.point.name}: ${this.percentage.toFixed(1)}%` : null;
+        },
+        style: {
+          color: 'purple',
+          fontSize: '12px',
+          fontWeight: '600',
+        },
+        distance: 150,
+      },
+      tooltip: {
+        headerFormat: `<b>{point.key}<br />{point.percentage:.1f}%</b><hr />`,
+        pointFormatter() {
+          const point = this.options as any;
+          return `<table>
+          <tr><td>Value</td><td align="right" class="position-tooltip-value">CAD ${point.displayValue}</td></tr>
+          <tr><td>Total Value</td><td align="right" class="position-tooltip-value">CAD ${point.totalValue}</td></tr>
+        </table>`;
+        },
+      },
+    };
+
+    return [accountsSeries, getClosedPnlAccountDrillDown(closedPositions)];
+  };
+
   const closedPositions = useMemo(() => {
     return computeClosedPositions();
   }, [transactions, accounts, fromDate]);
@@ -379,6 +535,10 @@ export default function RealizedPnL({ currencyCache, transactions, accounts, isP
   const options = useMemo(() => {
     return getOptions({ series: getData(closedPositions) });
   }, [closedPositions, timeline]);
+
+  const accountSeriesOptions = useMemo(() => {
+    return getOptions({ series: getClosedPnLByAccountSeries(closedPositions, closedPnL) });
+  }, [closedPositions, closedPnL]);
 
   return !!closedPositions.length ? (
     <>
@@ -412,6 +572,10 @@ export default function RealizedPnL({ currencyCache, transactions, accounts, isP
           optionType="button"
         />
       </Flex>
+
+      <Collapsible title="Realized P&L Split Up by Account">
+        <Charts key={timeline} options={accountSeriesOptions} />
+      </Collapsible>
 
       <Card
         title="Realized P&L History"
