@@ -10,6 +10,7 @@ import Tag from 'antd/lib/tag';
 import moment, { Moment } from 'moment';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Box, Flex } from 'rebass';
+import { trackEvent } from '../analytics';
 import { Position } from '../types';
 import { buildCorsFreeUrl } from '../utils';
 
@@ -218,6 +219,7 @@ export function Events({ positions }: { positions: Position[] }) {
                 icon={<LeftOutlined />}
                 onClick={() => {
                   setDate(date.subtract(1, 'month').clone());
+                  trackEvent('event-calendar-action', { action: 'previous' });
                 }}
               >
                 Prev Month
@@ -230,6 +232,7 @@ export function Events({ positions }: { positions: Position[] }) {
                 disabled={date.clone().endOf('month').isSameOrAfter(range.end)}
                 type="primary"
                 onClick={() => {
+                  trackEvent('event-calendar-action', { action: 'next' });
                   setDate(date.add(1, 'month').clone());
                 }}
               >

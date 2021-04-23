@@ -208,7 +208,7 @@ export default function Interests({ transactions, accounts, isPrivateMode }: Pro
           size="large"
           buttonStyle="solid"
           onChange={(e) => {
-            trackEvent('realized-pnl-chart', { timeline: e.target.value });
+            trackEvent('interest-chart', { timeline: e.target.value });
             setTimeline(e.target.value);
           }}
           options={[

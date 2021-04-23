@@ -7,6 +7,7 @@ import Spin from 'antd/lib/spin';
 import moment, { Moment } from 'moment';
 import React, { useEffect, useRef, useState } from 'react';
 import { Box, Flex } from 'rebass';
+import { trackEvent } from '../analytics';
 import { Position } from '../types';
 import { buildCorsFreeUrl } from '../utils';
 
@@ -135,7 +136,10 @@ function News({ positions }: { positions: Position[] }) {
         <Radio.Group
           size="large"
           defaultValue={sentiment}
-          onChange={(e) => setSentiment(e.target.value)}
+          onChange={(e) => {
+            setSentiment(e.target.value);
+            trackEvent('news-sentiment-toggle', { sentiment: e.target.value });
+          }}
           buttonStyle="solid"
         >
           <Radio.Button key="all" value="all">

@@ -8,6 +8,7 @@ import moment from 'moment';
 import React, { useState } from 'react';
 import { VariableSizeList as List } from 'react-window';
 import { Box, Flex } from 'rebass';
+import { trackEvent } from '../analytics';
 import { CHANGE_LOG_DATE_CACHE_KEY } from '../constants';
 import AutoReSizer from '../hooks/useResizeHook';
 import { getLocalCache, setLocalCache } from '../utils';
@@ -176,7 +177,16 @@ function LogItem({ index, style }) {
           {log.images && (
             <>
               {log.images.map((src) => (
-                <Box mr={2} mb={2} key={src} onClick={() => setPreview(src)} style={{ cursor: 'pointer' }}>
+                <Box
+                  mr={2}
+                  mb={2}
+                  key={src}
+                  onClick={() => {
+                    setPreview(src);
+                    trackEvent('preview-change-log-image', { title: log.title });
+                  }}
+                  style={{ cursor: 'pointer' }}
+                >
                   <Image
                     src={`${src}?tr=w-200,fo-auto`}
                     width={200}

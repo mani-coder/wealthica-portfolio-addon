@@ -1,6 +1,7 @@
 import Typography from 'antd/es/typography';
 import React from 'react';
 import { Box, Flex } from 'rebass';
+import { trackEvent } from '../analytics';
 import { Position } from '../types';
 import { getSymbol, getURLParams } from '../utils';
 import Collapsible from './Collapsible';
@@ -8,7 +9,12 @@ import Collapsible from './Collapsible';
 const Link = ({ href, title }: { href: string; title: string }) => {
   return (
     <Box width={275}>
-      <Typography.Link href={href} target="_blank" rel="noopener noreferrer">
+      <Typography.Link
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={() => trackEvent('portfolio-visualizer-link', { title })}
+      >
         {title}
       </Typography.Link>
     </Box>
