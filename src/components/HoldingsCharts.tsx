@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import Select from 'antd/es/select';
 import Typography from 'antd/es/typography';
-import Radio from 'antd/lib/radio';
 import Switch from 'antd/lib/switch';
 import * as Highcharts from 'highcharts';
 import _ from 'lodash';
@@ -12,6 +11,7 @@ import { Account, Position } from '../types';
 import { formatCurrency, formatMoney, getCurrencyInCAD, getSymbol } from '../utils';
 import Charts from './Charts';
 import Collapsible from './Collapsible';
+import CompositionGroup, { getGroupKey, GroupType } from './CompositionGroup';
 import StockDetails from './StockDetails';
 import StockTimeline from './StockTimeline';
 
@@ -58,7 +58,7 @@ const POSITION_TOOLTIP: Highcharts.PlotPieTooltipOptions = {
 
 export default function HoldingsCharts(props: Props) {
   const [timelineSymbol, setTimelineSymbol] = useState<string>();
-  const [compositionGroup, setCompositionGroup] = useState<string>('currency');
+  const [compositionGroup, setCompositionGroup] = useState<GroupType>('currency');
   const [showHoldings, setShowHoldings] = useState(true);
   const currencyCacheKeys = Object.keys(props.currencyCache);
   const lastCurrencyDate = currencyCacheKeys[currencyCacheKeys.length - 1];
@@ -152,21 +152,8 @@ export default function HoldingsCharts(props: Props) {
     };
   };
 
-  function getGroupKey(group: string, account: Account) {
-    switch (group) {
-      case 'currency':
-        return account.currency.toUpperCase();
-      case 'type':
-        return account.type;
-      case 'institution':
-        return account.name;
-      default:
-        return `${account.name} ${account.type}`;
-    }
-  }
-
   const getAccountsCompositionHoldingsDrilldown = (
-    group: string,
+    group: GroupType,
     drilldown: boolean,
   ): Highcharts.SeriesPieOptions | Highcharts.DrilldownOptions => {
     const accountsByName = props.accounts.reduce(
@@ -334,7 +321,7 @@ export default function HoldingsCharts(props: Props) {
         };
   };
 
-  const getAccountsCompositionSeries = (group: string): Highcharts.SeriesPieOptions[] => {
+  const getAccountsCompositionSeries = (group: GroupType): Highcharts.SeriesPieOptions[] => {
     const totalValue = props.accounts.reduce((value, account) => value + account.value, 0);
     const data = Object.values(
       props.accounts.reduce(
@@ -489,7 +476,7 @@ export default function HoldingsCharts(props: Props) {
   };
 
   function getCompositionGroupSeriesOptions(
-    group: string,
+    group: GroupType,
   ): {
     series: Highcharts.SeriesPieOptions[];
     drilldown?: Highcharts.DrilldownOptions;
@@ -672,24 +659,7 @@ export default function HoldingsCharts(props: Props) {
 
       <Collapsible title="Holdings Composition">
         <Charts key={compositionGroup} options={compositionGroupOptions} />
-        <Flex width={1} flexDirection="column" alignItems="center" py={2} mb={2}>
-          <Typography.Title level={4}>Group By</Typography.Title>
-          <Radio.Group
-            optionType="button"
-            buttonStyle="solid"
-            defaultValue={compositionGroup}
-            onChange={(e) => {
-              setCompositionGroup(e.target.value);
-              trackEvent('holdings-composition-chart', { group: e.target.value });
-            }}
-            options={[
-              { label: 'USD vs CAD', value: 'currency' },
-              { label: 'Institution', value: 'institution' },
-              { label: 'Account', value: 'accounts' },
-              { label: 'Account Type', value: 'type' },
-            ]}
-          />
-        </Flex>
+        <CompositionGroup changeGroup={setCompositionGroup} group={compositionGroup} tracker="realized-pnl-group" />
 
         <Flex mt={3} mb={2} width={1} justifyContent="center" alignItems="center" alignContent="center">
           <Switch
