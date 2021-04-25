@@ -26,7 +26,6 @@ function Dot() {
 }
 
 function NewsItem({ news }: { news: NewsResult }) {
-  console.log('mani is cool', news);
   return (
     <Box pb={2} key={news.title}>
       <Flex alignItems="center">
