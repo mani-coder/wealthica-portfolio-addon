@@ -1,6 +1,6 @@
 import LeftOutlined from '@ant-design/icons/LeftOutlined';
 import RightOutlined from '@ant-design/icons/RightOutlined';
-import { Card } from 'antd';
+import { Card, Radio } from 'antd';
 import Button from 'antd/es/button';
 import Typography from 'antd/es/typography';
 import Calendar from 'antd/lib/calendar';
@@ -12,7 +12,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Box, Flex } from 'rebass';
 import { trackEvent } from '../analytics';
 import { Position } from '../types';
-import { buildCorsFreeUrl } from '../utils';
+import { buildCorsFreeUrl, getNasdaqTicker, getSymbolFromNasdaqTicker } from '../utils';
 
 type Dividend = {
   company: string;
@@ -40,6 +40,7 @@ export function Events({ positions }: { positions: Position[] }) {
   const range = useMemo(() => {
     return { start: moment().startOf('month').subtract(1, 'month'), end: moment().endOf('month').add(1, 'year') };
   }, []);
+  const [type, setType] = useState<'all' | 'earnings' | 'dividends'>('all');
 
   useEffect(() => {
     const _symbols = positions
@@ -47,7 +48,7 @@ export function Events({ positions }: { positions: Position[] }) {
         const symbol = position.security.symbol || position.security.name;
         return !(symbol.includes('-') || symbol.includes('.'));
       })
-      .map((position) => position.security.symbol)
+      .map((position) => getNasdaqTicker(position.security))
       .join(',');
     if (!_symbols.length) {
       return;
@@ -84,53 +85,6 @@ export function Events({ positions }: { positions: Position[] }) {
       .catch((error) => console.info('Failed to load events.', error))
       .finally(() => setLoading(false));
   }, [positions, date]);
-
-  const eventsByDate = useMemo(() => {
-    if (!events) {
-      return {};
-    }
-
-    const result = events.earnings.reduce(
-      (hash, earning) => {
-        const earningDate = moment(earning.date).format('YYYY-MM-DD');
-        let earnings = hash[earningDate];
-        if (!earnings) {
-          earnings = [];
-          hash[earningDate] = earnings;
-        }
-        earnings.push({ ticker: earning.ticker, name: earning.company, type: 'earning' });
-        return hash;
-      },
-      {} as {
-        [K: string]: {
-          ticker: string;
-          name: string;
-          type: 'earning' | 'ex-dividend' | 'pay-dividend' | 'rec-dividend';
-        }[];
-      },
-    );
-
-    return events.dividends.reduce((hash, dividend) => {
-      ['exDate', 'payDate', 'recDate'].forEach((field) => {
-        if (!dividend[field]) {
-          return;
-        }
-
-        const dividendDate = moment(dividend[field]).format('YYYY-MM-DD');
-        let dividends = hash[dividendDate];
-        if (!dividends) {
-          dividends = [];
-          hash[dividendDate] = dividends;
-        }
-        dividends.push({
-          ticker: dividend.ticker,
-          name: dividend.company,
-          type: field === 'exDate' ? 'ex-dividend' : field === 'payDate' ? 'pay-dividend' : 'rec-dividend',
-        });
-      });
-      return hash;
-    }, result);
-  }, [events]);
 
   function dateCellRender(date: Moment) {
     const _events = eventsByDate[date.format('YYYY-MM-DD')];
@@ -179,6 +133,7 @@ export function Events({ positions }: { positions: Position[] }) {
         key: 'Company',
         title: 'Symbol',
         dataIndex: 'ticker',
+        render: (ticker) => getSymbolFromNasdaqTicker(ticker),
       },
       {
         key: 'periodEnding',
@@ -200,6 +155,61 @@ export function Events({ positions }: { positions: Position[] }) {
     ];
   }
 
+  const eventsByDate = useMemo(() => {
+    if (!events) {
+      return {};
+    }
+
+    let result: {
+      [K: string]: {
+        ticker: string;
+        name: string;
+        type: 'earning' | 'ex-dividend' | 'pay-dividend' | 'rec-dividend';
+      }[];
+    } = {};
+    if (type === 'all' || type === 'earnings') {
+      result = events.earnings.reduce((hash, earning) => {
+        const earningDate = moment(earning.date).format('YYYY-MM-DD');
+        let earnings = hash[earningDate];
+        if (!earnings) {
+          earnings = [];
+          hash[earningDate] = earnings;
+        }
+        earnings.push({
+          ticker: getSymbolFromNasdaqTicker(earning.ticker),
+          name: earning.company,
+          type: 'earning',
+        });
+        return hash;
+      }, result);
+    }
+
+    if (type === 'all' || type === 'dividends') {
+      result = events.dividends.reduce((hash, dividend) => {
+        ['exDate', 'payDate', 'recDate'].forEach((field) => {
+          if (!dividend[field]) {
+            return;
+          }
+
+          const dividendDate = moment(dividend[field]).format('YYYY-MM-DD');
+          let dividends = hash[dividendDate];
+          if (!dividends) {
+            dividends = [];
+            hash[dividendDate] = dividends;
+          }
+          dividends.push({
+            ticker: getSymbolFromNasdaqTicker(dividend.ticker),
+            name: dividend.company,
+            type: field === 'exDate' ? 'ex-dividend' : field === 'payDate' ? 'pay-dividend' : 'rec-dividend',
+          });
+        });
+        return hash;
+      }, result);
+    }
+
+    return result;
+  }, [events, type]);
+
   return (
     <>
       <Typography.Title level={3} style={{ textAlign: 'center' }}>
@@ -207,11 +217,17 @@ export function Events({ positions }: { positions: Position[] }) {
       </Typography.Title>
       <Calendar
         value={date}
+        onSelect={(newDate) => {
+          const startOfMonth = newDate.startOf('month');
+          if (!date.isSame(startOfMonth)) {
+            setDate(startOfMonth);
+          }
+        }}
         validRange={[moment().startOf('month'), moment().endOf('month').add(1, 'year')]}
         dateCellRender={dateCellRender}
         headerRender={() => (
           <Box>
-            <Flex justifyContent="space-between" alignItems="center">
+            <Flex justifyContent="space-between" alignItems="center" flexWrap="wrap">
               <Button
                 loading={loading}
                 disabled={date.isSameOrBefore(range.start)}
@@ -239,11 +255,27 @@ export function Events({ positions }: { positions: Position[] }) {
                 Next Month <RightOutlined />
               </Button>
             </Flex>
-            <Flex my={2} justifyContent="center">
-              <Tag color="magenta">Earning</Tag>
-              <Tag color="blue">ED: Ex-Dividend</Tag>
-              <Tag color="green">PD: Pay Dividend</Tag>
-              <Tag color="geekblue">RD: Record Dividend</Tag>
+
+            <Flex my={2} justifyContent="space-between" flexWrap="wrap">
+              <Box>
+                <Tag color="magenta">Earning</Tag>
+                <Tag color="blue">ED: Ex-Dividend</Tag>
+                <Tag color="green">PD: Pay Dividend</Tag>
+                <Tag color="geekblue">RD: Record Dividend</Tag>
+              </Box>
+              <Radio.Group
+                size="large"
+                defaultValue={type}
+                onChange={(e) => {
+                  setType(e.target.value);
+                  trackEvent('earnings-type-change', { type: e.target.value });
+                }}
+                options={[
+                  { label: 'All', value: 'all' },
+                  { label: 'Earnings Only', value: 'earnings' },
+                  { label: 'Dividends Only', value: 'dividends' },
+                ]}
+              />
             </Flex>
           </Box>
         )}

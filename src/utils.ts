@@ -49,6 +49,12 @@ export const getSymbol = (security: Security): string => {
   return `${security.symbol || security.name}${security.currency === 'usd' ? '' : '.TO'}`;
 };
 
+export const getNasdaqTicker = (security: Security): string =>
+  security.currency === 'cad' ? `TSE:${security.symbol}` : security.symbol;
+
+export const getSymbolFromNasdaqTicker = (ticker: string) =>
+  ticker.startsWith('TSE:') ? `${ticker.replace('TSE:', '')}.TO` : ticker;
+
 export const min = (data: any[], field: string): any => {
   return data.reduce((min, p) => (p[field] < min[field] ? p : min), data[0]);
 };

@@ -9,7 +9,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Box, Flex } from 'rebass';
 import { trackEvent } from '../analytics';
 import { Position } from '../types';
-import { buildCorsFreeUrl } from '../utils';
+import { buildCorsFreeUrl, getNasdaqTicker, getSymbolFromNasdaqTicker } from '../utils';
 
 type NewsResult = {
   timestamp: Moment;
@@ -69,7 +69,7 @@ function News({ positions }: { positions: Position[] }) {
         const symbol = position.security.symbol || position.security.name;
         return !(symbol.includes('-') || symbol.includes('.'));
       })
-      .map((position) => position.security.symbol)
+      .map((position) => getNasdaqTicker(position.security))
       .join(',');
     if (!_symbols.length) {
       return;
@@ -103,11 +103,12 @@ function News({ positions }: { positions: Position[] }) {
             // url: "https://www.nasdaq.com/articles/us-stocks-sp-500-dow-climb-for-third-day-and-close-at-records-2021-04-09-0"
             // urlString: "https://www.nasdaq.com/articles/us-stocks-sp-500-dow-climb-for-third-day-and-close-at-records-2021-04-09-0"
             response.map((news) => {
-              validSymbols.add(news.ticker);
+              const symbol = getSymbolFromNasdaqTicker(news.ticker);
+              validSymbols.add(symbol);
               return {
                 timestamp: moment(news.articleTimestamp || news.addedOn),
                 name: news.companyName,
-                symbol: news.ticker,
+                symbol,
                 sentiment: news.sentiment,
                 title: news.title,
                 url: news.url,
