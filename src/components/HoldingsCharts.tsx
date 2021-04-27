@@ -81,11 +81,11 @@ export default function HoldingsCharts(props: Props) {
         const accountsTable = (props.accounts || [])
           .map((account) => {
             const position = account.positions.filter((position) => position.symbol === symbol)[0];
-            return position ? { name: account.name, type: account.type, quantity: position.quantity } : undefined;
+            return position ? { name: account.name, quantity: position.quantity } : undefined;
           })
           .filter((value) => value)
           .sort((a, b) => b!.quantity - a!.quantity)
-          .map((value) => `<tr><td>${value!.name} ${value!.type}</td><td align="right">${value!.quantity}</td></tr>`)
+          .map((value) => `<tr><td>${value!.name}</td><td align="right">${value!.quantity}</td></tr>`)
           .join('');
 
         return {
@@ -213,11 +213,11 @@ export default function HoldingsCharts(props: Props) {
           const accountsTable = account.accounts
             .map((account) => {
               const position = account.positions.filter((position) => position.symbol === symbol)[0];
-              return position ? { name: account.name, type: account.type, quantity: position.quantity } : undefined;
+              return position ? { name: account.name, quantity: position.quantity } : undefined;
             })
             .filter((value) => value)
             .sort((a, b) => b!.quantity - a!.quantity)
-            .map((value) => `<tr><td>${value!.name} ${value!.type}</td><td align="right">${value!.quantity}</td></tr>`)
+            .map((value) => `<tr><td>${value!.name}</td><td align="right">${value!.quantity}</td></tr>`)
             .join('');
 
           const brightness = 0.2 - idx / numPositions / 5;
@@ -241,32 +241,6 @@ export default function HoldingsCharts(props: Props) {
             accountsTable,
           };
         });
-
-      // if (account.cash) {
-      //   const accountsTable = account.accounts
-      //     .filter((account) => account.cash)
-      //     .sort((a, b) => b.cash - a.cash)
-      //     .map((account) => {
-      //       return `
-      //       <tr><td>${account.name} ${account.type}</td><td align="right">${account.currency.toUpperCase()} ${
-      //         props.isPrivateMode ? '-' : account.cash ? formatMoney(account.cash) : account.cash
-      //       }</td></tr>`;
-      //     })
-      //     .join('');
-
-      //   const brightness = 0.2 - positions.length / numPositions / 5;
-      //   const color = getColor(index);
-
-      //   data.push({
-      //     color: color && showHoldings ? Highcharts.color(color).brighten(brightness).get() : undefined,
-      //     name: 'Cash',
-      //     y: Math.abs(account.cash),
-      //     negative: account.cash < 0,
-      //     displayValue: props.isPrivateMode ? '-' : formatCurrency(account.cash, 1),
-      //     value: props.isPrivateMode ? '-' : formatMoney(account.cash),
-      //     accountsTable,
-      //   } as any);
-      // }
 
       return drilldown
         ? {
@@ -335,7 +309,7 @@ export default function HoldingsCharts(props: Props) {
           mergedAccount.value += account.positions.reduce((value, position) => value + position.value || 0, 0);
           mergedAccount.gainAmount += account.positions.reduce((value, position) => value + position.gain_amount, 0);
 
-          const _name = `${account.name} ${account.type}`;
+          const _name = account.name;
           let _account = mergedAccount.accounts[_name];
           if (!_account) {
             _account = { name: _name, cad: 0, usd: 0, value: 0 };

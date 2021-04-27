@@ -81,5 +81,6 @@ export type Account = {
   currency_value: number;
   created_at: Moment;
   institution: string;
+  instutitionName: string;
   positions: (Position & { symbol: string })[];
 };

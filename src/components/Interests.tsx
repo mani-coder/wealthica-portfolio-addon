@@ -26,7 +26,7 @@ export default function Interests({ transactions, accounts, isPrivateMode }: Pro
   const [timeline, setTimeline] = useState<'month' | 'year' | 'week' | 'day'>('month');
   const accountNameById = useMemo(() => {
     return accounts.reduce((hash, account) => {
-      hash[account.id] = `${account.name} ${account.type}`;
+      hash[account.id] = account.name;
       return hash;
     }, {} as { [K: string]: string });
   }, [accounts]);

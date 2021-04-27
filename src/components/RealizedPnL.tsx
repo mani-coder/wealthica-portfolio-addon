@@ -152,7 +152,7 @@ export default function RealizedPnL({ currencyCache, transactions, accounts, isP
         title: 'Account',
         dataIndex: 'account',
         width: 150,
-        render: (account: Account) => (account ? `${account.name} ${account.type}` : 'N/A'),
+        render: (account: Account) => (account ? account.name : 'N/A'),
       },
       {
         key: 'symbol',

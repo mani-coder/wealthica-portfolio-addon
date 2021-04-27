@@ -32,7 +32,8 @@ export const parseInstitutionsResponse = (response: any, groups?: string[], inst
             return {
               id: account._id,
               institution: instutition.id,
-              name: instutition.name,
+              instutitionName: instutition.name,
+              name: `${instutition.name} ${account.name}`,
               created_at: getDate(instutition.creation_date),
               type: normalizeAccountType(
                 account.type

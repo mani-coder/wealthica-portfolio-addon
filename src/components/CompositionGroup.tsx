@@ -47,8 +47,8 @@ export function getGroupKey(group: GroupType, account?: Account) {
     case 'type':
       return account.type;
     case 'institution':
-      return account.name;
+      return account.instutitionName;
     default:
-      return `${account.name} ${account.type}`;
+      return account.name;
   }
 }
