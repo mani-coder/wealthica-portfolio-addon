@@ -30,7 +30,9 @@ export function TopGainersLosers(props: { isPrivateMode: boolean; positions: Pos
         },
         colorByPoint: true,
         data: props.positions
-          .filter((position) => (gainers ? position.gain_percent > 0 : position.gain_percent <= 0))
+          .filter(
+            (position) => position.gain_percent && (gainers ? position.gain_percent > 0 : position.gain_percent <= 0),
+          )
           .sort((a, b) => (sortByValue ? a.gain_amount - b.gain_amount : a.gain_percent - b.gain_percent))
           .map((position) => {
             return {
