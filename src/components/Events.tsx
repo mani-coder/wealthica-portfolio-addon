@@ -1,6 +1,6 @@
 import LeftOutlined from '@ant-design/icons/LeftOutlined';
 import RightOutlined from '@ant-design/icons/RightOutlined';
-import { Card, Radio } from 'antd';
+import { Card } from 'antd';
 import Button from 'antd/es/button';
 import Typography from 'antd/es/typography';
 import Calendar from 'antd/lib/calendar';
@@ -33,6 +33,33 @@ type Earning = {
   lastEps: number;
 };
 
+type EventType = 'earning' | 'ex-dividend' | 'pay-dividend' | 'rec-dividend';
+
+function EventTypes({ types, onChange }: { types: EventType[]; onChange: (types: EventType[]) => void }) {
+  function renderTag(type: EventType, color: string, title: string) {
+    const isSelected = types.includes(type);
+    return (
+      <Tag
+        style={{ cursor: 'pointer' }}
+        color={isSelected ? color : undefined}
+        onClick={() => {
+          onChange(isSelected ? types.filter((_type) => _type !== type) : types.concat([type]));
+        }}
+      >
+        {title}
+      </Tag>
+    );
+  }
+  return (
+    <Box>
+      {renderTag('earning', 'magenta', 'Earning')}
+      {renderTag('ex-dividend', 'blue', 'ED: Ex-Dividend')}
+      {renderTag('pay-dividend', 'green', 'PD: Pay Dividend')}
+      {renderTag('rec-dividend', 'geekblue', 'RD: Record Dividend')}
+    </Box>
+  );
+}
+
 export function Events({ positions }: { positions: Position[] }) {
   const [events, setEvents] = useState<{ dividends: Dividend[]; earnings: Earning[] }>();
   const [loading, setLoading] = useState(false);
@@ -40,7 +67,7 @@ export function Events({ positions }: { positions: Position[] }) {
   const range = useMemo(() => {
     return { start: moment().startOf('month').subtract(1, 'month'), end: moment().endOf('month').add(1, 'year') };
   }, []);
-  const [type, setType] = useState<'all' | 'earnings' | 'dividends'>('all');
+  const [types, setTypes] = useState<EventType[]>(['earning', 'ex-dividend', 'pay-dividend', 'rec-dividend']);
 
   useEffect(() => {
     const _symbols = positions
@@ -128,6 +155,8 @@ export function Events({ positions }: { positions: Position[] }) {
         title: 'Date',
         dataIndex: 'date',
         render: (text) => moment(text).format('MMM DD, YYYY'),
+        defaultSortOrder: 'ascend',
+        sorter: (a, b) => moment(a.date).valueOf() - moment(b.date).valueOf(),
       },
       {
         key: 'Company',
@@ -164,10 +193,10 @@ export function Events({ positions }: { positions: Position[] }) {
       [K: string]: {
         ticker: string;
         name: string;
-        type: 'earning' | 'ex-dividend' | 'pay-dividend' | 'rec-dividend';
+        type: EventType;
       }[];
     } = {};
-    if (type === 'all' || type === 'earnings') {
+    if (types.includes('earning')) {
       result = events.earnings.reduce((hash, earning) => {
         const earningDate = moment(earning.date).format('YYYY-MM-DD');
         let earnings = hash[earningDate];
@@ -184,31 +213,33 @@ export function Events({ positions }: { positions: Position[] }) {
       }, result);
     }
 
-    if (type === 'all' || type === 'dividends') {
-      result = events.dividends.reduce((hash, dividend) => {
-        ['exDate', 'payDate', 'recDate'].forEach((field) => {
-          if (!dividend[field]) {
-            return;
-          }
+    result = events.dividends.reduce((hash, dividend) => {
+      ['exDate', 'payDate', 'recDate'].forEach((field) => {
+        if (!dividend[field]) {
+          return;
+        }
+        const type = field === 'exDate' ? 'ex-dividend' : field === 'payDate' ? 'pay-dividend' : 'rec-dividend';
+        if (!types.includes(type)) {
+          return;
+        }
 
-          const dividendDate = moment(dividend[field]).format('YYYY-MM-DD');
-          let dividends = hash[dividendDate];
-          if (!dividends) {
-            dividends = [];
-            hash[dividendDate] = dividends;
-          }
-          dividends.push({
-            ticker: getSymbolFromNasdaqTicker(dividend.ticker),
-            name: dividend.company,
-            type: field === 'exDate' ? 'ex-dividend' : field === 'payDate' ? 'pay-dividend' : 'rec-dividend',
-          });
+        const dividendDate = moment(dividend[field]).format('YYYY-MM-DD');
+        let dividends = hash[dividendDate];
+        if (!dividends) {
+          dividends = [];
+          hash[dividendDate] = dividends;
+        }
+        dividends.push({
+          ticker: getSymbolFromNasdaqTicker(dividend.ticker),
+          name: dividend.company,
+          type,
         });
-        return hash;
-      }, result);
-    }
+      });
+      return hash;
+    }, result);
 
     return result;
-  }, [events, type]);
+  }, [events, types]);
 
   return (
     <>
@@ -256,14 +287,9 @@ export function Events({ positions }: { positions: Position[] }) {
               </Button>
             </Flex>
 
-            <Flex my={2} justifyContent="space-between" flexWrap="wrap">
-              <Box>
-                <Tag color="magenta">Earning</Tag>
-                <Tag color="blue">ED: Ex-Dividend</Tag>
-                <Tag color="green">PD: Pay Dividend</Tag>
-                <Tag color="geekblue">RD: Record Dividend</Tag>
-              </Box>
-              <Radio.Group
+            <Flex my={2} justifyContent="center" flexWrap="wrap">
+              <EventTypes types={types} onChange={setTypes} />
+              {/* <Radio.Group
                 size="large"
                 defaultValue={type}
                 onChange={(e) => {
@@ -275,7 +301,7 @@ export function Events({ positions }: { positions: Position[] }) {
                   { label: 'Earnings Only', value: 'earnings' },
                   { label: 'Dividends Only', value: 'dividends' },
                 ]}
-              />
+              /> */}
             </Flex>
           </Box>
         )}

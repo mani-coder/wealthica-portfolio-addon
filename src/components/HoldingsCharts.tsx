@@ -633,7 +633,11 @@ export default function HoldingsCharts(props: Props) {
 
       <Collapsible title="Holdings Composition">
         <Charts key={compositionGroup} options={compositionGroupOptions} />
-        <CompositionGroup changeGroup={setCompositionGroup} group={compositionGroup} tracker="realized-pnl-group" />
+        <CompositionGroup
+          changeGroup={setCompositionGroup}
+          group={compositionGroup}
+          tracker="holdings-composition-group"
+        />
 
         <Flex mt={3} mb={2} width={1} justifyContent="center" alignItems="center" alignContent="center">
           <Switch
