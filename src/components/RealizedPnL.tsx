@@ -54,6 +54,157 @@ type CurrentPosition = {
 
 const DATE_DISPLAY_FORMAT = 'MMM DD, YYYY';
 
+const RealizedPnLTable = React.memo(
+  ({ closedPositions, isPrivateMode }: { closedPositions: ClosedPosition[]; isPrivateMode: boolean }) => {
+    function getColumns(): ColumnProps<ClosedPosition>[] {
+      return [
+        {
+          key: 'date',
+          title: 'Date',
+          dataIndex: 'date',
+          render: (text) => text.format('YYYY-MM-DD'),
+          sorter: (a, b) => a.date.valueOf() - b.date.valueOf(),
+          width: 150,
+        },
+        {
+          key: 'account',
+          title: 'Account',
+          dataIndex: 'account',
+          width: 150,
+          render: (account: Account) => (account ? account.name : 'N/A'),
+          filters: Array.from(
+            new Set(closedPositions.map((position) => (position.account ? position.account.name : 'N/A'))),
+          )
+            .map((value) => ({
+              text: value,
+              value,
+            }))
+            .sort((a, b) => a.value.localeCompare(b.value)),
+          onFilter: (value, position) => (position.account?.name || 'N/A').indexOf(value as any) === 0,
+        },
+        {
+          key: 'symbol',
+          title: 'Symbol',
+          dataIndex: 'symbol',
+          render: (text, position) => (
+            <>
+              <Typography.Link
+                rel="noreferrer noopener"
+                href={`https://finance.yahoo.com/quote/${text}`}
+                target="_blank"
+              >
+                {text}
+              </Typography.Link>
+              <div style={{ fontSize: 10 }}>{position.currency === 'usd' ? 'USD' : 'CAD'}</div>
+            </>
+          ),
+          width: 125,
+          filters: Array.from(new Set(closedPositions.map((position) => position.symbol)))
+            .map((value) => ({
+              text: value,
+              value,
+            }))
+            .sort((a, b) => a.value.localeCompare(b.value)),
+          onFilter: (value, position) => position.symbol.indexOf(value as any) === 0,
+          sorter: (a, b) => a.symbol.localeCompare(b.symbol),
+        },
+        {
+          key: 'shares',
+          title: 'Shares',
+          dataIndex: 'shares',
+          align: 'right',
+          render: (text) => (isPrivateMode ? '-' : formatMoney(text, 0)),
+          width: 75,
+        },
+        {
+          key: 'price',
+          title: (
+            <>
+              Buy Price / Sell Price{' '}
+              <Tooltip title="This is the Adjusted Cost Base (ACB) which includes the buy/sell transaction fees.">
+                <QuestionCircleTwoTone twoToneColor="#bfbfbf" />
+              </Tooltip>
+            </>
+          ),
+          align: 'right',
+          render: (text, position) => (
+            <>
+              {formatMoney(position.buyPrice)} / {formatMoney(position.sellPrice)}
+            </>
+          ),
+        },
+        {
+          key: 'gain',
+          title: (
+            <>
+              P&L $%<div style={{ fontSize: 12 }}>(CAD)</div>
+            </>
+          ),
+          render: (text, position) => (
+            <Box style={{ color: position.pnl < 0 ? 'red' : 'green' }}>
+              <Typography.Text strong style={{ color: 'inherit', fontSize: 14 }}>
+                {isPrivateMode ? '-' : formatMoney(position.pnl)}
+              </Typography.Text>
+              <Box />
+              <Typography.Text style={{ color: 'inherit', fontSize: 13 }}>
+                {formatMoney(position.pnlRatio)}%
+              </Typography.Text>
+            </Box>
+          ),
+          align: 'right',
+          sorter: (a, b) => a.pnlRatio - b.pnlRatio,
+        },
+        {
+          key: 'openDate',
+          title: 'Open Date',
+          render: (text, position) =>
+            (position.buyDate.isAfter(position.sellDate) ? position.sellDate : position.buyDate).format('YYYY-MM-DD'),
+        },
+        {
+          key: 'holding-period',
+          title: 'Holding Period',
+          render: (text, position) =>
+            position.buyDate.diff(position.sellDate)
+              ? moment.duration(position.buyDate.diff(position.sellDate)).humanize()
+              : 'Same Day',
+        },
+      ];
+    }
+
+    return (
+      <Card
+        title="Realized P&L History"
+        headStyle={{ paddingLeft: 16, fontSize: 18, fontWeight: 'bold' }}
+        style={{ marginTop: 16, marginBottom: 16 }}
+        bodyStyle={{ padding: 0 }}
+      >
+        <Table<ClosedPosition>
+          dataSource={closedPositions}
+          summary={(positions) => {
+            const totalPnL = positions.reduce((pnl, position) => pnl + position.pnl, 0);
+
+            return (
+              <>
+                <Table.Summary.Row>
+                  <Table.Summary.Cell colSpan={5} align="right" index={0}>
+                    <Typography.Text strong>Total</Typography.Text>
+                  </Table.Summary.Cell>
+                  <Table.Summary.Cell index={1} colSpan={3}>
+                    <Typography.Text strong style={{ color: totalPnL > 0 ? 'green' : 'red' }}>
+                      {formatMoney(totalPnL)} CAD
+                    </Typography.Text>
+                  </Table.Summary.Cell>
+                </Table.Summary.Row>
+              </>
+            );
+          }}
+          columns={getColumns()}
+        />
+      </Card>
+    );
+  },
+);
+
 export default function RealizedPnL({ currencyCache, transactions, accounts, isPrivateMode, fromDate }: Props) {
   const [timeline, setTimeline] = useState<'month' | 'year' | 'week' | 'day'>('month');
   const [compositionGroup, setCompositionGroup] = useState<GroupType>('type');
@@ -135,108 +286,6 @@ export default function RealizedPnL({ currencyCache, transactions, accounts, isP
     });
     const startDate = moment(fromDate);
     return closedPositions.filter((position) => position.date.isSameOrAfter(startDate)).reverse();
-  }
-
-  function getColumns(): ColumnProps<ClosedPosition>[] {
-    return [
-      {
-        key: 'date',
-        title: 'Date',
-        dataIndex: 'date',
-        render: (text) => text.format('YYYY-MM-DD'),
-        sorter: (a, b) => a.date.valueOf() - b.date.valueOf(),
-        width: 150,
-      },
-      {
-        key: 'account',
-        title: 'Account',
-        dataIndex: 'account',
-        width: 150,
-        render: (account: Account) => (account ? account.name : 'N/A'),
-      },
-      {
-        key: 'symbol',
-        title: 'Symbol',
-        dataIndex: 'symbol',
-        render: (text, position) => (
-          <>
-            <Typography.Link rel="noreferrer noopener" href={`https://finance.yahoo.com/quote/${text}`} target="_blank">
-              {text}
-            </Typography.Link>
-            <div style={{ fontSize: 10 }}>{position.currency === 'usd' ? 'USD' : 'CAD'}</div>
-          </>
-        ),
-        width: 125,
-        filters: Array.from(new Set(closedPositions.map((position) => position.symbol)))
-          .map((value) => ({
-            text: value,
-            value,
-          }))
-          .sort((a, b) => a.value.localeCompare(b.value)),
-        onFilter: (value, position) => position.symbol.indexOf(value as any) === 0,
-        sorter: (a, b) => a.symbol.localeCompare(b.symbol),
-      },
-      {
-        key: 'shares',
-        title: 'Shares',
-        dataIndex: 'shares',
-        align: 'right',
-        render: (text) => (isPrivateMode ? '-' : formatMoney(text, 0)),
-        width: 75,
-      },
-      {
-        key: 'price',
-        title: (
-          <>
-            Buy Price / Sell Price{' '}
-            <Tooltip title="This is the Adjusted Cost Base (ACB) which includes the buy/sell transaction fees.">
-              <QuestionCircleTwoTone twoToneColor="#bfbfbf" />
-            </Tooltip>
-          </>
-        ),
-        align: 'right',
-        render: (text, position) => (
-          <>
-            {formatMoney(position.buyPrice)} / {formatMoney(position.sellPrice)}
-          </>
-        ),
-      },
-      {
-        key: 'gain',
-        title: (
-          <>
-            P&L $%<div style={{ fontSize: 12 }}>(CAD)</div>
-          </>
-        ),
-        render: (text, position) => (
-          <Box style={{ color: position.pnl < 0 ? 'red' : 'green' }}>
-            <Typography.Text strong style={{ color: 'inherit', fontSize: 14 }}>
-              {isPrivateMode ? '-' : formatMoney(position.pnl)}
-            </Typography.Text>
-            <Box />
-            <Typography.Text style={{ color: 'inherit', fontSize: 13 }}>
-              {formatMoney(position.pnlRatio)}%
-            </Typography.Text>
-          </Box>
-        ),
-        align: 'right',
-        sorter: (a, b) => a.pnlRatio - b.pnlRatio,
-      },
-      {
-        key: 'openDate',
-        title: 'Open Date',
-        render: (text, position) =>
-          (position.buyDate.isAfter(position.sellDate) ? position.sellDate : position.buyDate).format('YYYY-MM-DD'),
-      },
-      {
-        key: 'holding-period',
-        title: 'Holding Period',
-        render: (text, position) =>
-          position.buyDate.diff(position.sellDate)
-            ? moment.duration(position.buyDate.diff(position.sellDate)).humanize()
-            : 'Same Day',
-      },
-    ];
   }
 
   const getOptions = ({
@@ -484,35 +533,7 @@ export default function RealizedPnL({ currencyCache, transactions, accounts, isP
         <CompositionGroup changeGroup={setCompositionGroup} group={compositionGroup} tracker="realized-pnl-group" />
       </Collapsible>
 
-      <Card
-        title="Realized P&L History"
-        headStyle={{ paddingLeft: 16, fontSize: 18, fontWeight: 'bold' }}
-        style={{ marginTop: 16, marginBottom: 16 }}
-        bodyStyle={{ padding: 0 }}
-      >
-        <Table<ClosedPosition>
-          dataSource={closedPositions}
-          summary={(positions) => {
-            const totalPnL = positions.reduce((pnl, position) => pnl + position.pnl, 0);
-
-            return (
-              <>
-                <Table.Summary.Row>
-                  <Table.Summary.Cell colSpan={5} align="right" index={0}>
-                    <Typography.Text strong>Total</Typography.Text>
-                  </Table.Summary.Cell>
-                  <Table.Summary.Cell index={1} colSpan={3}>
-                    <Typography.Text strong style={{ color: totalPnL > 0 ? 'green' : 'red' }}>
-                      {formatMoney(totalPnL)} CAD
-                    </Typography.Text>
-                  </Table.Summary.Cell>
-                </Table.Summary.Row>
-              </>
-            );
-          }}
-          columns={getColumns()}
-        />
-      </Card>
+      <RealizedPnLTable closedPositions={closedPositions} isPrivateMode={isPrivateMode} />
     </>
   ) : (
     <Empty description="No realized gains for the selected time period." />
