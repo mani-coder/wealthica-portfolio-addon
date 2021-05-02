@@ -76,7 +76,7 @@ export const parseTransactionsResponse = (response: any, currencyCache: any, acc
     .filter((t) => !t.deleted)
     .reduce((hash, transaction) => {
       const type = transaction.type;
-      if (['sell', 'buy', 'unknown'].includes(type)) {
+      if (['sell', 'buy', 'unknown', 'split'].includes(type)) {
         return hash;
       }
       let date = getDate(transaction.date);
@@ -135,7 +135,9 @@ export const parseSecurityTransactionsResponse = (response: any, currencyCache: 
     .filter((t) => !t.deleted && t.type)
     .filter(
       (transaction) =>
-        ['sell', 'buy', 'income', 'dividend', 'distribution', 'tax', 'fee'].includes(transaction.type.toLowerCase()) &&
+        ['sell', 'buy', 'income', 'dividend', 'distribution', 'tax', 'fee', 'split'].includes(
+          transaction.type.toLowerCase(),
+        ) &&
         (transaction.security || transaction.symbol),
     )
     .map((transaction) => {
@@ -146,6 +148,14 @@ export const parseSecurityTransactionsResponse = (response: any, currencyCache: 
         transaction.investment && transaction.investment.includes(':usd')
           ? getCurrencyInCAD(date, amount, currencyCache)
           : amount;
+
+      let splitRatio;
+      if (transaction.type === 'split' && transaction.origin_type === 'REV' && transaction.description?.includes('@')) {
+        const match = transaction.description.match(/@1:([0-9]+)/);
+        if (match && match[1]) {
+          splitRatio = parseInt(match[1]);
+        }
+      }
 
       return {
         date,
@@ -160,6 +170,7 @@ export const parseSecurityTransactionsResponse = (response: any, currencyCache: 
         currency: transaction.security ? transaction.security.currency : 'USD',
         shares: transaction.quantity || 0,
         fees: transaction.fee,
+        splitRatio,
       };
     });
 };

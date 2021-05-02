@@ -46,6 +46,7 @@ export type Transaction = {
   shares: number;
   fees?: number;
   account: string;
+  splitRatio?: number;
 };
 
 export type AccountTransaction = {

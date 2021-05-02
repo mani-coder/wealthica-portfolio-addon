@@ -259,6 +259,18 @@ export default function RealizedPnL({ currencyCache, transactions, accounts, isP
     position.date = transaction.date;
   }
 
+  function handleSplit(position: CurrentPosition, transaction: Transaction) {
+    // there are two type of split transactions, one negates the full book and one adds the new shares.
+    // we are interested in the first one.
+    if (transaction.shares > 0) {
+      return;
+    }
+    const splitRatio = transaction.splitRatio || 1;
+    const shares = Math.floor(position.shares / splitRatio);
+    position.shares = shares;
+    position.price = position.price * splitRatio;
+  }
+
   function computeClosedPositions(): ClosedPosition[] {
     const closedPositions: ClosedPosition[] = [];
     const book: { [K: string]: CurrentPosition } = {};
@@ -282,8 +294,11 @@ export default function RealizedPnL({ currencyCache, transactions, accounts, isP
         } else {
           openPosition(position, transaction);
         }
+      } else if (transaction.type === 'split') {
+        handleSplit(position, transaction);
       }
     });
+
     const startDate = moment(fromDate);
     return closedPositions.filter((position) => position.date.isSameOrAfter(startDate)).reverse();
   }
