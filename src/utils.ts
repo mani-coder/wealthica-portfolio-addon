@@ -1,6 +1,6 @@
 import moment, { Moment } from 'moment';
 import { DATE_FORMAT } from './constants';
-import { PortfolioData, Security } from './types';
+import { PortfolioData, Position, Security } from './types';
 
 export const isValidPortfolioData = (data: PortfolioData): boolean => {
   return Boolean(data.deposit || data.income || data.interest || data.value || data.withdrawal);
@@ -131,5 +131,36 @@ export function normalizeAccountType(type: string): string {
     return 'Margin';
   } else {
     return type;
+  }
+}
+
+export function computeBookValue(position: Position) {
+  const transactions = position.transactions;
+  if (!transactions || !transactions.length || position.book_value) {
+    return;
+  }
+  const book = transactions
+    .filter((t) => ['buy', 'sell'].includes(t.type))
+    .reduce(
+      (book, t) => {
+        if (t.type === 'buy') {
+          book.value += t.price * t.shares;
+          book.shares += t.shares;
+          book.price = book.shares ? book.value / book.shares : t.price;
+        } else {
+          book.value -= (book.price || t.price) * t.shares;
+          book.shares -= t.shares;
+        }
+        return book;
+      },
+      { price: 0, shares: 0, value: 0 } as { price: number; shares: number; value: number },
+    );
+
+  position.book_value = book.value;
+  position.gain_amount = position.market_value - book.value;
+  position.gain_percent = position.gain_amount / position.book_value;
+  const investment = position.investments ? position.investments[0] : undefined;
+  if (investment && !investment.book_value) {
+    investment.book_value = position.book_value;
   }
 }

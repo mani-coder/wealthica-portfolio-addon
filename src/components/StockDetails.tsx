@@ -60,7 +60,7 @@ export default function StockDetails(props: Props) {
         label="Proft/Loss"
         value={`CAD ${props.isPrivateMode ? '-' : formatMoney(position.gain_amount)} (${(position.gain_percent
           ? position.gain_percent * 100
-          : position.gain_percent
+          : position.gain_percent || 0
         ).toFixed(2)}%)`}
         valueProps={{ type: position.gain_percent > 0 ? undefined : 'danger' }}
       />

@@ -37,7 +37,7 @@ import YoYPnLChart from './components/YoYPnLChart';
 import { TRANSACTIONS_FROM_DATE } from './constants';
 import { CURRENCIES_API_RESPONSE } from './mocks/currencies';
 import { Account, AccountTransaction, Portfolio, Position, Transaction } from './types';
-import { getSymbol } from './utils';
+import { computeBookValue, getSymbol } from './utils';
 
 type State = {
   addon: any;
@@ -205,6 +205,7 @@ class App extends Component<Props, State> {
 
     positions.forEach((position) => {
       position.transactions = securityTransactionsBySymbol[getSymbol(position.security)] || [];
+      computeBookValue(position);
     });
 
     const transactionsByDate = parseTransactionsResponse(transactions, currencyCache, accounts);

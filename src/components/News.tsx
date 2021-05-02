@@ -67,7 +67,7 @@ function News({ positions }: { positions: Position[] }) {
     const _symbols = positions
       .filter((position) => {
         const symbol = position.security.symbol || position.security.name;
-        return !(symbol.includes('-') || symbol.includes('.'));
+        return !(symbol.includes('-') || symbol.includes('.') || position.class === 'crypto');
       })
       .map((position) => getNasdaqTicker(position.security))
       .join(',');
