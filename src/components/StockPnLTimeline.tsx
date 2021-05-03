@@ -125,8 +125,12 @@ function StockPnLTimeline({ isPrivateMode, symbol, position, addon, showValueCha
     } = { all: [] };
 
     position.transactions
-      .filter((t) => ['buy', 'sell'].includes(t.type))
+      .filter((t) => ['buy', 'sell', 'split'].includes(t.type))
       .forEach((t) => {
+        if (t.type === 'split' && !t.splitRatio) {
+          return;
+        }
+
         const date = getNextWeekday(t.date.clone());
         let accountBook = book[t.account];
         if (!accountBook) {
@@ -134,12 +138,16 @@ function StockPnLTimeline({ isPrivateMode, symbol, position, addon, showValueCha
           book[t.account] = accountBook;
         }
 
+        const splitRatio = t.splitRatio || 1;
         let lastBuySell = accountBook.pop() || { shares: 0, price: 0, date };
-        const newPositionShares = lastBuySell.shares + t.shares;
+        const newPositionShares =
+          t.type !== 'split' ? lastBuySell.shares + t.shares : Math.floor(lastBuySell.shares / splitRatio);
         const newPosition = {
           price:
             t.type === 'buy' && newPositionShares
               ? (lastBuySell.price * lastBuySell.shares + t.price * t.shares) / newPositionShares
+              : t.type === 'split'
+              ? lastBuySell.price * splitRatio
               : newPositionShares
               ? lastBuySell.price
               : 0,
@@ -153,15 +161,21 @@ function StockPnLTimeline({ isPrivateMode, symbol, position, addon, showValueCha
 
         // Update all book.
         let allLastBuySell = book.all.pop() || { shares: 0, price: 0, date };
-        const shares = allLastBuySell.shares + t.shares;
-        const allEntry = {
-          price: shares
-            ? (allLastBuySell.price * allLastBuySell.shares + (t.type === 'buy' ? t : lastBuySell).price * t.shares) /
+        const shares =
+          t.type === 'split'
+            ? allLastBuySell.shares - lastBuySell.shares + newPosition.shares
+            : allLastBuySell.shares + t.shares;
+        const price = shares
+          ? t.type === 'split'
+            ? (allLastBuySell.price * allLastBuySell.shares -
+                lastBuySell.shares * lastBuySell.price +
+                newPosition.shares * newPosition.price) /
               shares
-            : 0,
-          shares,
-          date,
-        };
+            : (allLastBuySell.price * allLastBuySell.shares + (t.type === 'buy' ? t : lastBuySell).price * t.shares) /
+              shares
+          : 0;
+
+        const allEntry = { price, shares, date };
 
         if (allEntry.date !== allLastBuySell.date) {
           book.all.push(allLastBuySell);
