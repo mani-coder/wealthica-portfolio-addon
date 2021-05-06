@@ -6,7 +6,7 @@
     "@ant-design/icons": "^4.6.2",
     "@wealthica/wealthica.js": "0.0.10",
     "antd": "^4.15.0",
-    "highcharts": "^7.2.2",
+    "highcharts": "^9.0.0",
     "highcharts-react-official": "^2.1.3",
     "lodash": "^4.17.19",
     "moment": "^2.24.0",
