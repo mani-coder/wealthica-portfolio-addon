@@ -593,7 +593,7 @@ export default function RealizedPnL({
         />
         <Box px={1} />
         <Typography.Text strong style={{ fontSize: 17 }}>
-          Minus Expenses (Interest, Fee)
+          Minus {formatMoney(totalExpense)} CAD Interest/Fee
         </Typography.Text>
       </Flex>
 
