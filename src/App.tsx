@@ -486,6 +486,7 @@ class App extends Component<Props, State> {
                     currencyCache={this.state.currencyCache || {}}
                     fromDate={this.state.fromDate}
                     transactions={this.state.securityTransactions}
+                    accountTransactions={this.state.accountTransactions}
                     accounts={this.state.accounts}
                     isPrivateMode={this.state.privateMode}
                   />

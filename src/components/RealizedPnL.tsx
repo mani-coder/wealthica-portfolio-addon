@@ -2,6 +2,7 @@
 import ArrowDownOutlined from '@ant-design/icons/ArrowDownOutlined';
 import ArrowUpOutlined from '@ant-design/icons/ArrowUpOutlined';
 import QuestionCircleTwoTone from '@ant-design/icons/QuestionCircleTwoTone';
+import { Switch } from 'antd';
 import Tooltip from 'antd/es/tooltip';
 import Typography from 'antd/es/typography';
 import Card from 'antd/lib/card';
@@ -16,7 +17,7 @@ import React, { useMemo, useState } from 'react';
 import { Box, Flex } from 'rebass';
 import { trackEvent } from '../analytics';
 import { DATE_FORMAT } from '../constants';
-import { Account, Transaction } from '../types';
+import { Account, AccountTransaction, Transaction } from '../types';
 import { formatCurrency, formatMoney, getCurrencyInCAD } from '../utils';
 import { Charts } from './Charts';
 import Collapsible from './Collapsible';
@@ -24,6 +25,7 @@ import CompositionGroup, { getGroupKey, GroupType } from './CompositionGroup';
 
 type Props = {
   transactions: Transaction[];
+  accountTransactions: AccountTransaction[];
   accounts: Account[];
   isPrivateMode: boolean;
   fromDate: string;
@@ -205,9 +207,32 @@ const RealizedPnLTable = React.memo(
   },
 );
 
-export default function RealizedPnL({ currencyCache, transactions, accounts, isPrivateMode, fromDate }: Props) {
+export default function RealizedPnL({
+  currencyCache,
+  accountTransactions,
+  transactions,
+  accounts,
+  isPrivateMode,
+  fromDate,
+}: Props) {
   const [timeline, setTimeline] = useState<'month' | 'year' | 'week' | 'day'>('month');
+  const [showExpenses, setShowExpenses] = useState<boolean>(false);
   const [compositionGroup, setCompositionGroup] = useState<GroupType>('type');
+  const { expenseTransactions, totalExpense } = useMemo(() => {
+    const expenseTransactions = accountTransactions.filter(
+      (transaction) => ['interest', 'fee'].includes(transaction.type) && transaction.date.isSameOrAfter(fromDate),
+    );
+    return {
+      expenseTransactions,
+      totalExpense: expenseTransactions.reduce((expense, t) => expense + t.amount, 0),
+    };
+  }, [transactions, fromDate]);
+  const accountNameById = useMemo(() => {
+    return accounts.reduce((hash, account) => {
+      hash[account.id] = account;
+      return hash;
+    }, {} as { [K: string]: Account });
+  }, [accounts]);
 
   function closePosition(position: CurrentPosition, transaction: Transaction) {
     const closedShares = Math.min(Math.abs(position.shares), Math.abs(transaction.shares));
@@ -222,7 +247,7 @@ export default function RealizedPnL({ currencyCache, transactions, accounts, isP
 
     const closedPosition = {
       date: transaction.date,
-      account: accounts.find((account) => transaction.account === account.id),
+      account: accountNameById[transaction.account],
       symbol: transaction.symbol,
       currency: transaction.currency,
       shares: closedShares,
@@ -382,6 +407,22 @@ export default function RealizedPnL({ currencyCache, transactions, accounts, isP
       hash[key] = hash[key] ? hash[key] + value.pnl : value.pnl;
       return hash;
     }, {} as { [K: string]: number });
+
+    if (showExpenses) {
+      const expenses = expenseTransactions.reduce((hash, value) => {
+        const key = value.date.clone().startOf(timeline).format(DATE_FORMAT);
+        hash[key] = hash[key] ? hash[key] + value.amount : value.amount;
+        return hash;
+      }, {} as { [K: string]: number });
+
+      const allDates = new Set(Object.keys(expenses).concat(Object.keys(gains)));
+      allDates.forEach((key) => {
+        const gain = gains[key] || 0;
+        const expense = expenses[key] || 0;
+        gains[key] = gain - expense;
+      });
+    }
+
     const data = Object.keys(gains)
       .map((date) => {
         return {
@@ -453,6 +494,17 @@ export default function RealizedPnL({ currencyCache, transactions, accounts, isP
         return hash;
       }, {} as { [K: string]: { name: string; pnl: number } }),
     );
+    if (showExpenses) {
+      expenseTransactions.forEach((t) => {
+        const name = getGroupKey(group, accountNameById[t.account]);
+        let mergedAccount = data[name];
+        if (!mergedAccount) {
+          mergedAccount = { name, pnl: 0 };
+          data[name] = mergedAccount;
+        }
+        mergedAccount.pnl -= t.amount;
+      });
+    }
 
     const accountsSeries: Highcharts.SeriesPieOptions = {
       type: 'pie' as 'pie',
@@ -500,15 +552,17 @@ export default function RealizedPnL({ currencyCache, transactions, accounts, isP
   }, [transactions, accounts, fromDate]);
 
   const closedPnL = useMemo(() => {
-    return closedPositions.reduce((pnl, position) => pnl + position.pnl, 0);
-  }, [closedPositions]);
+    const pnl = closedPositions.reduce((pnl, position) => pnl + position.pnl, 0);
+    return pnl - (showExpenses ? totalExpense : 0);
+  }, [closedPositions, showExpenses]);
+
   const options = useMemo(() => {
     return getOptions({ series: getData(closedPositions) });
-  }, [closedPositions, timeline]);
+  }, [closedPositions, timeline, showExpenses]);
 
   const accountSeriesOptions = useMemo(() => {
     return getOptions({ series: getClosedPnLByAccountSeries(closedPositions, closedPnL, compositionGroup) });
-  }, [closedPositions, closedPnL, compositionGroup]);
+  }, [closedPositions, closedPnL, compositionGroup, showExpenses]);
 
   return !!closedPositions.length ? (
     <>
@@ -520,6 +574,27 @@ export default function RealizedPnL({ currencyCache, transactions, accounts, isP
           valueStyle={{ color: closedPnL >= 0 ? 'green' : 'red' }}
           prefix={closedPnL >= 0 ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
         />
+      </Flex>
+      <Flex
+        mb={3}
+        mt={2}
+        width={1}
+        justifyContent="center"
+        alignContent="center"
+        justifyItems="center"
+        alignItems="center"
+      >
+        <Switch
+          checked={showExpenses}
+          onChange={(checked) => {
+            setShowExpenses(checked);
+            trackEvent('show-expenses', { checked });
+          }}
+        />
+        <Box px={1} />
+        <Typography.Text strong style={{ fontSize: 17 }}>
+          Minus Expenses (Interest, Fee)
+        </Typography.Text>
       </Flex>
 
       <Charts key={timeline} options={options} />
