@@ -575,27 +575,29 @@ export default function RealizedPnL({
           prefix={closedPnL >= 0 ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
         />
       </Flex>
-      <Flex
-        mb={3}
-        mt={2}
-        width={1}
-        justifyContent="center"
-        alignContent="center"
-        justifyItems="center"
-        alignItems="center"
-      >
-        <Switch
-          checked={showExpenses}
-          onChange={(checked) => {
-            setShowExpenses(checked);
-            trackEvent('show-expenses', { checked });
-          }}
-        />
-        <Box px={1} />
-        <Typography.Text strong style={{ fontSize: 17 }}>
-          Minus {formatMoney(totalExpense)} CAD Interest/Fee
-        </Typography.Text>
-      </Flex>
+      {totalExpense && (
+        <Flex
+          mb={3}
+          mt={2}
+          width={1}
+          justifyContent="center"
+          alignContent="center"
+          justifyItems="center"
+          alignItems="center"
+        >
+          <Switch
+            checked={showExpenses}
+            onChange={(checked) => {
+              setShowExpenses(checked);
+              trackEvent('show-expenses', { checked });
+            }}
+          />
+          <Box px={1} />
+          <Typography.Text strong style={{ fontSize: 17 }}>
+            Minus <Typography.Text mark>{formatMoney(totalExpense)} CAD</Typography.Text> Interest/Fee
+          </Typography.Text>
+        </Flex>
+      )}
 
       <Charts key={timeline} options={options} />
 
