@@ -23,12 +23,14 @@ type Props = {
   addon?: any;
 };
 
-const POSITION_TOOLTIP: Highcharts.PlotPieTooltipOptions = {
+const POSITION_TOOLTIP: Highcharts.TooltipOptions = {
   pointFormatter() {
     const point = this.options as any;
     return point.name !== 'Cash'
       ? `<table width="100%">
-      <tr><td>Weightage</td><td align="right" class="position-tooltip-value">${this.percentage.toFixed(1)}%</td></tr>
+      <tr><td>Weightage</td><td align="right" class="position-tooltip-value">${(this as any).percentage.toFixed(
+        1,
+      )}%</td></tr>
       <tr><td>Value</td><td align="right" class="position-tooltip-value">CAD ${point.value}</td></tr>
       <tr><td>Unrealized P/L %</td><td align="right" class="position-tooltip-value" style="color: ${point.pnlColor};">${
           point.gain ? point.gain.toFixed(1) : 'n/a'
@@ -46,7 +48,9 @@ const POSITION_TOOLTIP: Highcharts.PlotPieTooltipOptions = {
     </table>`
       : `
       <table width="100%">
-        <tr><td>Weightage</td><td align="right" class="position-tooltip-value">${this.percentage.toFixed(1)}%</td></tr>
+        <tr><td>Weightage</td><td align="right" class="position-tooltip-value">${(this as any).percentage.toFixed(
+          1,
+        )}%</td></tr>
         <tr><td>Value</td><td align="right" class="position-tooltip-value">CAD ${point.value}</td></tr>
         <tr><td colspan="2"><hr /></td></tr>
         <tr style="font-weight: 600"><td>Account</td><td align="right">Cash</td></tr>
@@ -120,7 +124,7 @@ export default function HoldingsCharts(props: Props) {
         type: 'column',
         name: 'Holdings',
         colorByPoint: true,
-        data,
+        data: data as any,
         events,
 
         tooltip: POSITION_TOOLTIP,
@@ -134,7 +138,7 @@ export default function HoldingsCharts(props: Props) {
         type: 'pie' as 'pie',
         name: 'Holdings',
 
-        data: data.map((position) => ({ ...position, drilldown: undefined })),
+        data: data.map((position) => ({ ...position, drilldown: undefined })) as any,
         events,
 
         allowPointSelect: true,
@@ -240,7 +244,7 @@ export default function HoldingsCharts(props: Props) {
             pnlColor: position.gain_amount >= 0 ? 'green' : 'red',
             accountsTable,
           };
-        });
+        }) as any;
 
       return drilldown
         ? {
@@ -290,7 +294,7 @@ export default function HoldingsCharts(props: Props) {
             .reduce((array, name, index) => {
               array.push(...(getDataForAccount(name, index) as any));
               return array;
-            }, [] as Highcharts.SeriesPieDataOptions[]),
+            }, [] as any[]),
           tooltip: POSITION_TOOLTIP,
         };
   };
@@ -381,7 +385,7 @@ export default function HoldingsCharts(props: Props) {
             cad,
             usd,
             cashTable,
-          } as Highcharts.SeriesPieDataOptions;
+          };
         }),
       dataLabels: {
         formatter() {

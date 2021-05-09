@@ -477,7 +477,7 @@ export default function RealizedPnL({ currencyCache, transactions, accounts, isP
             displayValue: isPrivateMode ? '-' : account.pnl ? formatMoney(account.pnl) : account.pnl,
             totalValue: isPrivateMode ? '-' : formatMoney(closedPnL),
             pnlColor: account.pnl < 0 ? 'red' : 'green',
-          } as Highcharts.SeriesPieDataOptions;
+          };
         }),
 
       tooltip: {

@@ -343,7 +343,7 @@ function StockPnLTimeline({ isPrivateMode, symbol, position, addon, showValueCha
         },
       },
 
-      rangeSelector: { selected: 1, enabled: true, inputEnabled: false },
+      rangeSelector: { selected: 1, enabled: true as any, inputEnabled: false },
       navigator: { enabled: false },
       scrollbar: { enabled: false },
 
