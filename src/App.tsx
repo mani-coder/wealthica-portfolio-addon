@@ -389,9 +389,9 @@ class App extends Component<Props, State> {
 
   render() {
     const fromDate = this.state.fromDate ? moment(this.state.fromDate) : undefined;
-    const interestsTransactions = fromDate
+    const expenseTransactions = fromDate
       ? (this.state.accountTransactions || []).filter(
-          (transaction) => transaction.type === 'interest' && transaction.date.isSameOrAfter(fromDate),
+          (transaction) => ['interest', 'fee'].includes(transaction.type) && transaction.date.isSameOrAfter(fromDate),
         )
       : [];
 
@@ -492,10 +492,10 @@ class App extends Component<Props, State> {
                   />
                 </Tabs.TabPane>
 
-                {!!interestsTransactions.length && (
-                  <Tabs.TabPane destroyInactiveTabPane tab="Interest" key="interest">
+                {!!expenseTransactions.length && (
+                  <Tabs.TabPane destroyInactiveTabPane tab="Interest/Fees" key="interest">
                     <Interests
-                      transactions={interestsTransactions}
+                      transactions={expenseTransactions}
                       accounts={this.state.accounts}
                       isPrivateMode={this.state.privateMode}
                     />
