@@ -482,29 +482,29 @@ export default function RealizedPnL({
     closedPnL: number,
     group: GroupType,
   ): Highcharts.SeriesPieOptions[] => {
-    const data = Object.values(
-      closedPositions.reduce((hash, position) => {
-        const name = getGroupKey(group, position.account);
-        let mergedAccount = hash[name];
-        if (!mergedAccount) {
-          mergedAccount = { name, pnl: 0 };
-          hash[name] = mergedAccount;
-        }
-        mergedAccount.pnl += position.pnl;
-        return hash;
-      }, {} as { [K: string]: { name: string; pnl: number } }),
-    );
+    const pnls = closedPositions.reduce((hash, position) => {
+      const name = getGroupKey(group, position.account);
+      let mergedAccount = hash[name];
+      if (!mergedAccount) {
+        mergedAccount = { name, pnl: 0 };
+        hash[name] = mergedAccount;
+      }
+      mergedAccount.pnl += position.pnl;
+      return hash;
+    }, {} as { [K: string]: { name: string; pnl: number } });
+
     if (showExpenses) {
       expenseTransactions.forEach((t) => {
         const name = getGroupKey(group, accountNameById[t.account]);
-        let mergedAccount = data[name];
+        let mergedAccount = pnls[name];
         if (!mergedAccount) {
           mergedAccount = { name, pnl: 0 };
-          data[name] = mergedAccount;
+          pnls[name] = mergedAccount;
         }
         mergedAccount.pnl -= t.amount;
       });
     }
+    const data = Object.values(pnls);
 
     const accountsSeries: Highcharts.SeriesPieOptions = {
       type: 'pie' as 'pie',
