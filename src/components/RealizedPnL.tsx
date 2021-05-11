@@ -537,8 +537,8 @@ export default function RealizedPnL({
         pointFormatter() {
           const point = this.options as any;
           return `<table>
-          <tr><td>P/L</td><td align="right" class="position-tooltip-value">${point.displayValue} CAD</td></tr>
-          <tr><td>Total P/L</td><td align="right" class="position-tooltip-value">${point.totalValue} CAD</td></tr>
+          <tr><td>P/L</td><td class="position-tooltip-value">${point.displayValue} CAD</td></tr>
+          <tr><td>Total P/L</td><td class="position-tooltip-value">${point.totalValue} CAD</td></tr>
         </table>`;
         },
       },

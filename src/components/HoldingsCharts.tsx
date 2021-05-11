@@ -28,32 +28,28 @@ const POSITION_TOOLTIP: Highcharts.TooltipOptions = {
     const point = this.options as any;
     return point.name !== 'Cash'
       ? `<table width="100%">
-      <tr><td>Weightage</td><td align="right" class="position-tooltip-value">${(this as any).percentage.toFixed(
-        1,
-      )}%</td></tr>
-      <tr><td>Value</td><td align="right" class="position-tooltip-value">CAD ${point.value}</td></tr>
-      <tr><td>Unrealized P/L %</td><td align="right" class="position-tooltip-value" style="color: ${point.pnlColor};">${
+      <tr><td>Weightage</td><td class="position-tooltip-value">${(this as any).percentage.toFixed(1)}%</td></tr>
+      <tr><td>Value</td><td class="position-tooltip-value">CAD ${point.value}</td></tr>
+      <tr><td>Unrealized P/L %</td><td class="position-tooltip-value" style="color: ${point.pnlColor};">${
           point.gain ? point.gain.toFixed(1) : 'n/a'
         }%</td></tr>
-      <tr><td>Unrealized P/L $</td><td align="right" class="position-tooltip-value" style="color: ${
-        point.pnlColor
-      };">CAD ${point.profit}</td></tr>
-      <tr><td>Shares</td><td align="right">${point.shares}</td></tr>
-      <tr><td>Currency</td><td align="right">${point.currency}</td></tr>
-      <tr><td>Buy Price</td><td align="right">${point.buyPrice}</td></tr>
-      <tr><td>Last Price</td><td align="right">${point.lastPrice}</td></tr>
+      <tr><td>Unrealized P/L $</td><td class="position-tooltip-value" style="color: ${point.pnlColor};">CAD ${
+          point.profit
+        }</td></tr>
+      <tr><td>Shares</td><td style="text-align: right;">${point.shares}</td></tr>
+      <tr><td>Currency</td><td style="text-align: right;">${point.currency}</td></tr>
+      <tr><td>Buy Price</td><td style="text-align: right;">${point.buyPrice}</td></tr>
+      <tr><td>Last Price</td><td style="text-align: right;">${point.lastPrice}</td></tr>
       <tr><td colspan="2"><hr /></td></tr>
-      <tr style="font-weight: 600"><td>Account</td><td align="right">Shares</td></tr>
+      <tr style="font-weight: 600"><td>Account</td><td style="text-align: right;">Shares</td></tr>
       ${point.accountsTable}
     </table>`
       : `
       <table width="100%">
-        <tr><td>Weightage</td><td align="right" class="position-tooltip-value">${(this as any).percentage.toFixed(
-          1,
-        )}%</td></tr>
-        <tr><td>Value</td><td align="right" class="position-tooltip-value">CAD ${point.value}</td></tr>
+        <tr><td>Weightage</td><td class="position-tooltip-value">${(this as any).percentage.toFixed(1)}%</td></tr>
+        <tr><td>Value</td><td class="position-tooltip-value">CAD ${point.value}</td></tr>
         <tr><td colspan="2"><hr /></td></tr>
-        <tr style="font-weight: 600"><td>Account</td><td align="right">Cash</td></tr>
+        <tr style="font-weight: 600"><td>Account</td><td style="text-align: right;">Cash</td></tr>
         ${point.accountsTable}
       </table>`;
   },
@@ -89,7 +85,7 @@ export default function HoldingsCharts(props: Props) {
           })
           .filter((value) => value)
           .sort((a, b) => b!.quantity - a!.quantity)
-          .map((value) => `<tr><td>${value!.name}</td><td align="right">${value!.quantity}</td></tr>`)
+          .map((value) => `<tr><td>${value!.name}</td><td style="text-align: right;">${value!.quantity}</td></tr>`)
           .join('');
 
         return {
@@ -221,7 +217,7 @@ export default function HoldingsCharts(props: Props) {
             })
             .filter((value) => value)
             .sort((a, b) => b!.quantity - a!.quantity)
-            .map((value) => `<tr><td>${value!.name}</td><td align="right">${value!.quantity}</td></tr>`)
+            .map((value) => `<tr><td>${value!.name}</td><td style="text-align: right;">${value!.quantity}</td></tr>`)
             .join('');
 
           const brightness = 0.2 - idx / numPositions / 5;
@@ -355,7 +351,7 @@ export default function HoldingsCharts(props: Props) {
               (account) =>
                 `<tr>
                 <td style="vertical-align: top">${account.name}</td>
-                <td align="right">
+                <td style="text-align: right;">
                 ${
                   !!account.cad
                     ? `<div style="color:${account.cad < 0 ? 'red' : ''}">C$ ${formatMoney(account.cad)}</div>`
@@ -407,38 +403,42 @@ export default function HoldingsCharts(props: Props) {
         pointFormatter() {
           const point = this.options as any;
           return `<table>
-          <tr><td>Value</td><td align="right" class="position-tooltip-value">CAD ${point.displayValue}</td></tr>
-          <tr><td>Total Value</td><td align="right" class="position-tooltip-value">CAD ${point.totalValue}</td></tr>
-          <tr><td>Unrealized P/L ($) </td><td align="right" style="color:${
+          <tr><td>Value</td><td style="text-align: right;" class="position-tooltip-value">CAD ${
+            point.displayValue
+          }</td></tr>
+          <tr><td>Total Value</td><td style="text-align: right;" class="position-tooltip-value">CAD ${
+            point.totalValue
+          }</td></tr>
+          <tr><td>Unrealized P/L ($) </td><td style="text-align: right;" style="color:${
             point.pnlColor
           };" class="position-tooltip-value">${point.gain}</td></tr>
-          <tr><td>Unrealized P/L (%)</td><td align="right" style="color:${
+          <tr><td>Unrealized P/L (%)</td><td style="text-align: right;" style="color:${
             point.pnlColor
           };" class="position-tooltip-value">${point.gainRatio}</td></tr>
           ${
             point.cashTable
               ? `<tr><td colspan="2"><hr /></td></tr>
-              <tr><td style="font-weight: 600">Account</td><td align="right" style="font-weight: 600">Cash</td></tr>${point.cashTable}`
+              <tr><td style="font-weight: 600">Account</td><td style="text-align: right;" style="font-weight: 600">Cash</td></tr>${point.cashTable}`
               : ''
           }
           <tr><td colspan="2"><hr /></td></tr>
           ${
             !!point.cash && !props.isPrivateMode
-              ? `<tr><td>Total Cash</td><td align="right" class="position-tooltip-cash" style="color:${
+              ? `<tr><td>Total Cash</td><td style="text-align: right;" class="position-tooltip-cash" style="color:${
                   point.cash < 0 ? 'red' : ''
                 };">CAD ${formatMoney(point.cash)}</td></tr>`
               : ''
           }
           ${
             !!point.cad && !props.isPrivateMode
-              ? `<tr><td>CAD Cash</td><td align="right" class="position-tooltip-cash" style="color:${
+              ? `<tr><td>CAD Cash</td><td style="text-align: right;" class="position-tooltip-cash" style="color:${
                   point.cad < 0 ? 'red' : ''
                 };">CAD ${formatMoney(point.cad)}</td></tr>`
               : ''
           }
           ${
             !!point.usd && !props.isPrivateMode
-              ? `<tr><td>USD Cash</td><td align="right" class="position-tooltip-cash" style="color:${
+              ? `<tr><td>USD Cash</td><td style="text-align: right;" class="position-tooltip-cash" style="color:${
                   point.usd < 0 ? 'red' : ''
                 };">USD ${formatMoney(point.usd)}</td></tr>`
               : ''
@@ -453,9 +453,7 @@ export default function HoldingsCharts(props: Props) {
       : [accountsSeries];
   };
 
-  function getCompositionGroupSeriesOptions(
-    group: GroupType,
-  ): {
+  function getCompositionGroupSeriesOptions(group: GroupType): {
     series: Highcharts.SeriesPieOptions[];
     drilldown?: Highcharts.DrilldownOptions;
     title: string;

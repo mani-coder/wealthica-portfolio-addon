@@ -49,11 +49,11 @@ export function TopGainersLosers(props: { isPrivateMode: boolean; positions: Pos
             <tr><th colspan="2" style="text-align:center">{point.name}</th></tr>
             <tr>
               <td>P&L %</td>
-              <td align="right"><b>{point.gainRatio:.1f}%</b></td>
+              <td style="text-align: right;"><b>{point.gainRatio:.1f}%</b></td>
             </tr>
             <tr>
               <td>P&L $</td>
-              <td align="right" style="padding-left: 16px;"><b>{point.gain} CAD</b></td>
+              <td style="text-align: right; padding-left: 16px;"><b>{point.gain} CAD</b></td>
             </tr>
           </table>`,
         },
