@@ -102,7 +102,7 @@ export default function Interests({ transactions, accounts, isPrivateMode }: Pro
           enabled: !isPrivateMode,
         },
         title: {
-          text: 'Interest $ (CAD)',
+          text: 'Interest/Fee $ (CAD)',
         },
       },
     };
@@ -184,9 +184,10 @@ export default function Interests({ transactions, accounts, isPrivateMode }: Pro
     return series;
   };
 
-  const interest = useMemo(() => transactions.reduce((interest, transaction) => interest + transaction.amount, 0), [
-    transactions,
-  ]);
+  const interest = useMemo(
+    () => transactions.reduce((interest, transaction) => interest + transaction.amount, 0),
+    [transactions],
+  );
   const options = useMemo(() => getOptions({ series: getData() }), [transactions, accountNameById, timeline]);
 
   return (
@@ -222,7 +223,7 @@ export default function Interests({ transactions, accounts, isPrivateMode }: Pro
       </Flex>
 
       <Card
-        title="Interest History"
+        title="Interest/Fee History"
         headStyle={{ paddingLeft: 16, fontSize: 18, fontWeight: 'bold' }}
         style={{ marginTop: 16, marginBottom: 16 }}
         bodyStyle={{ padding: 0 }}
