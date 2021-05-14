@@ -148,13 +148,14 @@ export function computeBookValue(position: Position) {
           book.shares += t.shares;
           book.price = book.shares ? book.value / book.shares : t.price;
         } else {
-          book.value -= (book.price || t.price) * t.shares;
-          book.shares -= t.shares;
+          book.value += (book.price || t.price) * t.shares;
+          book.shares += t.shares;
         }
         return book;
       },
       { price: 0, shares: 0, value: 0 } as { price: number; shares: number; value: number },
     );
+  console.log('mani is cool', book);
 
   position.book_value = book.value;
   position.gain_amount = position.market_value - book.value;
