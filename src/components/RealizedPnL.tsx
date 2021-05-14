@@ -115,7 +115,7 @@ const RealizedPnLTable = React.memo(
           title: 'Shares',
           dataIndex: 'shares',
           align: 'right',
-          render: (text) => (isPrivateMode ? '-' : formatMoney(text, 0)),
+          render: (text) => (isPrivateMode ? '-' : text.toLocaleString('en-US')),
           width: 75,
         },
         {
@@ -321,6 +321,8 @@ export default function RealizedPnL({
         }
       } else if (transaction.type === 'split') {
         handleSplit(position, transaction);
+      } else if (transaction.type === 'reinvest') {
+        position.shares = Number((position.shares + transaction.shares).toPrecision(10));
       }
     });
 
