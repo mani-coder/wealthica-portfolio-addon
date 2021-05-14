@@ -279,9 +279,11 @@ export default function RealizedPnL({
 
   function openPosition(position: CurrentPosition, transaction: Transaction) {
     const shares = position.shares + transaction.shares;
+    if (position.shares === 0) {
+      position.date = transaction.date;
+    }
     position.price = (position.price * position.shares + transaction.price * transaction.shares) / shares;
     position.shares = shares;
-    position.date = transaction.date;
   }
 
   function handleSplit(position: CurrentPosition, transaction: Transaction) {
@@ -322,7 +324,17 @@ export default function RealizedPnL({
       } else if (transaction.type === 'split') {
         handleSplit(position, transaction);
       } else if (transaction.type === 'reinvest') {
-        position.shares = Number((position.shares + transaction.shares).toPrecision(10));
+        // acquire this position at zero cost, since it's a re-investment.
+        openPosition(position, { ...transaction, price: 0 });
+      }
+      if (transaction.symbol === 'TDB909.TO') {
+        console.log('mani is cool -- book', {
+          price: position.price,
+          shares: position.shares,
+          ttype: transaction.type,
+          tdate: transaction.date.format('MMM DD, YY'),
+          tshares: transaction.shares,
+        });
       }
     });
 
