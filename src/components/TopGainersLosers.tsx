@@ -10,7 +10,12 @@ import { formatCurrency, formatMoney, getSymbol } from '../utils';
 import Charts from './Charts';
 import StockPnLTimeline from './StockPnLTimeline';
 
-export function TopGainersLosers(props: { isPrivateMode: boolean; positions: Position[]; addon: any }) {
+export function TopGainersLosers(props: {
+  isPrivateMode: boolean;
+  positions: Position[];
+  addon: any;
+  currencyCache: { [K: string]: number };
+}) {
   const [sortByValue, setSortByValue] = useState(false);
   const [pnlSymbol, setPnlSymbol] = useState<string>();
 
@@ -194,6 +199,7 @@ export function TopGainersLosers(props: { isPrivateMode: boolean; positions: Pos
         position={position}
         addon={props.addon}
         showValueChart={sortByValue}
+        currencyCache={props.currencyCache}
       />
     );
   };
