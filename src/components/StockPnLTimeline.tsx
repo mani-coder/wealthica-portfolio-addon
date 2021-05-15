@@ -218,7 +218,7 @@ function StockPnLTimeline({ isPrivateMode, symbol, position, addon, showValueCha
             currency: position.security.currency.toUpperCase(),
             stockPrice: formatMoney(price.closePrice),
             price: formatMoney(_entry.price),
-            shares: _entry.shares,
+            shares: _entry.shares.toLocaleString('en-US'),
           });
         }
       }

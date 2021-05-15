@@ -258,10 +258,7 @@ export default function RealizedPnL({
       sellDate: sellRecord.date,
       sellPrice: sellRecord.price,
 
-      pnl:
-        transaction.currency === 'usd' && transaction.securityType !== 'crypto'
-          ? getCurrencyInCAD(transaction.date, pnl, currencyCache)
-          : pnl,
+      pnl: transaction.currency === 'usd' ? getCurrencyInCAD(transaction.date, pnl, currencyCache) : pnl,
       pnlRatio,
     };
 
