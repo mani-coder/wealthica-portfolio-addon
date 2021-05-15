@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/wealthica-portfolio-addon/static/css/main.4cbbcd80.chunk.css",
-    "main.js": "/wealthica-portfolio-addon/static/js/main.8013336f.chunk.js",
-    "main.js.map": "/wealthica-portfolio-addon/static/js/main.8013336f.chunk.js.map",
+    "main.js": "/wealthica-portfolio-addon/static/js/main.bdc9453f.chunk.js",
+    "main.js.map": "/wealthica-portfolio-addon/static/js/main.bdc9453f.chunk.js.map",
     "runtime-main.js": "/wealthica-portfolio-addon/static/js/runtime-main.b8383131.js",
     "runtime-main.js.map": "/wealthica-portfolio-addon/static/js/runtime-main.b8383131.js.map",
     "static/js/2.ac886844.chunk.js": "/wealthica-portfolio-addon/static/js/2.ac886844.chunk.js",
@@ -31,6 +31,6 @@
     "static/js/runtime-main.b8383131.js",
     "static/js/2.ac886844.chunk.js",
     "static/css/main.4cbbcd80.chunk.css",
-    "static/js/main.8013336f.chunk.js"
+    "static/js/main.bdc9453f.chunk.js"
   ]
 }
