@@ -539,6 +539,7 @@ export default function HoldingsCharts(props: Props) {
         symbol={timelineSymbol}
         position={position}
         addon={props.addon}
+        currencyCache={props.currencyCache}
       />
     );
   };

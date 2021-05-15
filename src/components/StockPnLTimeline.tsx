@@ -8,7 +8,7 @@ import { Flex } from 'rebass';
 import { trackEvent } from '../analytics';
 import { TYPE_TO_COLOR } from '../constants';
 import { Position, Transaction } from '../types';
-import { buildCorsFreeUrl, formatCurrency, formatMoney, getDate, max, min } from '../utils';
+import { buildCorsFreeUrl, formatCurrency, formatMoney, getCurrencyInCAD, getDate, max, min } from '../utils';
 import Charts from './Charts';
 
 type Props = {
@@ -17,6 +17,7 @@ type Props = {
   isPrivateMode: boolean;
   addon?: any;
   showValueChart?: boolean;
+  currencyCache: { [K: string]: number };
 };
 
 type StockPrice = {
@@ -26,7 +27,7 @@ type StockPrice = {
 
 const POINT_FORMAT = `P/L (%): <b>{point.pnlRatio:.2f}%</b> <br />P/L ($): <b>{point.pnlValue} {point.currency}</b><br /><br />Book: {point.shares}@{point.price}<br /><br />Stock Price: {point.stockPrice} {point.currency}<br />`;
 
-function StockPnLTimeline({ isPrivateMode, symbol, position, addon, showValueChart }: Props) {
+function StockPnLTimeline({ isPrivateMode, symbol, position, addon, showValueChart, currencyCache }: Props) {
   const [loading, setLoading] = useState(false);
   const [prices, setPrices] = useState<StockPrice[]>([]);
   const mounted = useRef<boolean>(false);
@@ -44,6 +45,7 @@ function StockPnLTimeline({ isPrivateMode, symbol, position, addon, showValueCha
       return;
     }
 
+    const convertToCad = position.security.type === 'crypto';
     const to = getDate(response.to);
     const data: StockPrice[] = [];
     let prevPrice;
@@ -60,7 +62,10 @@ function StockPnLTimeline({ isPrivateMode, symbol, position, addon, showValueCha
         }
         // Only weekdays.
         if (to.isoWeekday() <= 5) {
-          data.push({ timestamp: to.clone(), closePrice });
+          data.push({
+            timestamp: to.clone(),
+            closePrice: convertToCad ? getCurrencyInCAD(to, closePrice, currencyCache) : closePrice,
+          });
         }
 
         // Move the date forward.

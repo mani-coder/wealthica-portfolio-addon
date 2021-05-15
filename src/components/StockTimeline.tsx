@@ -6,7 +6,7 @@ import React, { Component } from 'react';
 import { trackEvent } from '../analytics';
 import { TYPE_TO_COLOR } from '../constants';
 import { Position, Transaction } from '../types';
-import { buildCorsFreeUrl, formatCurrency, formatMoney, getDate } from '../utils';
+import { buildCorsFreeUrl, formatCurrency, formatMoney, getCurrencyInCAD, getDate } from '../utils';
 import Charts from './Charts';
 
 type Props = {
@@ -14,6 +14,7 @@ type Props = {
   position: Position;
   isPrivateMode: boolean;
   addon?: any;
+  currencyCache: { [K: string]: number };
 };
 
 type SecurityHistoryTimeline = {
@@ -52,6 +53,7 @@ class StockTimeline extends Component<Props, State> {
 
   parseSecuritiesResponse(response) {
     if (this._mounted) {
+      const convertToCad = this.props.position.security.type === 'crypto';
       const to = getDate(response.to);
       const data: SecurityHistoryTimeline[] = [];
       let prevPrice;
@@ -68,7 +70,10 @@ class StockTimeline extends Component<Props, State> {
           }
           // Only weekdays.
           if (to.isoWeekday() <= 5) {
-            data.push({ timestamp: to.clone(), closePrice });
+            data.push({
+              timestamp: to.clone(),
+              closePrice: convertToCad ? getCurrencyInCAD(to, closePrice, this.props.currencyCache) : closePrice,
+            });
           }
 
           // Move the date forward.
@@ -137,9 +142,10 @@ class StockTimeline extends Component<Props, State> {
     }
 
     this.setState({ loading: true });
-    const startDate = (this.props.position.transactions && this.props.position.transactions.length
-      ? this.props.position.transactions[0].date
-      : moment()
+    const startDate = (
+      this.props.position.transactions && this.props.position.transactions.length
+        ? this.props.position.transactions[0].date
+        : moment()
     )
       .clone()
       .subtract(1, 'months');
