@@ -76,7 +76,7 @@ export const parseTransactionsResponse = (response: any, currencyCache: any, acc
     .filter((t) => !t.deleted)
     .reduce((hash, transaction) => {
       const type = transaction.type;
-      if (['sell', 'buy', 'unknown', 'split'].includes(type)) {
+      if (['sell', 'buy', 'unknown', 'split', 'reinvest'].includes(type)) {
         return hash;
       }
       let date = getDate(transaction.date);
@@ -171,6 +171,7 @@ export const parseSecurityTransactionsResponse = (response: any, currencyCache: 
         shares: transaction.quantity || 0,
         fees: transaction.fee,
         splitRatio,
+        securityType: transaction.security?.type,
       };
     });
 };

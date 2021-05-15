@@ -258,7 +258,10 @@ export default function RealizedPnL({
       sellDate: sellRecord.date,
       sellPrice: sellRecord.price,
 
-      pnl: transaction.currency === 'usd' ? getCurrencyInCAD(transaction.date, pnl, currencyCache) : pnl,
+      pnl:
+        transaction.currency === 'usd' && transaction.securityType !== 'crypto'
+          ? getCurrencyInCAD(transaction.date, pnl, currencyCache)
+          : pnl,
       pnlRatio,
     };
 
@@ -326,15 +329,6 @@ export default function RealizedPnL({
       } else if (transaction.type === 'reinvest') {
         // acquire this position at zero cost, since it's a re-investment.
         openPosition(position, { ...transaction, price: 0 });
-      }
-      if (transaction.symbol === 'TDB909.TO') {
-        console.log('mani is cool -- book', {
-          price: position.price,
-          shares: position.shares,
-          ttype: transaction.type,
-          tdate: transaction.date.format('MMM DD, YY'),
-          tshares: transaction.shares,
-        });
       }
     });
 
