@@ -205,7 +205,6 @@ class App extends Component<Props, State> {
 
     positions.forEach((position) => {
       if (position.security.type === 'crypto') {
-        console.log('mani is cool', position);
         position.currency = position.security.currency = 'cad';
       }
       position.transactions = securityTransactionsBySymbol[getSymbol(position.security)] || [];
