@@ -53,7 +53,7 @@ class StockTimeline extends Component<Props, State> {
 
   parseSecuritiesResponse(response) {
     if (this._mounted) {
-      const convertToCad = this.props.position.security.type === 'crypto';
+      const crypto = this.props.position.security.type === 'crypto';
       const to = getDate(response.to);
       const data: SecurityHistoryTimeline[] = [];
       let prevPrice;
@@ -69,10 +69,10 @@ class StockTimeline extends Component<Props, State> {
             closePrice = prevPrice;
           }
           // Only weekdays.
-          if (to.isoWeekday() <= 5) {
+          if (to.isoWeekday() <= 5 || crypto) {
             data.push({
               timestamp: to.clone(),
-              closePrice: convertToCad ? getCurrencyInCAD(to, closePrice, this.props.currencyCache) : closePrice,
+              closePrice: crypto ? getCurrencyInCAD(to, closePrice, this.props.currencyCache) : closePrice,
             });
           }
 

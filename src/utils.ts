@@ -12,7 +12,12 @@ export const getDate = (date: string): Moment => {
 
 export const getCurrencyInCAD = (date: Moment | string, value: number, currencyCache: any): number => {
   const multiplier = currencyCache[typeof date === 'string' ? date : date.format(DATE_FORMAT)];
-  return multiplier ? value / multiplier : value;
+  if (multiplier) {
+    return value / multiplier;
+  } else {
+    const latestDate = Object.keys(currencyCache).sort((a, b) => b.localeCompare(a))[0];
+    return latestDate ? value / currencyCache[latestDate] : value;
+  }
 };
 
 export const formatMoney = (amount?: number, precision?: number): string => {

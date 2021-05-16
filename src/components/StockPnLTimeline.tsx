@@ -32,6 +32,7 @@ function StockPnLTimeline({ isPrivateMode, symbol, position, addon, showValueCha
   const [loading, setLoading] = useState(false);
   const [prices, setPrices] = useState<StockPrice[]>([]);
   const mounted = useRef<boolean>(false);
+  const crypto = position.security?.type === 'crypto';
 
   useEffect(() => {
     mounted.current = true;
@@ -46,7 +47,6 @@ function StockPnLTimeline({ isPrivateMode, symbol, position, addon, showValueCha
       return;
     }
 
-    const convertToCad = position.security.type === 'crypto';
     const to = getDate(response.to);
     const data: StockPrice[] = [];
     let prevPrice;
@@ -61,11 +61,12 @@ function StockPnLTimeline({ isPrivateMode, symbol, position, addon, showValueCha
         if (changePercentage > 100) {
           closePrice = prevPrice;
         }
-        // Only weekdays.
-        if (to.isoWeekday() <= 5) {
+
+        // Only weekdays for non-crypto stocks.
+        if (to.isoWeekday() <= 5 || crypto) {
           data.push({
             timestamp: to.clone(),
-            closePrice: convertToCad ? getCurrencyInCAD(to, closePrice, currencyCache) : closePrice,
+            closePrice: crypto ? getCurrencyInCAD(to, closePrice, currencyCache) : closePrice,
           });
         }
 
@@ -137,7 +138,7 @@ function StockPnLTimeline({ isPrivateMode, symbol, position, addon, showValueCha
           return;
         }
 
-        const date = getNextWeekday(t.date.clone());
+        const date = crypto ? t.date.format('YYYY-MM-DD') : getNextWeekday(t.date.clone());
         let accountBook = book[t.account];
         if (!accountBook) {
           accountBook = [];
@@ -191,6 +192,8 @@ function StockPnLTimeline({ isPrivateMode, symbol, position, addon, showValueCha
         }
         book.all.push(allEntry);
       });
+
+    console.log('mani is cool -- ', book);
 
     const allBook = book.all.reduce((hash, entry) => {
       hash[entry.date] = { shares: entry.shares, price: entry.price };

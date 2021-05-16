@@ -26,7 +26,7 @@ export type Security = {
   high_price: number;
   low_date: Date;
   low_price: number;
-  last_date: Date;
+  last_date: string;
   aliases: string[];
 };
 

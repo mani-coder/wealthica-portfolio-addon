@@ -37,7 +37,7 @@ import YoYPnLChart from './components/YoYPnLChart';
 import { TRANSACTIONS_FROM_DATE } from './constants';
 import { CURRENCIES_API_RESPONSE } from './mocks/currencies';
 import { Account, AccountTransaction, Portfolio, Position, Transaction } from './types';
-import { computeBookValue, getSymbol } from './utils';
+import { computeBookValue, getCurrencyInCAD, getSymbol } from './utils';
 
 type State = {
   addon: any;
@@ -206,6 +206,11 @@ class App extends Component<Props, State> {
     positions.forEach((position) => {
       if (position.security.type === 'crypto') {
         position.currency = position.security.currency = 'cad';
+        position.security.last_price = getCurrencyInCAD(
+          position.security?.last_date ? moment(position.security.last_date.slice(0, 10)) : moment(),
+          position.security.last_price,
+          currencyCache,
+        );
       }
       position.transactions = securityTransactionsBySymbol[getSymbol(position.security)] || [];
       computeBookValue(position);
