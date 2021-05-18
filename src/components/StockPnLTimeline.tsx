@@ -151,9 +151,10 @@ function StockPnLTimeline({ isPrivateMode, symbol, position, addon, showValueCha
         const tPrice = t.type === 'reinvest' ? 0 : t.price;
         const splitRatio = t.splitRatio || 1;
         let lastBuySell = accountBook.pop() || { shares: 0, price: 0, date };
-        const newPositionShares = !isSplit
-          ? lastBuySell.shares + t.shares
-          : Math.floor(lastBuySell.shares / splitRatio);
+        const newPositionShares = Number(
+          (!isSplit ? lastBuySell.shares + t.shares : Math.floor(lastBuySell.shares / splitRatio)).toFixed(10),
+        );
+
         const newPosition = {
           price:
             isBuy && newPositionShares
@@ -173,9 +174,12 @@ function StockPnLTimeline({ isPrivateMode, symbol, position, addon, showValueCha
 
         // Update all book.
         let allLastBuySell = book.all.pop() || { shares: 0, price: 0, date };
-        const shares = isSplit
-          ? allLastBuySell.shares - lastBuySell.shares + newPosition.shares
-          : allLastBuySell.shares + t.shares;
+        const shares = Number(
+          (isSplit
+            ? allLastBuySell.shares - lastBuySell.shares + newPosition.shares
+            : allLastBuySell.shares + t.shares
+          ).toFixed(10),
+        );
         const price = shares
           ? isSplit
             ? (allLastBuySell.price * allLastBuySell.shares -
