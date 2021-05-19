@@ -571,9 +571,9 @@ export default function RealizedPnL({
           ? 'Expenses (Interest, Fee)'
           : type === 'income'
           ? 'Income (Dividends)'
-          : `${types.includes('pnl') ? 'P&L + ' : ''}${types.includes('income') ? 'Income - ' : ''}${
-              types.includes('expense') ? 'Expenses' : ''
-            }`;
+          : `${types.includes('pnl') ? `P&L  ${types.includes('income') ? '+' : '-'} ` : ''}${
+              types.includes('income') ? 'Income - ' : ''
+            }${types.includes('expense') ? 'Expenses' : ''}`;
       const color =
         type === 'pnl' ? '#b37feb' : type === 'expense' ? '#ff7875' : type === 'income' ? '#95de64' : '#5cdbd3';
       const _series: Highcharts.SeriesColumnOptions = {
@@ -630,7 +630,7 @@ export default function RealizedPnL({
 
     const allDates = new Set(Object.keys(expenses).concat(Object.keys(pnls)).concat(Object.keys(incomes)));
     allDates.forEach((key) => {
-      gains[key] = (pnls[key] || 0) + (expenses[key] || 0) + (incomes[key] || 0);
+      gains[key] = (pnls[key] || 0) - (expenses[key] || 0) + (incomes[key] || 0);
     });
 
     const series: Highcharts.SeriesColumnOptions[] = [];
