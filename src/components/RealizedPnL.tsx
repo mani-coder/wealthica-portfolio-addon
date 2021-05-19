@@ -577,9 +577,9 @@ export default function RealizedPnL({
           ? 'Expenses (Interest, Fee)'
           : type === 'income'
           ? 'Income (Dividends)'
-          : `${types.includes('pnl') ? `P&L  ${types.includes('income') ? '+' : '-'} ` : ''}${
-              types.includes('income') ? 'Income - ' : ''
-            }${types.includes('expense') ? 'Expenses' : ''}`;
+          : `${types.includes('pnl') ? `P&L  ${types.includes('income') ? '+' : ''} ` : ''}${
+              types.includes('income') ? 'Income' : ''
+            }${types.includes('expense') ? ' - Expenses' : ''}`;
       const color =
         type === 'pnl' ? '#b37feb' : type === 'expense' ? '#ff7875' : type === 'income' ? '#95de64' : '#5cdbd3';
       const _series: Highcharts.SeriesColumnOptions = {
@@ -603,7 +603,7 @@ export default function RealizedPnL({
           <b style="font-size: 13px; font-weight: 700">{point.pnl} CAD</b><br />`,
         },
         dataLabels: { enabled: true, format: '{point.pnlHuman}' },
-        showInLegend: types.length > 1,
+        showInLegend: true,
       };
       return _series;
     }
