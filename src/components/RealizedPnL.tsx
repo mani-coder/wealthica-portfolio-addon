@@ -561,12 +561,19 @@ export default function RealizedPnL({
             pnl: value.pnl,
             startDate: moment(value.date).startOf(timeline).format(DATE_DISPLAY_FORMAT),
             endDate: moment(value.date).endOf(timeline).format(DATE_DISPLAY_FORMAT),
-            color: value.pnl >= 0 ? 'green' : 'red',
           };
         });
 
       const name =
-        type === 'pnl' ? 'Realized P&L' : type === 'expense' ? 'Expenses' : type === 'income' ? 'Income' : 'Total';
+        type === 'pnl'
+          ? 'Realized P&L'
+          : type === 'expense'
+          ? 'Expenses (Interest, Fee)'
+          : type === 'income'
+          ? 'Income (Dividends)'
+          : `${types.includes('pnl') ? 'P&L + ' : ''}${types.includes('income') ? 'Income - ' : ''}${
+              types.includes('expense') ? 'Expenses' : ''
+            }`;
       const color =
         type === 'pnl' ? '#b37feb' : type === 'expense' ? '#ff7875' : type === 'income' ? '#95de64' : '#5cdbd3';
       const _series: Highcharts.SeriesColumnOptions = {
@@ -610,7 +617,7 @@ export default function RealizedPnL({
     if (types.includes('expense')) {
       expenseTransactions.forEach((value) => {
         const key = value.date.clone().startOf(timeline).format(DATE_FORMAT);
-        expenses[key] = expenses[key] ? expenses[key] - value.amount : -value.amount;
+        expenses[key] = expenses[key] ? expenses[key] + value.amount : value.amount;
       });
     }
 
