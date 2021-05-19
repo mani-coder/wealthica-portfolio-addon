@@ -23,13 +23,15 @@ const LOGS: {
 }[] = [
   {
     date: '2021-05-18',
-    tab: 'Interest',
-    title: 'Interest transactions aggregated by day/week/month/year and complete history',
+    tab: 'Realized P&L',
+    title: 'Plot Income, Interest Along With Realized P&L',
     description:
-      'Ever wondered how much interest you are paying on your borrowed margin money. We have added a new tab called "Interest" to aggregate the interest by day/week/month/year. We also show the interest transactions in a table to have a quick view. Please note the new tab will show up only if you have any interest type transactions.',
+      'We have made few changes to the Realized P&L chart to visualize the income, interest along with the Realized P&L.',
     images: [
-      'https://ik.imagekit.io/manicoder/wealthica-portfolio-addon/interest-1_qpbwiPw6R.png',
-      'https://ik.imagekit.io/manicoder/wealthica-portfolio-addon/interest-2_xqvGqhWzQ.png',
+      'https://ik.imagekit.io/manicoder/wealthica-portfolio-addon/Realized_PnL_Total_SkXH_ENpd.png',
+      'https://ik.imagekit.io/manicoder/wealthica-portfolio-addon/Realized_PnL_ISmwPJbTB.png',
+      'https://ik.imagekit.io/manicoder/wealthica-portfolio-addon/Realized_PnL_Income_-DAQM_F0GI.png',
+      'https://ik.imagekit.io/manicoder/wealthica-portfolio-addon/Realized_PnL_History_9IKwqx0dG.png',
     ],
   },
   {
@@ -39,8 +41,8 @@ const LOGS: {
     description:
       'Ever wondered how much interest you are paying on your borrowed margin money. This chart is available under "Realized P&L" tab where you can toggle the checkbox and play with interests and aggregate the interest by day/week/month/year. We also show the interest transactions in a table to have a quick view. Please note the new tab will show up only if you have any interest type transactions.',
     images: [
-      'https://ik.imagekit.io/manicoder/wealthica-portfolio-addon/interest-1_qpbwiPw6R.png',
-      'https://ik.imagekit.io/manicoder/wealthica-portfolio-addon/interest-2_xqvGqhWzQ.png',
+      'https://ik.imagekit.io/manicoder/wealthica-portfolio-addon/Realized_PnL_Interest_hWDAZtWWUc.png',
+      'https://ik.imagekit.io/manicoder/wealthica-portfolio-addon/Realized_PnL_History_9IKwqx0dG.png',
     ],
   },
   {
