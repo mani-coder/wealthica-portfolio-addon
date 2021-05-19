@@ -368,7 +368,8 @@ export default function RealizedPnL({
 
   const { incomeTransactions, totalIncome } = useMemo(() => {
     const incomeTransactions = transactions.filter(
-      (transaction) => ['income', 'dividend'].includes(transaction.type) && transaction.date.isSameOrAfter(fromDate),
+      (transaction) =>
+        ['income', 'dividend', 'distribution'].includes(transaction.type) && transaction.date.isSameOrAfter(fromDate),
     );
     return {
       incomeTransactions,
@@ -492,6 +493,9 @@ export default function RealizedPnL({
   }): Highcharts.Options => {
     return {
       series,
+      legend: {
+        enabled: true,
+      },
 
       tooltip: {
         outside: true,
@@ -524,20 +528,6 @@ export default function RealizedPnL({
           text: 'P&L $ (CAD)',
         },
       },
-
-      plotOptions: {
-        column: {
-          zones: [
-            {
-              value: -0.00000001,
-              color: '#FF897C',
-            },
-            {
-              color: '#84C341',
-            },
-          ],
-        },
-      },
     };
   };
 
@@ -559,70 +549,30 @@ export default function RealizedPnL({
   };
 
   const getData = (closedPositions: ClosedPosition[]): Highcharts.SeriesColumnOptions[] => {
-    const gains = {} as { [K: string]: number };
+    function getSeries(type: TransactionType | 'all', values: { [K: string]: number }) {
+      const data = Object.keys(values)
+        .map((date) => ({ date, label: getBarLabel(date), pnl: values[date] }))
+        .filter((value) => value.pnl)
+        .sort((a, b) => moment(a.date).valueOf() - moment(b.date).valueOf())
+        .map((value) => {
+          return {
+            date: value.date,
+            label: value.label,
+            pnl: value.pnl,
+            startDate: moment(value.date).startOf(timeline).format(DATE_DISPLAY_FORMAT),
+            endDate: moment(value.date).endOf(timeline).format(DATE_DISPLAY_FORMAT),
+            color: value.pnl >= 0 ? 'green' : 'red',
+          };
+        });
 
-    if (types.includes('pnl')) {
-      closedPositions.forEach((value) => {
-        const key = value.date.clone().startOf(timeline).format(DATE_FORMAT);
-        gains[key] = gains[key] ? gains[key] + value.pnl : value.pnl;
-      }, gains);
-    }
-
-    if (types.includes('expense')) {
-      const expenses = expenseTransactions.reduce((hash, value) => {
-        const key = value.date.clone().startOf(timeline).format(DATE_FORMAT);
-        hash[key] = hash[key] ? hash[key] + value.amount : value.amount;
-        return hash;
-      }, {} as { [K: string]: number });
-
-      const allDates = new Set(Object.keys(expenses).concat(Object.keys(gains)));
-      allDates.forEach((key) => {
-        const gain = gains[key] || 0;
-        const expense = expenses[key] || 0;
-        gains[key] = gain - expense;
-      });
-    }
-
-    if (types.includes('income')) {
-      const incomes = incomeTransactions.reduce((hash, value) => {
-        const key = value.date.clone().startOf(timeline).format(DATE_FORMAT);
-        hash[key] = hash[key] ? hash[key] + value.amount : value.amount;
-        return hash;
-      }, {} as { [K: string]: number });
-
-      const allDates = new Set(Object.keys(incomes).concat(Object.keys(gains)));
-      allDates.forEach((key) => {
-        const gain = gains[key] || 0;
-        const income = incomes[key] || 0;
-        gains[key] = gain + income;
-      });
-    }
-
-    const data = Object.keys(gains)
-      .map((date) => {
-        return {
-          date,
-          label: getBarLabel(date),
-          pnl: gains[date],
-        };
-      })
-      .filter((value) => value.pnl)
-      .sort((a, b) => moment(a.date).valueOf() - moment(b.date).valueOf())
-      .map((value) => {
-        return {
-          date: value.date,
-          label: value.label,
-          pnl: value.pnl,
-          startDate: moment(value.date).startOf(timeline).format(DATE_DISPLAY_FORMAT),
-          endDate: moment(value.date).endOf(timeline).format(DATE_DISPLAY_FORMAT),
-          color: value.pnl >= 0 ? 'green' : 'red',
-        };
-      });
-
-    const series: Highcharts.SeriesColumnOptions[] = [
-      {
-        name: 'Realized P&L',
+      const name =
+        type === 'pnl' ? 'Realized P&L' : type === 'expense' ? 'Expenses' : type === 'income' ? 'Income' : 'Total';
+      const color =
+        type === 'pnl' ? '#b37feb' : type === 'expense' ? '#ff7875' : type === 'income' ? '#95de64' : '#5cdbd3';
+      const _series: Highcharts.SeriesColumnOptions = {
+        name,
         type: 'column',
+        color,
         data: data.map((value) => ({
           key: value.label,
           name: value.label,
@@ -634,18 +584,58 @@ export default function RealizedPnL({
           endDate: value.endDate,
         })),
         tooltip: {
-          headerFormat: '',
-          pointFormat: `<span style="font-size: 12px;font-weight: 500;">{point.startDate} - {point.endDate}</span>
+          headerFormat: `<span style="font-size: 13px; font-weight: 700;">${name}</span>`,
+          pointFormat: `<hr /><span style="font-size: 12px;font-weight: 500;">{point.startDate} - {point.endDate}</span>
           <br />
-          <b style="color: {point.color};font-size: 14px; font-weight: 700">{point.pnl} CAD</b><br />`,
+          <b style="font-size: 13px; font-weight: 700">{point.pnl} CAD</b><br />`,
         },
-        dataLabels: {
-          enabled: true,
-          format: '{point.pnlHuman}',
-        },
-        showInLegend: false,
-      },
-    ];
+        dataLabels: { enabled: true, format: '{point.pnlHuman}' },
+        showInLegend: types.length > 1,
+      };
+      return _series;
+    }
+
+    const gains = {} as { [K: string]: number };
+    const pnls = {} as { [K: string]: number };
+    const expenses = {} as { [K: string]: number };
+    const incomes = {} as { [K: string]: number };
+
+    if (types.includes('pnl')) {
+      closedPositions.forEach((value) => {
+        const key = value.date.clone().startOf(timeline).format(DATE_FORMAT);
+        pnls[key] = pnls[key] ? pnls[key] + value.pnl : value.pnl;
+      });
+    }
+
+    if (types.includes('expense')) {
+      expenseTransactions.forEach((value) => {
+        const key = value.date.clone().startOf(timeline).format(DATE_FORMAT);
+        expenses[key] = expenses[key] ? expenses[key] - value.amount : -value.amount;
+      });
+    }
+
+    if (types.includes('income')) {
+      incomeTransactions.forEach((value) => {
+        const key = value.date.clone().startOf(timeline).format(DATE_FORMAT);
+        incomes[key] = incomes[key] ? incomes[key] + value.amount : value.amount;
+      });
+    }
+
+    const allDates = new Set(Object.keys(expenses).concat(Object.keys(pnls)).concat(Object.keys(incomes)));
+    allDates.forEach((key) => {
+      gains[key] = (pnls[key] || 0) + (expenses[key] || 0) + (incomes[key] || 0);
+    });
+
+    const series: Highcharts.SeriesColumnOptions[] = [];
+    if (types.length > 1) {
+      series.push(getSeries('all', gains));
+    }
+    series.push(
+      ...types.map((type) => {
+        const values = type === 'pnl' ? pnls : type === 'income' ? incomes : expenses;
+        return getSeries(type, values);
+      }),
+    );
 
     return series;
   };
@@ -693,8 +683,6 @@ export default function RealizedPnL({
     }
 
     const data = Object.values(pnls);
-    console.log('mani is cool', data);
-
     const accountsSeries: Highcharts.SeriesPieOptions = {
       type: 'pie' as 'pie',
       id: 'accounts',

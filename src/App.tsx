@@ -25,7 +25,6 @@ import DepositVsPortfolioValueTimeline from './components/DepositsVsPortfolioVal
 import { Events } from './components/Events';
 import HoldingsCharts from './components/HoldingsCharts';
 import HoldingsTable from './components/HoldingsTable';
-import Interests from './components/Interests';
 import News from './components/News';
 import PnLStatistics from './components/PnLStatistics';
 import PortfolioVisualizer from './components/PortfolioVisualizer';
@@ -396,13 +395,6 @@ class App extends Component<Props, State> {
   }
 
   render() {
-    const fromDate = this.state.fromDate ? moment(this.state.fromDate) : undefined;
-    const expenseTransactions = fromDate
-      ? (this.state.accountTransactions || []).filter(
-          (transaction) => ['interest', 'fee'].includes(transaction.type) && transaction.date.isSameOrAfter(fromDate),
-        )
-      : [];
-
     return (
       <Flex width={1} justifyContent="center">
         <div style={{ padding: 4, maxWidth: this.state.addon ? '100%' : 1100, width: '100%' }}>
@@ -501,15 +493,6 @@ class App extends Component<Props, State> {
                   />
                 </Tabs.TabPane>
 
-                {!!expenseTransactions.length && (
-                  <Tabs.TabPane destroyInactiveTabPane tab="Interest/Fees" key="interest">
-                    <Interests
-                      transactions={expenseTransactions}
-                      accounts={this.state.accounts}
-                      isPrivateMode={this.state.privateMode}
-                    />
-                  </Tabs.TabPane>
-                )}
                 <Tabs.TabPane destroyInactiveTabPane tab="News" key="news">
                   <News positions={this.state.positions} />
                 </Tabs.TabPane>

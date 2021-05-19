@@ -39,8 +39,7 @@ function YoYPnLChart(props: Props) {
         text: 'P&L % Change Over Multiple Time Periods',
       },
       subtitle: {
-        text:
-          'This chart shows how your portfolio had performed in multiple time slices. This chart is inspired based on YoY growth. You might want to see the change in your P&L in the last few days, weeks, months, years etc.,',
+        text: 'This chart shows how your portfolio had performed in multiple time slices. This chart is inspired based on YoY growth. You might want to see the change in your P&L in the last few days, weeks, months, years etc.,',
         style: {
           color: '#1F2A33',
         },
@@ -219,8 +218,6 @@ function YoYPnLChart(props: Props) {
           color: changeRatio >= 0 ? 'green' : 'red',
         };
       });
-
-    console.debug('PnL change data -- ', data);
 
     const series: Highcharts.SeriesColumnOptions[] = [
       {
