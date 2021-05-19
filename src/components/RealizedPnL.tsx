@@ -753,22 +753,10 @@ export default function RealizedPnL({
 
   const typesOptions = useMemo(() => {
     const options: { label: string | React.ReactNode; value: TransactionType }[] = [];
-    if (closePosition.length) {
+    if (closedPositions.length) {
       options.push({ label: 'Realized P/L', value: 'pnl' });
     }
-    if (expenseTransactions.length) {
-      options.push({
-        label: (
-          <>
-            Expenses (Interest, Fee){' '}
-            <Typography.Text type="danger" strong>
-              {formatMoney(totalExpense)} CAD
-            </Typography.Text>
-          </>
-        ),
-        value: 'expense',
-      });
-    }
+
     if (incomeTransactions.length) {
       options.push({
         label: (
@@ -781,6 +769,20 @@ export default function RealizedPnL({
         ),
         value: 'income',
       });
+
+      if (expenseTransactions.length) {
+        options.push({
+          label: (
+            <>
+              Expenses (Interest, Fee){' '}
+              <Typography.Text type="danger" strong>
+                {formatMoney(totalExpense)} CAD
+              </Typography.Text>
+            </>
+          ),
+          value: 'expense',
+        });
+      }
     }
     return options;
   }, [incomeTransactions, expenseTransactions, closedPositions]);
@@ -845,8 +847,8 @@ export default function RealizedPnL({
       </Collapsible>
 
       <RealizedPnLTable closedPositions={closedPositions} isPrivateMode={isPrivateMode} />
-      <ExpensesTable transactions={expenseTransactions} isPrivateMode={isPrivateMode} accountById={accountById} />
       <IncomeTable transactions={incomeTransactions} isPrivateMode={isPrivateMode} accountById={accountById} />
+      <ExpensesTable transactions={expenseTransactions} isPrivateMode={isPrivateMode} accountById={accountById} />
     </>
   ) : (
     <Empty description="No realized gains/loss for the selected time period." />
