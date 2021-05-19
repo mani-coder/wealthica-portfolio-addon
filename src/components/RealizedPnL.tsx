@@ -630,7 +630,7 @@ export default function RealizedPnL({
 
     const allDates = new Set(Object.keys(expenses).concat(Object.keys(pnls)).concat(Object.keys(incomes)));
     allDates.forEach((key) => {
-      gains[key] = (pnls[key] || 0) + (expenses[key] || 0) + (incomes[key] || 0);
+      gains[key] = (pnls[key] || 0) - (expenses[key] || 0) + (incomes[key] || 0);
     });
 
     const series: Highcharts.SeriesColumnOptions[] = [];
