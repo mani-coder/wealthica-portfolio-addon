@@ -10,6 +10,7 @@ import Radio from 'antd/lib/radio';
 import Statistic from 'antd/lib/statistic';
 import Table, { ColumnProps } from 'antd/lib/table';
 import * as Highcharts from 'highcharts';
+import _ from 'lodash';
 import moment, { Moment } from 'moment';
 import 'moment-precise-range-plugin';
 import React, { useMemo, useState } from 'react';
@@ -317,13 +318,18 @@ const IncomeTable = React.memo(
           sorter: (a, b) => a.symbol.localeCompare(b.symbol),
         },
         {
+          key: 'type',
+          title: 'Type',
+          dataIndex: 'type',
+          render: (type) => <Typography.Text strong>{_.startCase(type || '-')}</Typography.Text>,
+        },
+        {
           key: 'income',
-          title: 'Dividend (CAD)',
+          title: 'Income (CAD)',
           dataIndex: 'amount',
           render: (amount) => (isPrivateMode ? '--' : <Typography.Text strong>${formatMoney(amount)}</Typography.Text>),
           align: 'right',
           sorter: (a, b) => a.amount - b.amount,
-          width: 200,
         },
         {
           key: 'description',
