@@ -44,6 +44,7 @@ export type Transaction = {
   type: string;
   price: number;
   shares: number;
+  description: string;
   fees?: number;
   account: string;
   splitRatio?: number;

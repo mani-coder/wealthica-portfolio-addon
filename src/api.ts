@@ -170,6 +170,7 @@ export const parseSecurityTransactionsResponse = (response: any, currencyCache: 
         currency: transaction.security ? transaction.security.currency : 'USD',
         shares: transaction.quantity || 0,
         fees: transaction.fee,
+        description: transaction.description,
         splitRatio,
         securityType: transaction.security?.type,
       };

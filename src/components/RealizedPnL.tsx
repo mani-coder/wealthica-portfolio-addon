@@ -2,10 +2,9 @@
 import ArrowDownOutlined from '@ant-design/icons/ArrowDownOutlined';
 import ArrowUpOutlined from '@ant-design/icons/ArrowUpOutlined';
 import QuestionCircleTwoTone from '@ant-design/icons/QuestionCircleTwoTone';
-import { Switch } from 'antd';
 import Tooltip from 'antd/es/tooltip';
 import Typography from 'antd/es/typography';
-import Card from 'antd/lib/card';
+import Checkbox from 'antd/lib/checkbox';
 import Empty from 'antd/lib/empty';
 import Radio from 'antd/lib/radio';
 import Statistic from 'antd/lib/statistic';
@@ -174,38 +173,177 @@ const RealizedPnLTable = React.memo(
     }
 
     return (
-      <Card
-        title="Realized P&L History"
-        headStyle={{ paddingLeft: 16, fontSize: 18, fontWeight: 'bold' }}
-        style={{ marginTop: 16, marginBottom: 16 }}
-        bodyStyle={{ padding: 0 }}
-      >
-        <Table<ClosedPosition>
-          dataSource={closedPositions}
-          summary={(positions) => {
-            const totalPnL = positions.reduce((pnl, position) => pnl + position.pnl, 0);
+      <div className="zero-padding">
+        <Collapsible title="Realized P&L History" closed>
+          <Table<ClosedPosition>
+            pagination={{ pageSize: 5 }}
+            dataSource={closedPositions}
+            summary={(positions) => {
+              const totalPnL = positions.reduce((pnl, position) => pnl + position.pnl, 0);
 
-            return (
-              <>
-                <Table.Summary.Row>
-                  <Table.Summary.Cell colSpan={5} align="right" index={0}>
-                    <Typography.Text strong>Total</Typography.Text>
-                  </Table.Summary.Cell>
-                  <Table.Summary.Cell index={1} colSpan={3}>
-                    <Typography.Text strong style={{ color: totalPnL > 0 ? 'green' : 'red' }}>
-                      {formatMoney(totalPnL)} CAD
-                    </Typography.Text>
-                  </Table.Summary.Cell>
-                </Table.Summary.Row>
-              </>
-            );
-          }}
-          columns={getColumns()}
-        />
-      </Card>
+              return (
+                <>
+                  <Table.Summary.Row>
+                    <Table.Summary.Cell colSpan={5} align="right" index={0}>
+                      <Typography.Text strong>Total</Typography.Text>
+                    </Table.Summary.Cell>
+                    <Table.Summary.Cell index={1} colSpan={3}>
+                      <Typography.Text strong style={{ color: totalPnL > 0 ? 'green' : 'red' }}>
+                        {formatMoney(totalPnL)} CAD
+                      </Typography.Text>
+                    </Table.Summary.Cell>
+                  </Table.Summary.Row>
+                </>
+              );
+            }}
+            columns={getColumns()}
+          />
+        </Collapsible>
+      </div>
     );
   },
 );
+
+const ExpensesTable = React.memo(
+  ({
+    accountById,
+    transactions,
+    isPrivateMode,
+  }: {
+    accountById: { [K: string]: Account };
+    transactions: AccountTransaction[];
+    isPrivateMode: boolean;
+  }) => {
+    function getColumns(): ColumnProps<AccountTransaction>[] {
+      return [
+        {
+          key: 'date',
+          title: 'Date',
+          dataIndex: 'date',
+          render: (text) => text.format('YYYY-MM-DD'),
+          sorter: (a, b) => a.date.valueOf() - b.date.valueOf(),
+          width: 150,
+        },
+        {
+          key: 'account',
+          title: 'Account',
+          dataIndex: 'account',
+          render: (account) => (accountById[account] ? accountById[account].name : 'N/A'),
+          width: 250,
+        },
+        {
+          key: 'interest',
+          title: 'Interest (CAD)',
+          dataIndex: 'amount',
+          render: (interest) =>
+            isPrivateMode ? '--' : <Typography.Text strong>${formatMoney(interest)}</Typography.Text>,
+          align: 'right',
+          sorter: (a, b) => a.amount - b.amount,
+          width: 200,
+        },
+        {
+          key: 'description',
+          title: 'Description',
+          dataIndex: 'description',
+        },
+      ];
+    }
+
+    return (
+      <div className="zero-padding">
+        <Collapsible title="Expenses History" closed>
+          <Table<AccountTransaction>
+            pagination={{ pageSize: 5 }}
+            dataSource={transactions.reverse()}
+            columns={getColumns()}
+          />
+        </Collapsible>
+      </div>
+    );
+  },
+);
+
+const IncomeTable = React.memo(
+  ({
+    accountById,
+    transactions,
+    isPrivateMode,
+  }: {
+    accountById: { [K: string]: Account };
+    transactions: Transaction[];
+    isPrivateMode: boolean;
+  }) => {
+    function getColumns(): ColumnProps<Transaction>[] {
+      return [
+        {
+          key: 'date',
+          title: 'Date',
+          dataIndex: 'date',
+          render: (text) => text.format('YYYY-MM-DD'),
+          sorter: (a, b) => a.date.valueOf() - b.date.valueOf(),
+          width: 150,
+        },
+        {
+          key: 'account',
+          title: 'Account',
+          dataIndex: 'account',
+          render: (account) => (accountById[account] ? accountById[account].name : 'N/A'),
+          width: 250,
+        },
+        {
+          key: 'symbol',
+          title: 'Symbol',
+          dataIndex: 'symbol',
+          render: (text, transaction) => (
+            <>
+              <Typography.Link
+                rel="noreferrer noopener"
+                href={`https://finance.yahoo.com/quote/${text}`}
+                target="_blank"
+              >
+                {text}
+              </Typography.Link>
+              <div style={{ fontSize: 10 }}>{transaction.currency === 'usd' ? 'USD' : 'CAD'}</div>
+            </>
+          ),
+          width: 125,
+          filters: Array.from(new Set(transactions.map((t) => t.symbol)))
+            .map((value) => ({
+              text: value,
+              value,
+            }))
+            .sort((a, b) => a.value.localeCompare(b.value)),
+          onFilter: (value, transaction) => transaction.symbol.indexOf(value as any) === 0,
+          sorter: (a, b) => a.symbol.localeCompare(b.symbol),
+        },
+        {
+          key: 'income',
+          title: 'Dividend (CAD)',
+          dataIndex: 'amount',
+          render: (amount) => (isPrivateMode ? '--' : <Typography.Text strong>${formatMoney(amount)}</Typography.Text>),
+          align: 'right',
+          sorter: (a, b) => a.amount - b.amount,
+          width: 200,
+        },
+        {
+          key: 'description',
+          title: 'Description',
+          dataIndex: 'description',
+        },
+      ];
+    }
+
+    return (
+      <div className="zero-padding">
+        <Collapsible title="Income History" closed>
+          <Table<Transaction> pagination={{ pageSize: 5 }} dataSource={transactions.reverse()} columns={getColumns()} />
+        </Collapsible>
+      </div>
+    );
+  },
+);
+
+type TransactionType = 'income' | 'pnl' | 'expense';
 
 export default function RealizedPnL({
   currencyCache,
@@ -216,7 +354,7 @@ export default function RealizedPnL({
   fromDate,
 }: Props) {
   const [timeline, setTimeline] = useState<'month' | 'year' | 'week' | 'day'>('month');
-  const [showExpenses, setShowExpenses] = useState<boolean>(false);
+  const [types, setTypes] = useState<TransactionType[]>(['pnl']);
   const [compositionGroup, setCompositionGroup] = useState<GroupType>('type');
   const { expenseTransactions, totalExpense } = useMemo(() => {
     const expenseTransactions = accountTransactions.filter(
@@ -227,7 +365,18 @@ export default function RealizedPnL({
       totalExpense: expenseTransactions.reduce((expense, t) => expense + t.amount, 0),
     };
   }, [transactions, fromDate]);
-  const accountNameById = useMemo(() => {
+
+  const { incomeTransactions, totalIncome } = useMemo(() => {
+    const incomeTransactions = transactions.filter(
+      (transaction) => ['income', 'dividend'].includes(transaction.type) && transaction.date.isSameOrAfter(fromDate),
+    );
+    return {
+      incomeTransactions,
+      totalIncome: incomeTransactions.reduce((expense, t) => expense + t.amount, 0),
+    };
+  }, [transactions, fromDate]);
+
+  const accountById = useMemo(() => {
     return accounts.reduce((hash, account) => {
       hash[account.id] = account;
       return hash;
@@ -247,7 +396,7 @@ export default function RealizedPnL({
 
     const closedPosition = {
       date: transaction.date,
-      account: accountNameById[transaction.account],
+      account: accountById[transaction.account],
       symbol: transaction.symbol,
       currency: transaction.currency,
       shares: closedShares,
@@ -410,13 +559,16 @@ export default function RealizedPnL({
   };
 
   const getData = (closedPositions: ClosedPosition[]): Highcharts.SeriesColumnOptions[] => {
-    const gains = closedPositions.reduce((hash, value) => {
-      const key = value.date.clone().startOf(timeline).format(DATE_FORMAT);
-      hash[key] = hash[key] ? hash[key] + value.pnl : value.pnl;
-      return hash;
-    }, {} as { [K: string]: number });
+    const gains = {} as { [K: string]: number };
 
-    if (showExpenses) {
+    if (types.includes('pnl')) {
+      closedPositions.forEach((value) => {
+        const key = value.date.clone().startOf(timeline).format(DATE_FORMAT);
+        gains[key] = gains[key] ? gains[key] + value.pnl : value.pnl;
+      }, gains);
+    }
+
+    if (types.includes('expense')) {
       const expenses = expenseTransactions.reduce((hash, value) => {
         const key = value.date.clone().startOf(timeline).format(DATE_FORMAT);
         hash[key] = hash[key] ? hash[key] + value.amount : value.amount;
@@ -428,6 +580,21 @@ export default function RealizedPnL({
         const gain = gains[key] || 0;
         const expense = expenses[key] || 0;
         gains[key] = gain - expense;
+      });
+    }
+
+    if (types.includes('income')) {
+      const incomes = incomeTransactions.reduce((hash, value) => {
+        const key = value.date.clone().startOf(timeline).format(DATE_FORMAT);
+        hash[key] = hash[key] ? hash[key] + value.amount : value.amount;
+        return hash;
+      }, {} as { [K: string]: number });
+
+      const allDates = new Set(Object.keys(incomes).concat(Object.keys(gains)));
+      allDates.forEach((key) => {
+        const gain = gains[key] || 0;
+        const income = incomes[key] || 0;
+        gains[key] = gain + income;
       });
     }
 
@@ -451,8 +618,6 @@ export default function RealizedPnL({
           color: value.pnl >= 0 ? 'green' : 'red',
         };
       });
-
-    console.debug('Realized Gains data -- ', data);
 
     const series: Highcharts.SeriesColumnOptions[] = [
       {
@@ -490,20 +655,22 @@ export default function RealizedPnL({
     closedPnL: number,
     group: GroupType,
   ): Highcharts.SeriesPieOptions[] => {
-    const pnls = closedPositions.reduce((hash, position) => {
-      const name = getGroupKey(group, position.account);
-      let mergedAccount = hash[name];
-      if (!mergedAccount) {
-        mergedAccount = { name, pnl: 0 };
-        hash[name] = mergedAccount;
-      }
-      mergedAccount.pnl += position.pnl;
-      return hash;
-    }, {} as { [K: string]: { name: string; pnl: number } });
+    const pnls = {} as { [K: string]: { name: string; pnl: number } };
+    if (types.includes('pnl')) {
+      closedPositions.forEach((position) => {
+        const name = getGroupKey(group, position.account);
+        let mergedAccount = pnls[name];
+        if (!mergedAccount) {
+          mergedAccount = { name, pnl: 0 };
+          pnls[name] = mergedAccount;
+        }
+        mergedAccount.pnl += position.pnl;
+      });
+    }
 
-    if (showExpenses) {
+    if (types.includes('expense')) {
       expenseTransactions.forEach((t) => {
-        const name = getGroupKey(group, accountNameById[t.account]);
+        const name = getGroupKey(group, accountById[t.account]);
         let mergedAccount = pnls[name];
         if (!mergedAccount) {
           mergedAccount = { name, pnl: 0 };
@@ -512,7 +679,21 @@ export default function RealizedPnL({
         mergedAccount.pnl -= t.amount;
       });
     }
+
+    if (types.includes('income')) {
+      incomeTransactions.forEach((t) => {
+        const name = getGroupKey(group, accountById[t.account]);
+        let mergedAccount = pnls[name];
+        if (!mergedAccount) {
+          mergedAccount = { name, pnl: 0 };
+          pnls[name] = mergedAccount;
+        }
+        mergedAccount.pnl += t.amount;
+      });
+    }
+
     const data = Object.values(pnls);
+    console.log('mani is cool', data);
 
     const accountsSeries: Highcharts.SeriesPieOptions = {
       type: 'pie' as 'pie',
@@ -560,19 +741,56 @@ export default function RealizedPnL({
   }, [transactions, accounts, fromDate]);
 
   const closedPnL = useMemo(() => {
-    const pnl = closedPositions.reduce((pnl, position) => pnl + position.pnl, 0);
-    return pnl - (showExpenses ? totalExpense : 0);
-  }, [closedPositions, showExpenses]);
+    return (
+      (types.includes('pnl') ? closedPositions.reduce((pnl, position) => pnl + position.pnl, 0) : 0) -
+      (types.includes('expense') ? totalExpense : 0) +
+      (types.includes('income') ? totalIncome : 0)
+    );
+  }, [closedPositions, types, totalExpense, totalIncome]);
 
   const options = useMemo(() => {
     return getOptions({ series: getData(closedPositions) });
-  }, [closedPositions, timeline, showExpenses]);
+  }, [closedPositions, timeline, types]);
 
   const accountSeriesOptions = useMemo(() => {
     return getOptions({ series: getClosedPnLByAccountSeries(closedPositions, closedPnL, compositionGroup) });
-  }, [closedPositions, closedPnL, compositionGroup, showExpenses]);
+  }, [closedPositions, closedPnL, compositionGroup, types]);
 
-  return !!closedPositions.length ? (
+  const typesOptions = useMemo(() => {
+    const options: { label: string | React.ReactNode; value: TransactionType }[] = [];
+    if (closePosition.length) {
+      options.push({ label: 'Realized P/L', value: 'pnl' });
+    }
+    if (expenseTransactions.length) {
+      options.push({
+        label: (
+          <>
+            Expenses (Interest, Fee){' '}
+            <Typography.Text type="danger" strong>
+              {formatMoney(totalExpense)} CAD
+            </Typography.Text>
+          </>
+        ),
+        value: 'expense',
+      });
+    }
+    if (incomeTransactions.length) {
+      options.push({
+        label: (
+          <>
+            Income (Dividends){' '}
+            <Typography.Text type="success" strong>
+              {formatMoney(totalIncome)} CAD
+            </Typography.Text>
+          </>
+        ),
+        value: 'income',
+      });
+    }
+    return options;
+  }, [incomeTransactions, expenseTransactions, closedPositions]);
+
+  return typesOptions.length > 0 ? (
     <>
       <Flex mt={2} mb={3} justifyContent="center">
         <Statistic
@@ -583,7 +801,8 @@ export default function RealizedPnL({
           prefix={closedPnL >= 0 ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
         />
       </Flex>
-      {totalExpense && (
+
+      {typesOptions.length > 0 && (
         <Flex
           mb={3}
           mt={2}
@@ -593,17 +812,14 @@ export default function RealizedPnL({
           justifyItems="center"
           alignItems="center"
         >
-          <Switch
-            checked={showExpenses}
-            onChange={(checked) => {
-              setShowExpenses(checked);
-              trackEvent('show-expenses', { checked });
+          <Checkbox.Group
+            options={typesOptions}
+            value={types}
+            onChange={(checkedValues) => {
+              setTypes(checkedValues as TransactionType[]);
+              trackEvent('realized-pnl-types', { types: checkedValues });
             }}
           />
-          <Box px={1} />
-          <Typography.Text strong style={{ fontSize: 17 }}>
-            Minus <Typography.Text mark>{formatMoney(totalExpense)} CAD</Typography.Text> Interest/Fee
-          </Typography.Text>
         </Flex>
       )}
 
@@ -634,8 +850,10 @@ export default function RealizedPnL({
       </Collapsible>
 
       <RealizedPnLTable closedPositions={closedPositions} isPrivateMode={isPrivateMode} />
+      <ExpensesTable transactions={expenseTransactions} isPrivateMode={isPrivateMode} accountById={accountById} />
+      <IncomeTable transactions={incomeTransactions} isPrivateMode={isPrivateMode} accountById={accountById} />
     </>
   ) : (
-    <Empty description="No realized gains for the selected time period." />
+    <Empty description="No realized gains/loss for the selected time period." />
   );
 }
