@@ -530,7 +530,7 @@ export default function RealizedPnL({
           enabled: !isPrivateMode,
         },
         title: {
-          text: 'P&L $ (CAD)',
+          text: '$ (CAD)',
         },
       },
     };
@@ -638,18 +638,15 @@ export default function RealizedPnL({
       gains[key] = (pnls[key] || 0) - (expenses[key] || 0) + (incomes[key] || 0);
     });
 
-    const series: Highcharts.SeriesColumnOptions[] = [];
-    if (types.length > 1) {
-      series.push(getSeries('all', gains));
-    }
-    series.push(
-      ...types.map((type) => {
-        const values = type === 'pnl' ? pnls : type === 'income' ? incomes : expenses;
-        return getSeries(type, values);
-      }),
-    );
+    const individualSeries: Highcharts.SeriesColumnOptions[] = [];
+    types.forEach((type) => {
+      const values = type === 'pnl' ? pnls : type === 'income' ? incomes : expenses;
+      if (Object.keys(values).length) {
+        individualSeries.push(getSeries(type, values));
+      }
+    });
 
-    return series;
+    return individualSeries.length === 1 ? individualSeries : [getSeries('all', gains)].concat(individualSeries);
   };
 
   const getClosedPnLByAccountSeries = (
@@ -741,11 +738,7 @@ export default function RealizedPnL({
   }, [transactions, accounts, fromDate]);
 
   function getDefaultTypes(): TransactionType[] {
-    const types: TransactionType[] = ['pnl'];
-    if (!closedPositions.length) {
-      types.push(incomeTransactions.length ? 'income' : 'expense');
-    }
-    return types;
+    return [closedPositions.length ? 'pnl' : incomeTransactions.length ? 'income' : 'expense'];
   }
   const [types, setTypes] = useState<TransactionType[]>(getDefaultTypes);
 
@@ -767,7 +760,7 @@ export default function RealizedPnL({
   }, [closedPositions, closedPnL, compositionGroup, types]);
 
   const typesOptions = useMemo(() => {
-    const options: { label: string | React.ReactNode; value: TransactionType }[] = [];
+    const options: { disabled?: boolean; label: string | React.ReactNode; value: TransactionType }[] = [];
 
     options.push({
       label: (
@@ -779,34 +772,37 @@ export default function RealizedPnL({
         </>
       ),
       value: 'pnl',
+      disabled: !closedPositions.length,
     });
 
     options.push({
       label: (
         <>
           Income (Dividends){' '}
-          <Typography.Text type={totalIncome ? 'success' : 'secondary'} strong>
+          <Typography.Text type={totalIncome ? 'success' : 'secondary'} strong={totalIncome > 0}>
             {formatMoney(totalIncome)} CAD
           </Typography.Text>
         </>
       ),
       value: 'income',
+      disabled: !incomeTransactions.length,
     });
 
     options.push({
       label: (
         <>
           Expenses (Interest, Fee){' '}
-          <Typography.Text type={totalExpense ? 'danger' : 'secondary'} strong>
+          <Typography.Text type={totalExpense ? 'danger' : 'secondary'} strong={totalExpense > 0}>
             {formatMoney(totalExpense)} CAD
           </Typography.Text>
         </>
       ),
       value: 'expense',
+      disabled: !expenseTransactions.length,
     });
 
     return options;
-  }, [realizedPnL, totalIncome, totalExpense]);
+  }, [closedPositions, incomeTransactions, expenseTransactions]);
 
   const show = closedPositions.length > 0 || incomeTransactions.length > 0 || expenseTransactions.length > 0;
   return show ? (
@@ -866,9 +862,15 @@ export default function RealizedPnL({
         <CompositionGroup changeGroup={setCompositionGroup} group={compositionGroup} tracker="realized-pnl-group" />
       </Collapsible>
 
-      <RealizedPnLTable closedPositions={closedPositions} isPrivateMode={isPrivateMode} />
-      <IncomeTable transactions={incomeTransactions} isPrivateMode={isPrivateMode} accountById={accountById} />
-      <ExpensesTable transactions={expenseTransactions} isPrivateMode={isPrivateMode} accountById={accountById} />
+      {closedPositions.length > 0 && (
+        <RealizedPnLTable closedPositions={closedPositions} isPrivateMode={isPrivateMode} />
+      )}
+      {incomeTransactions.length > 0 && (
+        <IncomeTable transactions={incomeTransactions} isPrivateMode={isPrivateMode} accountById={accountById} />
+      )}
+      {expenseTransactions.length > 0 && (
+        <ExpensesTable transactions={expenseTransactions} isPrivateMode={isPrivateMode} accountById={accountById} />
+      )}
     </>
   ) : (
     <Empty description="No realized gains/loss/income/expenses for the selected time period." />
