@@ -741,17 +741,21 @@ export default function RealizedPnL({
   }, [transactions, accounts, fromDate]);
 
   function getDefaultTypes(): TransactionType[] {
-    return [closedPositions.length ? 'pnl' : incomeTransactions.length ? 'income' : 'expense'];
+    const types: TransactionType[] = ['pnl'];
+    if (!closedPositions.length) {
+      types.push(incomeTransactions.length ? 'income' : 'expense');
+    }
+    return types;
   }
-
   const [types, setTypes] = useState<TransactionType[]>(getDefaultTypes);
 
-  const closedPnL = useMemo(() => {
-    return (
-      (types.includes('pnl') ? closedPositions.reduce((pnl, position) => pnl + position.pnl, 0) : 0) -
+  const { closedPnL, realizedPnL } = useMemo(() => {
+    const realizedPnL = closedPositions.reduce((pnl, position) => pnl + position.pnl, 0);
+    const closedPnL =
+      (types.includes('pnl') ? realizedPnL : 0) -
       (types.includes('expense') ? totalExpense : 0) +
-      (types.includes('income') ? totalIncome : 0)
-    );
+      (types.includes('income') ? totalIncome : 0);
+    return { realizedPnL, closedPnL };
   }, [closedPositions, types, totalExpense, totalIncome]);
 
   const options = useMemo(() => {
@@ -764,41 +768,48 @@ export default function RealizedPnL({
 
   const typesOptions = useMemo(() => {
     const options: { label: string | React.ReactNode; value: TransactionType }[] = [];
-    if (closedPositions.length) {
-      options.push({ label: 'Realized P/L', value: 'pnl' });
-    }
 
-    if (incomeTransactions.length) {
-      options.push({
-        label: (
-          <>
-            Income (Dividends){' '}
-            <Typography.Text type="success" strong>
-              {formatMoney(totalIncome)} CAD
-            </Typography.Text>
-          </>
-        ),
-        value: 'income',
-      });
+    options.push({
+      label: (
+        <>
+          Realized P&L{' '}
+          <Typography.Text type={realizedPnL > 0 ? 'success' : realizedPnL < 0 ? 'danger' : 'secondary'} strong>
+            {formatMoney(realizedPnL)} CAD
+          </Typography.Text>
+        </>
+      ),
+      value: 'pnl',
+    });
 
-      if (expenseTransactions.length) {
-        options.push({
-          label: (
-            <>
-              Expenses (Interest, Fee){' '}
-              <Typography.Text type="danger" strong>
-                {formatMoney(totalExpense)} CAD
-              </Typography.Text>
-            </>
-          ),
-          value: 'expense',
-        });
-      }
-    }
+    options.push({
+      label: (
+        <>
+          Income (Dividends){' '}
+          <Typography.Text type={totalIncome ? 'success' : 'secondary'} strong>
+            {formatMoney(totalIncome)} CAD
+          </Typography.Text>
+        </>
+      ),
+      value: 'income',
+    });
+
+    options.push({
+      label: (
+        <>
+          Expenses (Interest, Fee){' '}
+          <Typography.Text type={totalExpense ? 'danger' : 'secondary'} strong>
+            {formatMoney(totalExpense)} CAD
+          </Typography.Text>
+        </>
+      ),
+      value: 'expense',
+    });
+
     return options;
-  }, [incomeTransactions, expenseTransactions, closedPositions]);
+  }, [realizedPnL, totalIncome, totalExpense]);
 
-  return typesOptions.length > 0 ? (
+  const show = closedPositions.length > 0 || incomeTransactions.length > 0 || expenseTransactions.length > 0;
+  return show ? (
     <>
       <Flex mt={2} mb={3} justifyContent="center">
         <Statistic
@@ -810,26 +821,24 @@ export default function RealizedPnL({
         />
       </Flex>
 
-      {typesOptions.length > 0 && (
-        <Flex
-          mb={3}
-          mt={2}
-          width={1}
-          justifyContent="center"
-          alignContent="center"
-          justifyItems="center"
-          alignItems="center"
-        >
-          <Checkbox.Group
-            options={typesOptions}
-            value={types}
-            onChange={(checkedValues) => {
-              setTypes(checkedValues as TransactionType[]);
-              trackEvent('realized-pnl-types', { types: checkedValues });
-            }}
-          />
-        </Flex>
-      )}
+      <Flex
+        mb={3}
+        mt={2}
+        width={1}
+        justifyContent="center"
+        alignContent="center"
+        justifyItems="center"
+        alignItems="center"
+      >
+        <Checkbox.Group
+          options={typesOptions}
+          value={types}
+          onChange={(checkedValues) => {
+            setTypes(checkedValues as TransactionType[]);
+            trackEvent('realized-pnl-types', { types: checkedValues });
+          }}
+        />
+      </Flex>
 
       <Charts key={timeline} options={options} />
 
@@ -862,6 +871,6 @@ export default function RealizedPnL({
       <ExpensesTable transactions={expenseTransactions} isPrivateMode={isPrivateMode} accountById={accountById} />
     </>
   ) : (
-    <Empty description="No realized gains/loss for the selected time period." />
+    <Empty description="No realized gains/loss/income/expenses for the selected time period." />
   );
 }
