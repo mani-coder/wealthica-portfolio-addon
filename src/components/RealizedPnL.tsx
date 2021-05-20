@@ -382,8 +382,6 @@ export default function RealizedPnL({
   }, [transactions, fromDate]);
   const [compositionGroup, setCompositionGroup] = useState<GroupType>('type');
 
-  const [types, setTypes] = useState<TransactionType[]>(['pnl', 'income', 'expense']);
-
   const accountById = useMemo(() => {
     return accounts.reduce((hash, account) => {
       hash[account.id] = account;
@@ -742,6 +740,12 @@ export default function RealizedPnL({
     return computeClosedPositions();
   }, [transactions, accounts, fromDate]);
 
+  function getDefaultTypes(): TransactionType[] {
+    return [closedPositions.length ? 'pnl' : incomeTransactions.length ? 'income' : 'expense'];
+  }
+
+  const [types, setTypes] = useState<TransactionType[]>(getDefaultTypes);
+
   const closedPnL = useMemo(() => {
     return (
       (types.includes('pnl') ? closedPositions.reduce((pnl, position) => pnl + position.pnl, 0) : 0) -
@@ -818,7 +822,7 @@ export default function RealizedPnL({
         >
           <Checkbox.Group
             options={typesOptions}
-            defaultValue={[typesOptions[0].value]}
+            value={types}
             onChange={(checkedValues) => {
               setTypes(checkedValues as TransactionType[]);
               trackEvent('realized-pnl-types', { types: checkedValues });
