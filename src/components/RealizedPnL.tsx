@@ -360,8 +360,6 @@ export default function RealizedPnL({
   fromDate,
 }: Props) {
   const [timeline, setTimeline] = useState<'month' | 'year' | 'week' | 'day'>('month');
-  const [types, setTypes] = useState<TransactionType[]>(['pnl']);
-  const [compositionGroup, setCompositionGroup] = useState<GroupType>('type');
   const { expenseTransactions, totalExpense } = useMemo(() => {
     const expenseTransactions = accountTransactions.filter(
       (transaction) => ['interest', 'fee'].includes(transaction.type) && transaction.date.isSameOrAfter(fromDate),
@@ -382,6 +380,13 @@ export default function RealizedPnL({
       totalIncome: incomeTransactions.reduce((expense, t) => expense + t.amount, 0),
     };
   }, [transactions, fromDate]);
+  const [compositionGroup, setCompositionGroup] = useState<GroupType>('type');
+
+  function getDefaultTypes(): TransactionType[] {
+    return [closedPositions.length ? 'pnl' : incomeTransactions.length ? 'income' : 'expense'];
+  }
+
+  const [types, setTypes] = useState<TransactionType[]>(getDefaultTypes);
 
   const accountById = useMemo(() => {
     return accounts.reduce((hash, account) => {
