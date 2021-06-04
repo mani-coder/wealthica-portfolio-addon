@@ -48,8 +48,11 @@ export default function StockDetails(props: Props) {
   return (
     <Flex flexDirection="column" p={2}>
       <LabelValue label="Symbol" value={getSymbol(position.security)} />
+
+      <LabelValue label="Book Value" value={`CAD ${props.isPrivateMode ? '-' : formatMoney(position.book_value)}`} />
+
       <LabelValue
-        label="Value"
+        label="Market Value"
         value={`CAD ${props.isPrivateMode ? '-' : formatMoney(position.market_value)} (${(position.market_value
           ? (position.market_value / marketValue) * 100
           : 0
@@ -62,7 +65,7 @@ export default function StockDetails(props: Props) {
           ? position.gain_percent * 100
           : position.gain_percent || 0
         ).toFixed(2)}%)`}
-        valueProps={{ type: position.gain_percent > 0 ? undefined : 'danger' }}
+        valueProps={{ type: position.gain_percent > 0 ? 'success' : 'danger', strong: true }}
       />
       <LabelValue label="Shares" value={`${position.quantity}`} />
 
