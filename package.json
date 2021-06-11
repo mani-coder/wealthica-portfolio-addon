@@ -21,8 +21,7 @@
   },
   "scripts": {
     "start": "craco start",
-    "build": "craco build",
-    "predeploy": "yarn run build",
+    "build": "NODE_ENV=production craco build",
     "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
