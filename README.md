@@ -1,27 +1,15 @@
-## Wealthica Developer Add-on (Portfolio vs Deposits analyser)
+# DEPRECATED
 
-Wealthica addon to compare the portfolio value against the total deposits made as of the date. This add-on has been added to the Wealthica's trusted third party addons -- https://app.wealthica.com/addons/details?id=mani-coder/wealthica-portfolio-addon.
+This repository is deprecated in favor of the new consolidated [mani-coder/wealthica-addons](https://github.com/mani-coder/wealthica-addons) repository.
 
-Steps to load the addon:
+[This](https://github.com/mani-coder/wealthica-addons/tree/master/addon/pnl) is the location of the widget in the new repo. The widget can be loaded as a developer widget using [this](https://mani-coder.dev/mani-coder/wealthica-portfolio-addon/?developer) URL.
 
-1. Sign in into your Wealthica account
-2. Go to addons page -- https://app.wealthica.com/addons/
-3. Click P&L Timeline addon and install -- https://app.wealthica.com/addons/details?id=mani-coder/wealthica-portfolio-addon
+New Widget code: https://github.com/mani-coder/wealthica-addons/tree/master/addon/pnl
 
-You can take a quick look at the charts using the demo data.
+Sample Widget: https://mani-coder.dev/mani-coder/wealthica-portfolio-addon/?developer
 
-Hope this add-on is useful to you!
+## Migration
 
-##### Note: PnL % change chart of this add-on is available as a developer widget [here](https://github.com/mani-coder/wealthica-pnl-widget).</b>
+If you have been using this add-on as a developer addon, you can migrate to the new addon URL by simply changing the URL to https://mani-coder.dev/mani-coder/wealthica-portfolio-addon/?developer in the configure panel.
 
-## Samples
-
-![Deposits Vs Portfolio](https://raw.githubusercontent.com/mani-coder/wealthica-portfolio-addon/master/public/samples/Deposits%20Vs%20Portfolio%20Value.png)
-
-![P&L Percentage Timeline](https://raw.githubusercontent.com/mani-coder/wealthica-portfolio-addon/master/public/samples/P%3AL%20Ratio%20Timeline.png)
-
-![P&L Value Timeline](https://raw.githubusercontent.com/mani-coder/wealthica-portfolio-addon/master/public/samples/P%3AL%20Value%20Timeline.png)
-
-![Holdings Chart](https://raw.githubusercontent.com/mani-coder/wealthica-portfolio-addon/master/public/samples/Holdings%20Charts.png)
-
-![Stock Timeline With Transactions](https://raw.githubusercontent.com/mani-coder/wealthica-portfolio-addon/master/public/samples/Stock%20Timeline%20showing%20the%20transactions.png)
+Please note that the current https://mani-coder.github.io/wealthica-portfolio-addon/ addon page associated with this repository won't be updated going forward.
