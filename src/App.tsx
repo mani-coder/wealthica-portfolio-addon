@@ -2,6 +2,7 @@ import { Addon } from '@wealthica/wealthica.js/index';
 import { Badge } from 'antd';
 import Typography from 'antd/es/typography';
 import Text from 'antd/es/typography/Text';
+import Alert from 'antd/es/alert';
 import Empty from 'antd/lib/empty';
 import Spin from 'antd/lib/spin';
 import Tabs from 'antd/lib/tabs';
@@ -398,6 +399,28 @@ class App extends Component<Props, State> {
     return (
       <Flex width={1} justifyContent="center">
         <div style={{ padding: 4, maxWidth: this.state.addon ? '100%' : 1100, width: '100%' }}>
+          <Flex py={2} width="100%" justifyContent="center">
+            <Alert
+              style={{ width: '100%' }}
+              type="warning"
+              message="DEPRECATED"
+              description={
+                <>
+                  <Typography.Text type="warning" strong>
+                    This addon is deprecated and has been moved to a new URL.{' '}
+                  </Typography.Text>
+                  <Typography.Link
+                    href="https://github.com/mani-coder/wealthica-portfolio-addon#migration"
+                    target="_blank"
+                  >
+                    Read More about the migration guide.
+                  </Typography.Link>
+                </>
+              }
+              showIcon
+            />
+          </Flex>
+
           {this.state.isLoaded ? (
             <>
               {!this.state.addon && (
