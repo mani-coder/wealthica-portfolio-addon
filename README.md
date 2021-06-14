@@ -2,11 +2,9 @@
 
 This repository is deprecated in favor of the new consolidated [mani-coder/wealthica-addons](https://github.com/mani-coder/wealthica-addons) repository.
 
-[This](https://github.com/mani-coder/wealthica-addons/tree/master/addon/pnl) is the location of the widget in the new repo. The widget can be loaded as a developer widget using [this](https://wealthica.mani-coder.dev/mani-coder/wealthica-portfolio-addon/?developer) URL.
+New Addon code: https://github.com/mani-coder/wealthica-addons/tree/master/addon/pnl
 
-New Widget code: https://github.com/mani-coder/wealthica-addons/tree/master/addon/pnl
-
-Sample Widget: https://wealthica.mani-coder.dev/mani-coder/wealthica-portfolio-addon/?developer
+Addon Sample: https://wealthica.mani-coder.dev/mani-coder/wealthica-portfolio-addon/?developer
 
 ## Migration
 
